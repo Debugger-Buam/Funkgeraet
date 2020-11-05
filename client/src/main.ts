@@ -1,3 +1,5 @@
+import "./main.scss";
+
 export default class Main {
 
     constructor() {
