@@ -25,8 +25,8 @@ export class PeerConnection {
                 {urls: process.env.STUN_SERVER_URL}
             ]
         })
-        this.rtcPeerConnection.onnegotiationneeded = this.handleNegotiationNeededEvent;
-        this.socketServer.addOnMessageEventListener(this.handleSocketOnMessageEvent);
+        this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
+        this.socketServer.addOnMessageEventListener(event => this.handleSocketOnMessageEvent(event));
     }
 
     initialize(targetUser: User) {

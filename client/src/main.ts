@@ -1,10 +1,10 @@
 import "./main.scss";
+import {MainRoom} from "./Room/MainRoom";
 
-export default class Main {
-
+class Main {
     constructor() {
-        console.log('hello world ! ');
+        new MainRoom();
     }
 }
 
-new Main();
+const main = new Main();

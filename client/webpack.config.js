@@ -15,8 +15,16 @@ module.exports = {
                     // Compiles Sass to CSS
                     'sass-loader',
                 ],
+            },
+            {
+                test: /\.ts$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
             }
         ],
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
     },
     plugins: [
         new Dotenv()
