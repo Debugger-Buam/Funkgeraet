@@ -1,33 +1,16 @@
+const path = require('path');
+
 module.exports = {
     entry: './src/main.ts',
-    devtool: 'inline-source-map',
-    module: {
-        rules: [
-            {
-                test: /\.ts$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
-            }
-        ]
-    },
-    resolve: {
-        extensions: ['.js', '.ts']
-    },
+    devtool: 'source-map',
+    mode: 'development',
     output: {
-        path: `${__dirname}/dist/js`,
-        publicPath: 'js/',
-        filename: 'main.js'
+        path: path.resolve(__dirname, 'dist/js'),
+        filename: 'bundle.js'
     },
     devServer: {
-        contentBase: [`${__dirname}/dist`, `${__dirname}/static/`],
-        //publicPath: 'build/',
-        //open: true,
-        //port: 4001,
-        //disableHostCheck: true,
-        //watchContentBase: true
-    },
-    optimization: {
-        minimize: false
-    },
-    mode: 'development'
+        contentBase: [path.resolve(__dirname, 'static')],
+        open: true,
+        watchContentBase: true
+    }
 };
