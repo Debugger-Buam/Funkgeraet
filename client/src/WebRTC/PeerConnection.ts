@@ -26,6 +26,7 @@ export class PeerConnection {
             ]
         })
         this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
+        // TODO: handle other events of rtcpeer connection too (especially ICE candidate handling!)
         this.socketServer.addOnMessageEventListener(event => this.handleSocketOnMessageEvent(event));
     }
 
