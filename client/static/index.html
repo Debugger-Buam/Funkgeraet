@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>DBZoom</title>
     <script src="bundle.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
+    <input id="username" placeholder="Username" />
     <button id="login">Login</button>
     <button id="connect">Connect</button>
     <video id="local_video"></video>
     <video id="received_video"></video>
-</body>
+
+    <div class="chat-container">
+      <ul id="chat"></ul>
+    </div>
+
+    <input id="chat-message" placeholder="Chat message" />
+    <button id="sent-chat">Send</button>
+
+  </body>
 </html>

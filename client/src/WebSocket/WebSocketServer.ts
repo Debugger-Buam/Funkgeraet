@@ -1,44 +1,91 @@
-import {Log} from "../Util/Log";
+import { Log } from "../Util/Log";
+
 import {
-    WebSocketMessage,
-    WebSocketMessageInitMessage,
-    WebSocketMessageType,
-    WebSocketPeerConnectionSdpMessage
-} from "./WebSocketMessage";
-import {Optional} from "typescript-optional";
-import {WebSocketConnection} from "./WebSocketConnection";
+  WebSocketMessage,
+  InitMessage,
+  WebSocketMessageType,
+  WebSocketPeerConnectionSdpMessage,
+  SetNameMessage,
+  ChatMessage,
+} from "../../../shared/Messages";
+
+import { Optional } from "typescript-optional";
+import { WebSocketConnection } from "./WebSocketConnection";
+import { User } from "../../../shared/User";
 
 export class WebSocketServer {
-    private readonly socket: WebSocket;
-    private connection: Optional<WebSocketConnection> = Optional.empty();
+  private socket: Optional<WebSocket> = Optional.empty();
+  private connection: Optional<WebSocketConnection> = Optional.empty();
 
-    constructor() {
-        if (!process.env.WEB_SOCKET_SERVER_URL) {
-            throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
+  connect(username: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!process.env.WEB_SOCKET_SERVER_URL) {
+        throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
+      }
+
+      let socket = new WebSocket(process.env.WEB_SOCKET_SERVER_URL, "json");
+
+      socket.onerror = (event: Event) => {
+        Log.error("Socket.onerror", event);
+        reject(event);
+      };
+
+      socket.onmessage = (event: MessageEvent) => {
+        const message: WebSocketMessage = JSON.parse(event.data);
+
+        console.log(message);
+
+        // Message Handler
+
+        switch (message.type) {
+          case WebSocketMessageType.ID: {
+            const initMessage = message as InitMessage;
+
+            this.connection = Optional.of({
+              id: initMessage.clientId,
+              user: new User(username),
+            });
+            socket.send(new SetNameMessage(username).pack());
+
+            resolve();
+            break;
+          }
+
+          case WebSocketMessageType.CHAT: {
+            const chatMessage = message as ChatMessage;
+            this.onChatMessageReceived(chatMessage)
+            break;
+          }
         }
-        this.socket = new WebSocket(process.env.WEB_SOCKET_SERVER_URL, "json");
-        this.socket.onerror = (event: Event) => {
-            Log.error("Socket.onerror", event);
-        }
 
-        this.socket.onmessage = (event: MessageEvent) => {
-            const message: WebSocketMessage = JSON.parse(event.data);
-            switch (message.type) {
-                case WebSocketMessageType.ID: { // TODO: where do we even need the ID?
-                    this.connection = Optional.of({id: (message as WebSocketMessageInitMessage).clientId});
-                    break;
-                }
-            }
-        };
-    }
+        this.socket = Optional.of(socket);
+      };
+    });
+  }
 
-    addOnMessageEventListener(listener: (evt: MessageEvent) => any) {
-        // TODO: probably would be cleaner subscribing events directly on WebSocketServer and only parsing message once
-        // but you'd need an own event system for that, native events only work on DOM objects.
-        this.socket.addEventListener("message", listener);
-    }
+  sendChatMessage(message: string) {
+    const username = this.connection.get().user.name;
+    this.socket.get().send(new ChatMessage(username, message).pack());
+  }
 
-    send(message: WebSocketPeerConnectionSdpMessage) {
-        this.socket.send(JSON.stringify(message));
-    }
+  addOnMessageEventListener(listener: (evt: MessageEvent) => any) {
+    // TODO: probably would be cleaner subscribing events directly on WebSocketServer and only parsing message once
+    // but you'd need an own event system for that, native events only work on DOM objects.
+
+    this.socket.get().addEventListener("message", listener);
+  }
+
+  send(message: WebSocketPeerConnectionSdpMessage) {
+    this.socket.get().send(JSON.stringify(message));
+  }
+
+  private onChatMessageReceived(message: ChatMessage) {
+    const chatList = document.getElementById("chat");
+
+    var el = document.createElement('li');
+    el.innerText = `${message.username} - ${message.message}`;
+
+    chatList?.appendChild(el)
+
+  }
 }
