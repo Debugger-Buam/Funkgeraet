@@ -7,19 +7,19 @@ export abstract class BaseMessage {
 }
 
 export class InitMessage extends BaseMessage {
-  constructor(public clientId: number) {
+  constructor(public readonly clientId: number) {
     super(WebSocketMessageType.ID);
   }
 }
 
 export class SetNameMessage extends BaseMessage {
-  constructor(public username: string) {
+  constructor(public readonly username: string) {
     super(WebSocketMessageType.SET_NAME);
   }
 }
 
 export class ChatMessage extends BaseMessage {
-  constructor(public username: string, public readonly message: string) {
+  constructor(public readonly username: string, public readonly message: string) {
     super(WebSocketMessageType.CHAT);
   }
 }

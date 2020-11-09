@@ -26,7 +26,7 @@ export class WebSocketServer {
       socket.onmessage = (event: MessageEvent) => {
         const message: BaseMessage = JSON.parse(event.data);
 
-        console.log(message);
+        Log.info("Socket.onmessage", message);
 
         // Message Handler
 
@@ -57,7 +57,11 @@ export class WebSocketServer {
   }
 
   sendChatMessage(message: string) {
-    this.socket.get().send(new ChatMessage(this.connection.get().user.name, message).pack());
+    this.send(new ChatMessage(this.connection.get().user.name, message));
+  }
+
+  send(message: BaseMessage) {
+    this.socket.get().send(message.pack());
   }
 
   addOnMessageEventListener(listener: (evt: MessageEvent) => any) {
@@ -65,10 +69,6 @@ export class WebSocketServer {
     // but you'd need an own event system for that, native events only work on DOM objects.
 
     this.socket.get().addEventListener("message", listener);
-  }
-
-  send(message: BaseMessage) {
-    this.socket.get().send(JSON.stringify(message));
   }
 
   private onChatMessageReceived(message: ChatMessage) {
