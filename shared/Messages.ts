@@ -24,12 +24,20 @@ export class ChatMessage extends BaseMessage {
   }
 }
 
-export class WebSocketPeerConnectionSdpMessage
+export declare type PeerConnectionSdpMessageType = WebSocketMessageType.VIDEO_ANSWER | WebSocketMessageType.VIDEO_OFFER;
+export class PeerConnectionSdpMessage
     extends BaseMessage {
-  constructor(type: WebSocketMessageType, public readonly name: string, public readonly target: string, public readonly sdp: RTCSessionDescription) {
+  constructor(type: PeerConnectionSdpMessageType, public readonly name: string, public readonly target: string, public readonly sdp: RTCSessionDescription) {
     super(type);
   }
 }
+
+export class PeerConnectionNewICECandidateMessage extends BaseMessage {
+  constructor(public readonly target: string, public readonly candidate: RTCIceCandidate) {
+    super(WebSocketMessageType.NEW_ICE_CANDIDATE);
+  }
+}
+
 
 export enum WebSocketMessageType {
   ID = "ID",
@@ -37,4 +45,5 @@ export enum WebSocketMessageType {
   CHAT = "CHAT",
   VIDEO_OFFER = "VIDEO_OFFER",
   VIDEO_ANSWER = "VIDEO_ANSWER",
+  NEW_ICE_CANDIDATE = "NEW_ICE_CANDIDATE"
 }
