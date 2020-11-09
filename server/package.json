@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "scripts": {
+    "build": "tsc",
     "start": "concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\""
   },
   "dependencies": {
