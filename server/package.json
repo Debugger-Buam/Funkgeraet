@@ -2,9 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "scripts": {
-    "build": "tsc",
-    "start": "tsc && node dist/server.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\""
+    "start": "concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\""
   },
   "dependencies": {
     "@types/ws": "^7.2.9",

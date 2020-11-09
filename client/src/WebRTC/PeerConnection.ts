@@ -1,11 +1,11 @@
-import { WebSocketServer } from "../WebSocket/WebSocketServer";
-import { User } from "../../../shared/User";
+import {WebSocketServer} from "../WebSocket/WebSocketServer";
+import {User} from "../../../shared/User";
 import {
-  WebSocketMessage,
+  BaseMessage,
   WebSocketMessageType,
   WebSocketPeerConnectionSdpMessage,
 } from "../../../shared/Messages";
-import { Optional } from "typescript-optional";
+import {Optional} from "typescript-optional";
 
 /*
  https://media.prod.mdn.mozit.cloud/attachments/2018/08/22/16137/06b5fa4f9b25f5613dae3ce17b0185c5/WebRTC_-_Signaling_Diagram.svg
@@ -70,16 +70,13 @@ export class PeerConnection {
     if (this.rtcPeerConnection.localDescription === null) {
       throw Error("Local Description was not set!");
     }
-    this.socketServer.send({
-      name: this.sourceUser.name,
-      target: this.targetUserName.get(),
-      type: type,
-      sdp: this.rtcPeerConnection.localDescription,
-    });
+    this.socketServer.send(new WebSocketPeerConnectionSdpMessage(type, this.sourceUser.name,
+        this.targetUserName.get(),
+        this.rtcPeerConnection.localDescription));
   }
 
   private async handleSocketOnMessageEvent(event: MessageEvent) {
-    const message: WebSocketMessage = JSON.parse(event.data);
+    const message: BaseMessage = JSON.parse(event.data);
     switch (message.type) {
       case WebSocketMessageType.VIDEO_OFFER: {
         await this.handleVideoOfferMsg(

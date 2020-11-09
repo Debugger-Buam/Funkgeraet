@@ -24,14 +24,11 @@ export class ChatMessage extends BaseMessage {
   }
 }
 
-export interface WebSocketPeerConnectionMessage extends BaseMessage {
-  name: string;
-  target: string;
-}
-
-export interface WebSocketPeerConnectionSdpMessage
-  extends WebSocketPeerConnectionMessage {
-  sdp: RTCSessionDescription;
+export class WebSocketPeerConnectionSdpMessage
+    extends BaseMessage {
+  constructor(type: WebSocketMessageType, public readonly name: string, public readonly target: string, public readonly sdp: RTCSessionDescription) {
+    super(type);
+  }
 }
 
 export enum WebSocketMessageType {

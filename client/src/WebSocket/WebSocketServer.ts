@@ -1,17 +1,10 @@
-import { Log } from "../Util/Log";
+import {Log} from "../Util/Log";
 
-import {
-  WebSocketMessage,
-  InitMessage,
-  WebSocketMessageType,
-  WebSocketPeerConnectionSdpMessage,
-  SetNameMessage,
-  ChatMessage,
-} from "../../../shared/Messages";
+import {BaseMessage, ChatMessage, InitMessage, SetNameMessage, WebSocketMessageType,} from "../../../shared/Messages";
 
-import { Optional } from "typescript-optional";
-import { WebSocketConnection } from "./WebSocketConnection";
-import { User } from "../../../shared/User";
+import {Optional} from "typescript-optional";
+import {WebSocketConnection} from "./WebSocketConnection";
+import {User} from "../../../shared/User";
 
 export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();
@@ -31,7 +24,7 @@ export class WebSocketServer {
       };
 
       socket.onmessage = (event: MessageEvent) => {
-        const message: WebSocketMessage = JSON.parse(event.data);
+        const message: BaseMessage = JSON.parse(event.data);
 
         console.log(message);
 
@@ -64,8 +57,7 @@ export class WebSocketServer {
   }
 
   sendChatMessage(message: string) {
-    const username = this.connection.get().user.name;
-    this.socket.get().send(new ChatMessage(username, message).pack());
+    this.socket.get().send(new ChatMessage(this.connection.get().user.name, message).pack());
   }
 
   addOnMessageEventListener(listener: (evt: MessageEvent) => any) {
@@ -75,7 +67,7 @@ export class WebSocketServer {
     this.socket.get().addEventListener("message", listener);
   }
 
-  send(message: WebSocketPeerConnectionSdpMessage) {
+  send(message: BaseMessage) {
     this.socket.get().send(JSON.stringify(message));
   }
 

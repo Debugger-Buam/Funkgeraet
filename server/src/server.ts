@@ -3,7 +3,7 @@ import {
   ChatMessage,
   InitMessage,
   SetNameMessage,
-  WebSocketMessage,
+  BaseMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
 import { User } from "../../shared/User";
@@ -31,7 +31,7 @@ wss.on("connection", (ws) => {
   });
 
   ws.on("message", (data: any) => {
-    const message: WebSocketMessage = JSON.parse(data);
+    const message: BaseMessage = JSON.parse(data);
 
     switch (message.type) {
       case WebSocketMessageType.SET_NAME: {
