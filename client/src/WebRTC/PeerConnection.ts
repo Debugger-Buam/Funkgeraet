@@ -8,40 +8,34 @@ import {
   WebSocketMessageType,
 } from "../../../shared/Messages";
 import {Optional} from "typescript-optional";
-import {Log} from "../Util/Log";
+import {Log} from "../../../shared/Util/Log";
 
 /*
  https://media.prod.mdn.mozit.cloud/attachments/2018/08/22/16137/06b5fa4f9b25f5613dae3ce17b0185c5/WebRTC_-_Signaling_Diagram.svg
  */
 export class PeerConnection {
   private readonly rtcPeerConnection: RTCPeerConnection;
-  private readonly socketServer: WebSocketServer;
-  private readonly sourceUser: User;
-  private readonly webcamStream?: MediaStream | null;
   private targetUserName: Optional<string> = Optional.empty();
+  private webcamStream: Optional<MediaStream> = Optional.empty();
 
   constructor(
-    socketServer: WebSocketServer,
-    sourceUser: User,
-    webcamStream: MediaStream | null
-  ) {
+      private readonly socketServer: WebSocketServer,
+      private readonly sourceUser: User,
+      private readonly requestLocalMediaStream: () => Promise<MediaStream>) {
     if (!process.env.STUN_SERVER_URL) {
       throw Error("STUN_SERVER_URL not defined in .env!");
     }
-    this.sourceUser = sourceUser;
-    this.socketServer = socketServer;
-
-    if (webcamStream != null) {
-      this.webcamStream = webcamStream;
-    }
 
     this.rtcPeerConnection = new RTCPeerConnection({
-      iceServers: [{ urls: process.env.STUN_SERVER_URL }],
+      iceServers: [{ urls: process.env.STUN_SERVER_URL, username: "webrtc", credential: "turnserver" }],
     });
     this.rtcPeerConnection.onicecandidate = event => this.handleICECandidateEvent(event);
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();
     this.rtcPeerConnection.onsignalingstatechange = () => this.handleSignalingStateChangeEvent();
     this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
+
+    this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
+    this.rtcPeerConnection.onicegatheringstatechange = () => Log.info("gathering state changed to ", this.rtcPeerConnection.iceGatheringState);
 
 
     this.socketServer.addOnMessageEventListener((event) =>
@@ -49,23 +43,25 @@ export class PeerConnection {
     );
   }
 
-  initialize(targetUser: User) {
+  async call(targetUser: User) {
     this.targetUserName = Optional.of(targetUser.name);
-    this.setStreamOnRtcPeerConnection();
+    await this.setStreamOnRtcPeerConnection();
   }
 
   addOnTrackEventListener(listener: (evt: RTCTrackEvent) => any) {
     this.rtcPeerConnection.addEventListener("track", listener);
   }
 
-  private setStreamOnRtcPeerConnection() {
-    if (this.webcamStream != null) {
-      this.webcamStream.getTracks().forEach((track) =>
-        this.rtcPeerConnection.addTransceiver(track, {
-          streams: [this.webcamStream as MediaStream],
-        })
-      );
+  private async setStreamOnRtcPeerConnection() {
+    if(this.webcamStream.isPresent()) {
+      return;
     }
+    this.webcamStream = Optional.of(await this.requestLocalMediaStream());
+    this.webcamStream.get().getTracks().forEach((track) =>
+        this.rtcPeerConnection.addTransceiver(track, {
+          streams: [this.webcamStream.get() as MediaStream],
+        })
+    );
   }
 
   private async setAndSendLocalDescription(
@@ -131,8 +127,7 @@ export class PeerConnection {
       throw Error("Signaling state is not stable during handleVideoOfferMsg!");
     }
     await this.rtcPeerConnection.setRemoteDescription(remoteDescription);
-
-    this.setStreamOnRtcPeerConnection();
+    await this.setStreamOnRtcPeerConnection();
     const answer = await this.rtcPeerConnection.createAnswer();
     await this.setAndSendLocalDescription(
       WebSocketMessageType.VIDEO_ANSWER,
@@ -170,7 +165,7 @@ export class PeerConnection {
   }
 
   private closeVideoCall() {
-    // TODO: clean up events like MDN example does
+    // TODO: clean up events like MDN example does, especially reset member variables like webcamStream, targetUser etc.!
     Log.warn("closeVideoCall() called!");
   }
 

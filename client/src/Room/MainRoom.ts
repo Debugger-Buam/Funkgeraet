@@ -2,7 +2,9 @@ import { WebSocketServer } from "../WebSocket/WebSocketServer";
 import { PeerConnection } from "../WebRTC/PeerConnection";
 import { User } from "../../../shared/User";
 import { Optional } from "typescript-optional";
-import { Log } from "../Util/Log";
+import {Log} from "../../../shared/Util/Log";
+import {UserError} from "./UserError";
+import {GuiStructureError} from "./GuiStructureError";
 
 export class MainRoom {
   private static readonly mediaConstraints = {
@@ -16,27 +18,33 @@ export class MainRoom {
   };
   private socketServer: Optional<WebSocketServer> = Optional.empty();
   private peerConnection: Optional<PeerConnection> = Optional.empty();
+  private currentUser: Optional<User> = Optional.empty();
 
   constructor() {
     const loginBtn = document.getElementById("login");
-    const connectBtn = document.getElementById("connect");
+    const callBtn = document.getElementById("call");
     const sendBtn = document.getElementById("sent-chat");
-    if (loginBtn === null || connectBtn === null || sendBtn === null)
-      throw Error("wos zum teifL");
+    if (loginBtn === null || callBtn === null || sendBtn === null)
+      throw new GuiStructureError("wos zum teifL");
 
     loginBtn.onclick = () => {
       const username = (document.getElementById("username") as HTMLInputElement)
-        .value;
+          .value;
       this.login(username);
     };
 
-    connectBtn.onclick = () => {
-      this.connect({ name: "ayo " + (Math.random() > 0.5) }); // FIXME lul
+    callBtn.onclick = () => {
+      if (this.currentUser.isEmpty()) {
+        throw new UserError("You are not logged in!");
+      }
+      // now restricted to login with 2 browser, named test1 and test2
+      const targetUserName = this.currentUser.get().name === "test1" ? "test2" : "test1";
+      this.call(new User(targetUserName));
     };
 
     sendBtn.onclick = () => {
       const message = (document.getElementById(
-        "chat-message"
+          "chat-message"
       ) as HTMLInputElement).value;
       this.socketServer.get().sendChatMessage(message);
     };
@@ -45,40 +53,41 @@ export class MainRoom {
   // this is the initial call when entering a username
   public async login(name: string) {
     Log.info("Logging in ", name);
-
-    let stream = null;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia(
-        MainRoom.mediaConstraints
-      );
-    } catch (error) {
-      console.warn("No camera found.");
-      // No camera found.
-    }
-
-    // TODO: set local stream somewhere
-    // document.getElementById("local_video").srcObject = stream;
+    const user = new User(name);
+    this.currentUser = Optional.of(user);
     this.socketServer = Optional.of(new WebSocketServer());
+    await this.socketServer.get().connect(user);
 
-    await this.socketServer.get().connect(name);
-
-    /*
+    // TODO: this object is only needed until the currentUser clicks call() or another user calls the currentUser
+    // But it contains the necessary event listeners for SDP handling on websocket. So maybe move the event listeners
+    // to a better location and construct a PeerConnection only on demand
     this.peerConnection = Optional.of(
-      new PeerConnection(this.socketServer.get(), currentUser, stream)
+        new PeerConnection(this.socketServer.get(), this.currentUser.get(), this.requestLocalMediaStream)
     );
-
     this.peerConnection.get().addOnTrackEventListener(this.handleOnTrackEvent);
-    */
   }
 
   // This is the click on the user name should start the call
-  public async connect(clickedUser: User) {
-    Log.info("connecting in", clickedUser.name);
-    this.peerConnection.get().initialize(clickedUser);
+  public async call(clickedUser: User) {
+    Log.info("user", this.currentUser.get().name, "calls", clickedUser.name);
+    await this.peerConnection.get().call(clickedUser);
+    Log.info("Call initialized.");
+  }
+
+  private async requestLocalMediaStream(): Promise<MediaStream> {
+    const localVideo = document.getElementById("local_video") as HTMLMediaElement;
+    if(!localVideo) throw new GuiStructureError("local_video not found!");
+
+    // TODO: error handling when stream not found
+    const stream = await navigator.mediaDevices.getUserMedia(MainRoom.mediaConstraints);
+    localVideo.srcObject = stream;
+    return stream;
   }
 
   private handleOnTrackEvent(event: RTCTrackEvent) {
-    // TODO: set remote stream somewhere
-    // document.getElementById("received_video").srcObject = event.streams[0];
+    Log.info("handleOnTrackEvent", event.streams);
+    const receivedVideo = document.getElementById("received_video") as HTMLMediaElement;
+    if(!receivedVideo) throw new GuiStructureError("received_video not found!");
+    receivedVideo.srcObject = event.streams[0];
   }
 }

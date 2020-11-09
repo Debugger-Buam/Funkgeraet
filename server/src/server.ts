@@ -1,13 +1,14 @@
 import WebSocket from "ws";
 import {
+  BaseMessage,
   ChatMessage,
   InitMessage,
+  PeerConnectionMessage,
   SetNameMessage,
-  BaseMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
-import { User } from "../../shared/User";
-import { ConnectionManager } from "./ConnectionManager";
+import {User} from "../../shared/User";
+import {ConnectionManager} from "./ConnectionManager";
 
 const port = 6503;
 
@@ -51,6 +52,15 @@ wss.on("connection", (ws) => {
         connectionManager.broadcast(msg);
         break;
       }
+      case WebSocketMessageType.NEW_ICE_CANDIDATE:
+      case WebSocketMessageType.VIDEO_OFFER:
+      case WebSocketMessageType.VIDEO_ANSWER: {
+        const request = message as PeerConnectionMessage;
+        const target = new User(request.target);
+        connectionManager.send(message, target);
+        break;
+      }
+
     }
   });
 });

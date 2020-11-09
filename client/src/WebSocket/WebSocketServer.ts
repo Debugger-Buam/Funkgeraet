@@ -1,4 +1,4 @@
-import {Log} from "../Util/Log";
+import {Log} from "../../../shared/Util/Log";
 
 import {BaseMessage, ChatMessage, InitMessage, SetNameMessage, WebSocketMessageType,} from "../../../shared/Messages";
 
@@ -10,7 +10,7 @@ export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();
   private connection: Optional<WebSocketConnection> = Optional.empty();
 
-  connect(username: string): Promise<void> {
+  connect(user: User): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!process.env.WEB_SOCKET_SERVER_URL) {
         throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
@@ -36,9 +36,9 @@ export class WebSocketServer {
 
             this.connection = Optional.of({
               id: initMessage.clientId,
-              user: new User(username),
+              user: user,
             });
-            socket.send(new SetNameMessage(username).pack());
+            socket.send(new SetNameMessage(user.name).pack());
 
             resolve();
             break;
