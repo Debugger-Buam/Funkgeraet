@@ -18,6 +18,7 @@
 #### Android
 - Move rootCA.pem onto phone (file location is in `mkcert -CAROOT`)
 - Security > Encryption & credentials > Install from storage
+- Tested with Chrome (FF doesn't use root CA for some reason)
 
 ### Development
 - Client: `npm run start-secure`
