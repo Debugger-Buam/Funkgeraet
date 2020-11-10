@@ -27,7 +27,7 @@ export class PeerConnection {
     }
 
     this.rtcPeerConnection = new RTCPeerConnection({
-      iceServers: [{ urls: process.env.STUN_SERVER_URL, username: "webrtc", credential: "turnserver" }],
+      iceServers: [{urls: process.env.STUN_SERVER_URL, username: "webrtc", credential: "turnserver"}],
     });
     this.rtcPeerConnection.onicecandidate = event => this.handleICECandidateEvent(event);
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();
@@ -39,7 +39,7 @@ export class PeerConnection {
 
 
     this.socketServer.addOnMessageEventListener((event) =>
-      this.handleSocketOnMessageEvent(event)
+        this.handleSocketOnMessageEvent(event)
     );
   }
 
@@ -53,7 +53,7 @@ export class PeerConnection {
   }
 
   private async setStreamOnRtcPeerConnection() {
-    if(this.webcamStream.isPresent()) {
+    if (this.webcamStream.isPresent()) {
       return;
     }
     this.webcamStream = Optional.of(await this.requestLocalMediaStream());
@@ -65,8 +65,8 @@ export class PeerConnection {
   }
 
   private async setAndSendLocalDescription(
-    type: PeerConnectionSdpMessageType,
-    description: RTCSessionDescriptionInit
+      type: PeerConnectionSdpMessageType,
+      description: RTCSessionDescriptionInit
   ) {
     await this.rtcPeerConnection.setLocalDescription(description);
     if (this.rtcPeerConnection.localDescription === null) {
@@ -82,13 +82,13 @@ export class PeerConnection {
     switch (message.type) {
       case WebSocketMessageType.VIDEO_OFFER: {
         await this.handleVideoOfferMsg(
-          message as PeerConnectionSdpMessage
+            message as PeerConnectionSdpMessage
         );
         break;
       }
       case WebSocketMessageType.VIDEO_ANSWER: {
         await this.handleVideoAnswerMsg(
-          message as PeerConnectionSdpMessage
+            message as PeerConnectionSdpMessage
         );
         break;
       }
@@ -112,14 +112,14 @@ export class PeerConnection {
   }
 
   private async handleVideoAnswerMsg(
-    message: PeerConnectionSdpMessage
+      message: PeerConnectionSdpMessage
   ) {
     const remoteDescription = new RTCSessionDescription(message.sdp);
     await this.rtcPeerConnection.setRemoteDescription(remoteDescription);
   }
 
   private async handleVideoOfferMsg(
-    message: PeerConnectionSdpMessage
+      message: PeerConnectionSdpMessage
   ) {
     this.targetUserName = Optional.of(message.name);
     const remoteDescription = new RTCSessionDescription(message.sdp);
@@ -130,8 +130,8 @@ export class PeerConnection {
     await this.setStreamOnRtcPeerConnection();
     const answer = await this.rtcPeerConnection.createAnswer();
     await this.setAndSendLocalDescription(
-      WebSocketMessageType.VIDEO_ANSWER,
-      answer
+        WebSocketMessageType.VIDEO_ANSWER,
+        answer
     );
   }
 
@@ -180,8 +180,8 @@ export class PeerConnection {
       return;
     }
     await this.setAndSendLocalDescription(
-      WebSocketMessageType.VIDEO_OFFER,
-      offer
+        WebSocketMessageType.VIDEO_OFFER,
+        offer
     );
   }
 }

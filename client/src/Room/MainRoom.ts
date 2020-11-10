@@ -1,7 +1,7 @@
-import { WebSocketServer } from "../WebSocket/WebSocketServer";
-import { PeerConnection } from "../WebRTC/PeerConnection";
-import { User } from "../../../shared/User";
-import { Optional } from "typescript-optional";
+import {WebSocketServer} from "../WebSocket/WebSocketServer";
+import {PeerConnection} from "../WebRTC/PeerConnection";
+import {User} from "../../../shared/User";
+import {Optional} from "typescript-optional";
 import {Log} from "../../../shared/Util/Log";
 import {UserError} from "./UserError";
 import {GuiStructureError} from "./GuiStructureError";
@@ -76,7 +76,7 @@ export class MainRoom {
 
   private async requestLocalMediaStream(): Promise<MediaStream> {
     const localVideo = document.getElementById("local_video") as HTMLMediaElement;
-    if(!localVideo) throw new GuiStructureError("local_video not found!");
+    if (!localVideo) throw new GuiStructureError("local_video not found!");
 
     // TODO: error handling when stream not found
     const stream = await navigator.mediaDevices.getUserMedia(MainRoom.mediaConstraints);
@@ -87,7 +87,7 @@ export class MainRoom {
   private handleOnTrackEvent(event: RTCTrackEvent) {
     Log.info("handleOnTrackEvent", event.streams);
     const receivedVideo = document.getElementById("received_video") as HTMLMediaElement;
-    if(!receivedVideo) throw new GuiStructureError("received_video not found!");
+    if (!receivedVideo) throw new GuiStructureError("received_video not found!");
     receivedVideo.srcObject = event.streams[0];
   }
 }

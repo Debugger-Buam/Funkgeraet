@@ -1,4 +1,4 @@
-import { User } from "../../../shared/User";
+import {User} from "../../../shared/User";
 
 export interface WebSocketConnection {
   id: number;
