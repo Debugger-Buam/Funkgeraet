@@ -15,8 +15,9 @@ export class WebSocketServer {
       if (!process.env.WEB_SOCKET_SERVER_URL) {
         throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
       }
-
-      let socket = new WebSocket(process.env.WEB_SOCKET_SERVER_URL, "json");
+      const urlPrefix = window.location.protocol === "https:" ? "wss" : "ws";
+      const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
+      let socket = new WebSocket(url, "json");
 
       socket.onerror = (event: Event) => {
         Log.error("Socket.onerror", event);

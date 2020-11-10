@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
-    "start": "concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\""
+    "start": "concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\"",
+    "start-secure": "IS_SECURE=1 concurrently \"tsc -w\" \"nodemon dist/server/src/server.js\""
   },
   "dependencies": {
     "@types/ws": "^7.2.9",

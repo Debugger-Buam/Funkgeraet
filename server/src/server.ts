@@ -1,4 +1,4 @@
-import WebSocket from "ws";
+import WebSocket, {ServerOptions} from "ws";
 import {
   BaseMessage,
   ChatMessage,
@@ -9,12 +9,23 @@ import {
 } from "../../shared/Messages";
 import {User} from "../../shared/User";
 import {ConnectionManager} from "./ConnectionManager";
+import fs from "fs";
+import https from "https";
 
 const port = 6503;
+let serverOptions: ServerOptions;
 
-const wss = new WebSocket.Server({
-  port,
-});
+if(process.env.IS_SECURE==="1") {
+  const server = https.createServer({
+    cert: fs.readFileSync('../certs/local.pem'),
+    key: fs.readFileSync('../certs/local-key.pem')
+  }).listen(port);
+  serverOptions = { server };
+} else {
+  serverOptions = { port };
+}
+
+const wss = new WebSocket.Server(serverOptions);
 
 const connectionManager = new ConnectionManager();
 
