@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "webpack",
-    "start": "webpack serve"
+    "start": "webpack serve",
+    "host":  "webpack serve --port 6969 --host 0.0.0.0",
+    "host-secure":  "webpack serve --port 6969 --https --cert ../certs/localhost+1.pem --key ../certs/localhost+1-key.pem --host 0.0.0.0"
   },
   "dependencies": {
     "css-loader": "^5.0.1",
