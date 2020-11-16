@@ -1,7 +1,7 @@
-# Ganz Egal Issas Net
-![Frontend CI](https://github.com/Debugger-Buam/ganzegalissasnet/workflows/Frontend%20CI/badge.svg)
+# Funkgerät
+![Frontend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Frontend%20CI/badge.svg)
 
-![Backend CI](https://github.com/Debugger-Buam/ganzegalissasnet/workflows/Backend%20CI/badge.svg)
+![Backend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Backend%20CI/badge.svg)
 
 ## HTTPS Development
 ### Setup
