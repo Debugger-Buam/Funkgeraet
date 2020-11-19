@@ -1,7 +1,9 @@
 # Funkgerät
-![Frontend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Frontend%20CI/badge.svg)
-
+![Frontend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Frontend%20CI/badge.svg) 
 ![Backend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Backend%20CI/badge.svg)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=bugs)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=code_smells)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
 
 ## HTTPS Development
 ### Setup
