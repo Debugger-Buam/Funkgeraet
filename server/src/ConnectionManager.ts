@@ -2,9 +2,9 @@ import { Connection } from "./Connection";
 
 import WebSocket from "ws";
 import { BaseMessage } from "../../shared/Messages";
-import {User} from "../../shared/User";
-import {Optional} from "typescript-optional";
-import {Log} from "../../shared/Util/Log";
+import { User } from "../../shared/User";
+import { Optional } from "typescript-optional";
+import { Log } from "../../shared/Util/Log";
 
 export class ConnectionManager {
   private idCounter = 1;
@@ -20,9 +20,12 @@ export class ConnectionManager {
     this.connections.delete(con.id);
   }
 
-  broadcast(message: BaseMessage) {
+  broadcast(message: BaseMessage, except?: number) {
     for (const [_, con] of this.connections) {
-      Log.warn("sending", message)
+      if (con.id == except && except != null) {
+        continue;
+      }
+      Log.warn("sending", message);
       con.socket.send(message.pack());
     }
   }
@@ -38,9 +41,22 @@ export class ConnectionManager {
     }
     // FIXME: can't use message.pack() because in server.ts the message object was parsed from JSON where it lost its
     // methods!
-    socket.ifPresentOrElse(s => s.send(JSON.stringify(message)), () => {
-      throw Error("Hülfe hülfe mir homs as Lenkradl gstuhln");
+    socket.ifPresentOrElse(
+      (s) => s.send(JSON.stringify(message)),
+      () => {
+        throw Error("Hülfe hülfe mir homs as Lenkradl gstuhln");
+      }
+    );
+  }
+
+  getUsers(): Array<string> {
+    var userNames: Array<string> = [];
+    this.connections.forEach((con) => {
+      if (con.user) {
+        userNames.push(con.user.name);
+      }
     });
+    return userNames;
   }
 
   private getNextId(): number {

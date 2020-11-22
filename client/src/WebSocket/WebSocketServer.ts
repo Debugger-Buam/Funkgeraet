@@ -1,10 +1,17 @@
-import {Log} from "../../../shared/Util/Log";
+import { Log } from "../../../shared/Util/Log";
 
-import {BaseMessage, ChatMessage, InitMessage, SetNameMessage, WebSocketMessageType,} from "../../../shared/Messages";
+import {
+  BaseMessage,
+  ChatMessage,
+  InitMessage,
+  SetNameMessage,
+  UserListChangedMessage,
+  WebSocketMessageType,
+} from "../../../shared/Messages";
 
-import {Optional} from "typescript-optional";
-import {WebSocketConnection} from "./WebSocketConnection";
-import {User} from "../../../shared/User";
+import { Optional } from "typescript-optional";
+import { WebSocketConnection } from "./WebSocketConnection";
+import { User } from "../../../shared/User";
 
 export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();
@@ -32,22 +39,28 @@ export class WebSocketServer {
         // Message Handler
 
         switch (message.type) {
-          case WebSocketMessageType.ID: {
+          case WebSocketMessageType.INIT: {
             const initMessage = message as InitMessage;
-
             this.connection = Optional.of({
               id: initMessage.clientId,
               user: user,
             });
+
             socket.send(new SetNameMessage(user.name).pack());
 
             resolve();
             break;
           }
 
+          case WebSocketMessageType.USER_LIST_CHANGED: {
+            const userListChangedMessage = message as UserListChangedMessage;
+            this.onUserListChanged(userListChangedMessage);
+            break;
+          }
+
           case WebSocketMessageType.CHAT: {
             const chatMessage = message as ChatMessage;
-            this.onChatMessageReceived(chatMessage)
+            this.onChatMessageReceived(chatMessage);
             break;
           }
         }
@@ -75,10 +88,25 @@ export class WebSocketServer {
   private onChatMessageReceived(message: ChatMessage) {
     const chatList = document.getElementById("chat");
 
-    var el = document.createElement('li');
+    var el = document.createElement("li");
     el.innerText = `${message.username} - ${message.message}`;
 
-    chatList?.appendChild(el)
+    chatList?.appendChild(el);
+  }
 
+  private onUserListChanged(message: UserListChangedMessage) {
+    const attendeesList = document.getElementById("attendees");
+
+    if (attendeesList == null) {
+      Log.error("Attendees List not found.");
+      return;
+    }
+
+    attendeesList.innerHTML = "";
+    message.users.forEach((user) => {
+      var el = document.createElement("li");
+      el.innerText = `${user}`;
+      attendeesList.appendChild(el);
+    });
   }
 }

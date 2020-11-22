@@ -1,25 +1,29 @@
-import WebSocket, {ServerOptions} from "ws";
+import WebSocket, { ServerOptions } from "ws";
 import {
   BaseMessage,
   ChatMessage,
   InitMessage,
   PeerConnectionMessage,
   SetNameMessage,
+  UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
-import {User} from "../../shared/User";
-import {ConnectionManager} from "./ConnectionManager";
+import { User } from "../../shared/User";
+import { ConnectionManager } from "./ConnectionManager";
 import fs from "fs";
 import https from "https";
+import { Log } from "../../shared/Util/Log";
 
 const port = 6503;
 let serverOptions: ServerOptions;
 
-if(process.env.IS_SECURE==="1") {
-  const server = https.createServer({
-    cert: fs.readFileSync('../certs/local.pem'),
-    key: fs.readFileSync('../certs/local-key.pem')
-  }).listen(port);
+if (process.env.IS_SECURE === "1") {
+  const server = https
+    .createServer({
+      cert: fs.readFileSync("../certs/local.pem"),
+      key: fs.readFileSync("../certs/local-key.pem"),
+    })
+    .listen(port);
   serverOptions = { server };
 } else {
   serverOptions = { port };
@@ -33,13 +37,16 @@ wss.on("connection", (ws) => {
   const con = connectionManager.addConnection(ws);
 
   ws.send(new InitMessage(con.id).pack());
-  console.log(`Client connected. Id: ${con.id}`);
+  Log.info(`Client connected Id: [${con.id}]`);
 
   // Handler
 
   ws.on("close", () => {
-    console.log(`Client disconnected. Id: ${con.id}`);
+    Log.info(`Client disconnected Id: [${con.id}]`);
     connectionManager.removeConnection(con);
+    connectionManager.broadcast(
+      new UserListChangedMessage(connectionManager.getUsers())
+    );
   });
 
   ws.on("message", (data: any) => {
@@ -49,17 +56,25 @@ wss.on("connection", (ws) => {
       case WebSocketMessageType.SET_NAME: {
         const request = message as SetNameMessage;
 
-        console.log(
-          `Setting client username with id : ${con.id} to ${request.username}`
+        Log.info(
+          `Setting client with Id: [${con.id}] to username "${request.username}"`
         );
 
         con.user = new User(request.username);
+
+        connectionManager.broadcast(
+          new UserListChangedMessage(connectionManager.getUsers())
+        );
+
         break;
       }
 
       case WebSocketMessageType.CHAT: {
         const request = message as ChatMessage;
-        const msg = new ChatMessage(con.user?.name ?? request.username, request.message);
+        const msg = new ChatMessage(
+          con.user?.name ?? request.username,
+          request.message
+        );
         connectionManager.broadcast(msg);
         break;
       }
@@ -71,7 +86,6 @@ wss.on("connection", (ws) => {
         connectionManager.send(message, target);
         break;
       }
-
     }
   });
 });
