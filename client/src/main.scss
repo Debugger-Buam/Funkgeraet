@@ -1,0 +1,74 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100vh;
+  width: 100vw;
+}
+
+#lobby {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 100vh;
+  align-items: center;
+  justify-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+#room {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: max-content auto auto;
+  grid-template-rows: max-content max-content max-content 1fr max-content;
+  height: 100vh;
+  width: 100vw;
+}
+
+.navbar {
+  grid-column: 1 / 4;
+  grid-row: 1;
+}
+
+.chatbox {
+  grid-column: 1;
+  grid-row: 2 / 5;
+  overflow: auto;
+}
+
+.chat-message {
+  grid-column: 1;
+  grid-row: 5;
+}
+
+.room-control {
+  grid-column: 2 / 4;
+  grid-row: 2;
+}
+
+.attendees {
+  grid-column: 2 / 4;
+  grid-row: 3;
+  overflow: auto;
+}
+
+.other-video {
+  grid-column: 2;
+  grid-row: 4;
+}
+
+.own-video {
+  grid-column: 3;
+  grid-row: 4;
+}
+
+.video-control {
+  grid-column: 2 / 4;
+  grid-row: 5;
+}
+
+.hidden {
+  display: none !important;
+}
