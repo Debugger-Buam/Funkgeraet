@@ -1,3 +1,3 @@
 export class User {
-  constructor(public readonly name: string) {}
+  constructor(public name: string) {}
 }

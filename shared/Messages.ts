@@ -6,10 +6,17 @@ export abstract class BaseMessage {
   }
 }
 
-export class InitMessage extends BaseMessage {
+export class JoinRoomMessage extends BaseMessage {
   constructor(
-    public readonly clientId: number
+    public readonly roomName: string,
+    public readonly userName: string
   ) {
+    super(WebSocketMessageType.JOIN);
+  }
+}
+
+export class InitMessage extends BaseMessage {
+  constructor(public readonly clientId: number) {
     super(WebSocketMessageType.INIT);
   }
 }
@@ -66,6 +73,7 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
 
 export enum WebSocketMessageType {
   INIT = "INIT",
+  JOIN = "JOIN_ROOM",
   SET_NAME = "SET_NAME",
   CHAT = "CHAT",
   VIDEO_OFFER = "VIDEO_OFFER",

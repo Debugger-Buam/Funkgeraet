@@ -15,7 +15,7 @@
 - Install [mkcert](https://github.com/FiloSottile/mkcert)
 - Install local CA root `mkcert -install`
 - Create certificates for the domains and IPs with which you want to access the app, e.g. `mkcert localhost 10.0.0.2`
-- Move those generated certificates into `./cert` and name them `local.pem` and `local-key.pem`
+- Move those generated certificates into `./certs` and name them `local.pem` and `local-key.pem`
 
 #### Android
 - Move rootCA.pem onto phone (file location is in `mkcert -CAROOT`)

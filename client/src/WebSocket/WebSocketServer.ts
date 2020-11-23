@@ -4,7 +4,7 @@ import {
   BaseMessage,
   ChatMessage,
   InitMessage,
-  SetNameMessage,
+  JoinRoomMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../../shared/Messages";
@@ -17,7 +17,7 @@ export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();
   private connection: Optional<WebSocketConnection> = Optional.empty();
 
-  connect(user: User): Promise<void> {
+  connect(user: User, roomName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!process.env.WEB_SOCKET_SERVER_URL) {
         throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
@@ -25,6 +25,7 @@ export class WebSocketServer {
       const urlPrefix = window.location.protocol === "https:" ? "wss" : "ws";
       const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
       let socket = new WebSocket(url, "json");
+      this.socket = Optional.of(socket);
 
       socket.onerror = (event: Event) => {
         Log.error("Socket.onerror", event);
@@ -41,12 +42,13 @@ export class WebSocketServer {
         switch (message.type) {
           case WebSocketMessageType.INIT: {
             const initMessage = message as InitMessage;
+
             this.connection = Optional.of({
               id: initMessage.clientId,
               user: user,
             });
 
-            socket.send(new SetNameMessage(user.name).pack());
+            this.send(new JoinRoomMessage(roomName, user.name));
 
             resolve();
             break;
@@ -64,8 +66,6 @@ export class WebSocketServer {
             break;
           }
         }
-
-        this.socket = Optional.of(socket);
       };
     });
   }
