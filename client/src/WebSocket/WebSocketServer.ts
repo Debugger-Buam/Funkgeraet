@@ -11,20 +11,24 @@ import {
 
 import { Optional } from "typescript-optional";
 import { WebSocketConnection } from "./WebSocketConnection";
-import { User } from "../../../shared/User";
+import {User} from '../../../shared/User';
+import {RoomView} from '../View/RoomView';
 
 export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();
   private connection: Optional<WebSocketConnection> = Optional.empty();
 
+  constructor(readonly view: RoomView) {
+  }
+
   connect(user: User, roomName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!process.env.WEB_SOCKET_SERVER_URL) {
-        throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
+        throw Error('WEB_SOCKET_SERVER_URL not defined in .env!');
       }
-      const urlPrefix = window.location.protocol === "https:" ? "wss" : "ws";
+      const urlPrefix = window.location.protocol === 'https:' ? 'wss' : 'ws';
       const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
-      let socket = new WebSocket(url, "json");
+      let socket = new WebSocket(url, 'json');
       this.socket = Optional.of(socket);
 
       socket.onerror = (event: Event) => {
@@ -86,27 +90,10 @@ export class WebSocketServer {
   }
 
   private onChatMessageReceived(message: ChatMessage) {
-    const chatList = document.getElementById("chat");
-
-    var el = document.createElement("li");
-    el.innerText = `${message.username} - ${message.message}`;
-
-    chatList?.appendChild(el);
+    this.view.appendChatMessage(`${message.username} - ${message.message}`);
   }
 
   private onUserListChanged(message: UserListChangedMessage) {
-    const attendeesList = document.getElementById("attendees");
-
-    if (attendeesList == null) {
-      Log.error("Attendees List not found.");
-      return;
-    }
-
-    attendeesList.innerHTML = "";
-    message.users.forEach((user) => {
-      var el = document.createElement("li");
-      el.innerText = `${user}`;
-      attendeesList.appendChild(el);
-    });
+    this.view.updateUserList(message.users);
   }
 }

@@ -4,10 +4,10 @@ import { User } from "../../../shared/User";
 import { Optional } from "typescript-optional";
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
-import { GuiStructureError } from "./GuiStructureError";
-import { JoinRoomMessage } from "../../../shared/Messages";
+import {JoinRoomMessage} from '../../../shared/Messages';
+import {RoomView} from '../View/RoomView';
 
-export class MainRoom {
+export class RoomController {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -21,36 +21,20 @@ export class MainRoom {
   private peerConnection: Optional<PeerConnection> = Optional.empty();
   private currentUser: Optional<User> = Optional.empty();
 
-  constructor() {
-    const joinBtn = document.getElementById("join-room");
-    const callBtn = document.getElementById("call");
-    const sendBtn = document.getElementById("sent-chat");
-    if (joinBtn === null || callBtn === null || sendBtn === null)
-      throw new GuiStructureError("Buttons not found.");
-
-    joinBtn.onclick = () => {
-      const username = (document.getElementById("username") as HTMLInputElement)
-        .value;
-      const roomname = (document.getElementById("roomname") as HTMLInputElement)
-        .value;
-      this.joinRoom(username, roomname);
-    };
-
-    callBtn.onclick = () => {
+  constructor(readonly view: RoomView) {
+    view.onCallButton = () => {
       if (this.currentUser.isEmpty()) {
-        throw new UserError("You are not logged in!");
+        throw new UserError('You are not logged in!');
       }
       // now restricted to login with 2 browser, named test1 and test2
       const targetUserName =
-        this.currentUser.get().name === "test1" ? "test2" : "test1";
+        this.currentUser.get().name === 'test1' ? 'test2' : 'test1';
       this.call(new User(targetUserName));
     };
 
-    sendBtn.onclick = () => {
-      const message = (document.getElementById(
-        "chat-message"
-      ) as HTMLInputElement).value;
-      this.socketServer.get().sendChatMessage(message);
+    view.onSentChatButtonClicked = () => {
+      this.socketServer.get().sendChatMessage(view.chatMessage);
+      view.chatMessage = '';
     };
   }
 
@@ -60,7 +44,7 @@ export class MainRoom {
 
     const user = new User(username);
     this.currentUser = Optional.of(user);
-    this.socketServer = Optional.of(new WebSocketServer());
+    this.socketServer = Optional.of(new WebSocketServer(this.view));
     await this.socketServer.get().connect(user, roomname);
 
 
@@ -85,26 +69,16 @@ export class MainRoom {
   }
 
   private async requestLocalMediaStream(): Promise<MediaStream> {
-    const localVideo = document.getElementById(
-      "local_video"
-    ) as HTMLMediaElement;
-    if (!localVideo) throw new GuiStructureError("local_video not found!");
-
     // TODO: error handling when stream not found
     const stream = await navigator.mediaDevices.getUserMedia(
-      MainRoom.mediaConstraints
+      RoomController.mediaConstraints,
     );
-    localVideo.srcObject = stream;
+    this.view.localVideoSrc = stream;
     return stream;
   }
 
   private handleOnTrackEvent(event: RTCTrackEvent) {
-    Log.info("handleOnTrackEvent", event.streams);
-    const receivedVideo = document.getElementById(
-      "received_video"
-    ) as HTMLMediaElement;
-    if (!receivedVideo)
-      throw new GuiStructureError("received_video not found!");
-    receivedVideo.srcObject = event.streams[0];
+    Log.info('handleOnTrackEvent', event.streams);
+    this.view.receivedVideoSrc = event.streams[0];
   }
 }

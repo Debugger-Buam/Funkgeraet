@@ -1,24 +1,16 @@
-import {elements} from './Dom';
+import {Dom} from './Dom';
 
-export class LoginView {
-  private readonly lobbyForm = elements.lobbyForm;
-  private readonly usernameInput = elements.usernameInput;
-  private readonly roomNameInput = elements.roomNameInput;
+export class LobbyView {
+  private readonly lobbyForm = this.dom.lobbyForm;
+  private readonly usernameInput = this.dom.usernameInput;
+  private readonly roomNameInput = this.dom.roomNameInput;
 
-  constructor() {
+  constructor(private readonly dom: Dom) {
     this.lobbyForm.addEventListener('submit', (e) => e.preventDefault());
   }
 
   set onLobbyFormSubmit(value: () => void) {
     this.lobbyForm.addEventListener('submit', value);
-  }
-
-  set onUsernameChanged(value: () => void) {
-    this.usernameInput.addEventListener('change', value);
-  }
-
-  set onRoomNameChanged(value: () => void) {
-    this.roomNameInput.addEventListener('change', value);
   }
 
   get username(): string {

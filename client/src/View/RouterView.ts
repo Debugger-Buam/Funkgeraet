@@ -1,8 +1,11 @@
-import {ClassName, elements} from './Dom';
+import {ClassName, Dom} from './Dom';
 
 export class RouterView {
-  private readonly lobbyRoot = elements.lobbyRoot;
-  private readonly roomRoot = elements.roomRoot;
+  private readonly lobbyRoot = this.dom.lobbyRoot;
+  private readonly roomRoot = this.dom.roomRoot;
+
+  constructor(private readonly dom: Dom) {
+  }
 
   showLobby(): void {
     this.lobbyRoot.classList.add(ClassName.hidden);
