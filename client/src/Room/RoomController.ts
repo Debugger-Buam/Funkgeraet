@@ -5,7 +5,7 @@ import { Optional } from "typescript-optional";
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import {JoinRoomMessage} from '../../../shared/Messages';
-import {RoomView} from '../View/RoomView';
+import {RoomView} from './RoomView';
 
 export class RoomController {
   private static readonly mediaConstraints = {
@@ -21,7 +21,7 @@ export class RoomController {
   private peerConnection: Optional<PeerConnection> = Optional.empty();
   private currentUser: Optional<User> = Optional.empty();
 
-  constructor(readonly view: RoomView) {
+  constructor(private readonly view: RoomView) {
     view.onCallButton = () => {
       if (this.currentUser.isEmpty()) {
         throw new UserError('You are not logged in!');
@@ -55,10 +55,10 @@ export class RoomController {
       new PeerConnection(
         this.socketServer.get(),
         this.currentUser.get(),
-        this.requestLocalMediaStream
-      )
+        this.requestLocalMediaStream.bind(this),
+      ),
     );
-    this.peerConnection.get().addOnTrackEventListener(this.handleOnTrackEvent);
+    this.peerConnection.get().addOnTrackEventListener(this.handleOnTrackEvent.bind(this));
   }
 
   // This is the click on the user name should start the call

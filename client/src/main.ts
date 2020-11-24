@@ -1,10 +1,10 @@
 import './main.scss';
 import {RoomController} from './Room/RoomController';
-import {RouterController} from './Controller/RouterController';
-import {RouterView} from './View/RouterView';
-import {LobbyController} from './Controller/LobbyController';
-import {LobbyView} from './View/LobbyView';
-import {RoomView} from './View/RoomView';
+import {RouterController} from './Router/RouterController';
+import {RouterView} from './Router/RouterView';
+import {LobbyController} from './Lobby/LobbyController';
+import {LobbyView} from './Lobby/LobbyView';
+import {RoomView} from './Room/RoomView';
 import {Dom} from './View/Dom';
 
 const dom = new Dom(document);

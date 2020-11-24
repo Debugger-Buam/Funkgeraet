@@ -1,12 +1,12 @@
-import {RouterController} from './RouterController';
-import {LobbyView} from '../View/LobbyView';
+import {RouterController} from '../Router/RouterController';
+import {LobbyView} from './LobbyView';
 import {RoomController} from '../Room/RoomController';
 import {Log} from '../../../shared/Util/Log';
 
 export class LobbyController {
-  constructor(view: LobbyView, router: RouterController, mainRoom: RoomController) {
+  constructor(view: LobbyView, router: RouterController, room: RoomController) {
     view.onLobbyFormSubmit = () => {
-      mainRoom.joinRoom(view.username, view.roomName)
+      room.joinRoom(view.username, view.roomName)
         .then(() => {
           view.username = '';
           view.roomName = '';

@@ -12,7 +12,7 @@ import {
 import { Optional } from "typescript-optional";
 import { WebSocketConnection } from "./WebSocketConnection";
 import {User} from '../../../shared/User';
-import {RoomView} from '../View/RoomView';
+import {RoomView} from '../Room/RoomView';
 
 export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();

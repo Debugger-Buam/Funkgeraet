@@ -1,4 +1,4 @@
-import {Dom} from './Dom';
+import {Dom} from '../View/Dom';
 
 export class RoomView {
   private readonly chatList = this.dom.chatList;

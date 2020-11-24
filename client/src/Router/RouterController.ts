@@ -1,4 +1,4 @@
-import {RouterView} from '../View/RouterView';
+import {RouterView} from './RouterView';
 
 export class RouterController {
   constructor(readonly view: RouterView) {

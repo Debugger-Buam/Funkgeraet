@@ -1,4 +1,4 @@
-import {Dom} from './Dom';
+import {Dom} from '../View/Dom';
 
 export class LobbyView {
   private readonly lobbyForm = this.dom.lobbyForm;
