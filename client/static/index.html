@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="root">
-      <div id="lobby" class="">
+      <div id="lobby">
         <form id="lobby-form" style="background: darkmagenta; padding: 2rem">
           <input id="username" placeholder="Username"/><br>
           <input id="roomname" placeholder="#SomeRoomName"/><br>
@@ -15,31 +15,30 @@
         </form>
       </div>
       <div id="room" class="hidden">
-        <div class="navbar" style="background: chocolate; padding: 2rem">Navigation bar</div>
-        <div class="chatbox" style="background: aquamarine; padding: 2rem">
-          <div class="chat-container">
-            <ul id="chat"></ul>
-          </div>
+        <div class="nav-bar-container" style="background: chocolate; padding: 2rem">
+          Navigation bar
+        </div>
+        <div class="chat-container" style="background: aquamarine; padding: 2rem">
+          Chat
+          <ul id="chat"></ul>
         </div>
         <div class="room-control" style="background: gold; padding: 2rem">Room control</div>
-        <div class="attendees" style="background: darkviolet; padding: 2rem; white-space: nowrap">
-          <div class="attendees-container">
-            <h3>Users</h3>
-            <ul id="attendees"></ul>
-          </div>
+        <div class="attendees-container" style="background: darkviolet; padding: 2rem; white-space: nowrap">
+          Attendees
+          <ul id="attendees"></ul>
         </div>
-        <div class="other-video" style="background: cornflowerblue; height: 100%; width: 100%">
-          <video id="received_video" autoplay style="height: 100%; width: 100%"></video>
+        <div class="received-video-container" style="background: cornflowerblue; height: 100%; width: 100%">
+          <video id="received-video" autoplay style="height: 100%; width: 100%"></video>
         </div>
-        <div class="own-video" style="background: greenyellow; height: 100%; width: 100%">
-          <video id="local_video" autoplay muted style="height: 100%; width: 100%"></video>
+        <div class="local-video-container" style="background: greenyellow; height: 100%; width: 100%">
+          <video id="local-video" autoplay muted style="height: 100%; width: 100%"></video>
         </div>
-        <div class="chat-message" style="background: burlywood; padding: 2rem">
+        <div class="chat-message-container" style="background: burlywood; padding: 2rem">
           Chat input
           <input id="chat-message" placeholder="Chat message"/>
           <button id="sent-chat">Send</button>
         </div>
-        <div class="video-control" style="background: darkseagreen; padding: 2rem">
+        <div class="video-control-container" style="background: darkseagreen; padding: 2rem">
           Video control
           <button id="call">Call</button>
         </div>

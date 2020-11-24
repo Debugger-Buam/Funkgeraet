@@ -27,18 +27,18 @@ html, body, #root {
   width: 100vw;
 }
 
-.navbar {
+.nav-bar-container {
   grid-column: 1 / 4;
   grid-row: 1;
 }
 
-.chatbox {
+.chat-container {
   grid-column: 1;
   grid-row: 2 / 5;
   overflow: auto;
 }
 
-.chat-message {
+.chat-message-container {
   grid-column: 1;
   grid-row: 5;
 }
@@ -48,23 +48,23 @@ html, body, #root {
   grid-row: 2;
 }
 
-.attendees {
+.attendees-container {
   grid-column: 2 / 4;
   grid-row: 3;
   overflow: auto;
 }
 
-.other-video {
+.received-video-container {
   grid-column: 2;
   grid-row: 4;
 }
 
-.own-video {
+.local-video-container {
   grid-column: 3;
   grid-row: 4;
 }
 
-.video-control {
+.video-control-container {
   grid-column: 2 / 4;
   grid-row: 5;
 }

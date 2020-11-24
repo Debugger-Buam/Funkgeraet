@@ -1,9 +1,9 @@
 type Id = 'attendees' | 'call'
   | 'chat' | 'chat-message'
   | 'lobby' | 'lobby-form'
-  | 'local_video'
+  | 'local-video'
   | 'login'
-  | 'received_video'
+  | 'received-video'
   | 'room' | 'roomname'
   | 'sent-chat'
   | 'username'
@@ -20,8 +20,8 @@ export class Dom {
   readonly roomRoot = this.getElementById('div', 'room');
   readonly chatList = this.getElementById('ul', 'chat');
   readonly attendeesList = this.getElementById('ul', 'attendees');
-  readonly receivedVideo = this.getElementById('video', 'received_video');
-  readonly localVideo = this.getElementById('video', 'local_video');
+  readonly receivedVideo = this.getElementById('video', 'received-video');
+  readonly localVideo = this.getElementById('video', 'local-video');
   readonly chatMessageInput = this.getElementById('input', 'chat-message');
   readonly sentChatButton = this.getElementById('button', 'sent-chat');
   readonly callButton = this.getElementById('button', 'call');
