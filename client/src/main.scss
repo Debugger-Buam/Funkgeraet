@@ -8,7 +8,7 @@ html, body, #root {
   width: 100vw;
 }
 
-#lobby {
+#lobby-root {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 100vh;
@@ -18,7 +18,7 @@ html, body, #root {
   width: 100vw;
 }
 
-#room {
+#room-root {
   display: grid;
   grid-gap: 10px;
   grid-template-columns: max-content auto auto;
@@ -32,7 +32,7 @@ html, body, #root {
   grid-row: 1;
 }
 
-.chat-container {
+.chat-history-container {
   grid-column: 1;
   grid-row: 2 / 5;
   overflow: auto;

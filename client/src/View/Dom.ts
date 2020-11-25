@@ -1,11 +1,9 @@
 type Id = 'attendees' | 'call'
-  | 'chat' | 'chat-message'
-  | 'lobby' | 'lobby-form'
+  | 'chat-form' | 'chat-history' | 'chat-message'
+  | 'lobby-form' | 'lobby-root'
   | 'local-video'
-  | 'login'
   | 'received-video'
-  | 'room' | 'roomname'
-  | 'sent-chat'
+  | 'room-root' | 'roomname'
   | 'username'
 
 export enum ClassName {
@@ -13,23 +11,24 @@ export enum ClassName {
 }
 
 export class Dom {
-  readonly lobbyForm = this.getElementById('form', 'lobby-form');
-  readonly usernameInput = this.getElementById('input', 'username');
-  readonly roomNameInput = this.getElementById('input', 'roomname');
-  readonly lobbyRoot = this.getElementById('div', 'lobby');
-  readonly roomRoot = this.getElementById('div', 'room');
-  readonly chatList = this.getElementById('ul', 'chat');
   readonly attendeesList = this.getElementById('ul', 'attendees');
-  readonly receivedVideo = this.getElementById('video', 'received-video');
-  readonly localVideo = this.getElementById('video', 'local-video');
-  readonly chatMessageInput = this.getElementById('input', 'chat-message');
-  readonly sentChatButton = this.getElementById('button', 'sent-chat');
   readonly callButton = this.getElementById('button', 'call');
+  readonly chatForm = this.getElementById('form', 'chat-form');
+  readonly chatHistoryList = this.getElementById('ul', 'chat-history');
+  readonly chatMessageInput = this.getElementById('input', 'chat-message');
+  readonly lobbyForm = this.getElementById('form', 'lobby-form');
+  readonly lobbyRoot = this.getElementById('div', 'lobby-root');
+  readonly localVideo = this.getElementById('video', 'local-video');
+  readonly receivedVideo = this.getElementById('video', 'received-video');
+  readonly roomRoot = this.getElementById('div', 'room-root');
+  readonly roomNameInput = this.getElementById('input', 'roomname');
+  readonly usernameInput = this.getElementById('input', 'username');
 
   constructor(private readonly root: Document) {
   }
 
-  private getElementById<K extends keyof HTMLElementTagNameMap>(tagName: K, id: Id): HTMLElementTagNameMap[K] {
+  private getElementById<K extends keyof HTMLElementTagNameMap>(tagName: K, id: Id): HTMLElementTagNameMap[K]
+  private getElementById(tagName: keyof HTMLElementTagNameMap, id: Id): HTMLElement {
     const element = this.root.getElementById(id);
     if (element === null) {
       throw Error(`Element with id '${id}' not found.`);
@@ -37,6 +36,6 @@ export class Dom {
     if (element.tagName.toLowerCase() !== tagName) {
       throw Error(`Element with id '${id}' has unexpected tag name '${element.tagName}' instead of '${tagName}'.`);
     }
-    return element as any;
+    return element;
   }
 }

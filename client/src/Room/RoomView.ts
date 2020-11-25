@@ -1,22 +1,23 @@
 import {Dom} from '../View/Dom';
 
 export class RoomView {
-  private readonly chatList = this.dom.chatList;
+  private readonly chatHistoryList = this.dom.chatHistoryList;
   private readonly attendeesList = this.dom.attendeesList;
   private readonly receivedVideo = this.dom.receivedVideo;
   private readonly localVideo = this.dom.localVideo;
   private readonly chatMessageInput = this.dom.chatMessageInput;
-  private readonly sentChatButton = this.dom.sentChatButton;
+  private readonly chatForm = this.dom.chatForm;
   private readonly callButton = this.dom.callButton;
 
   constructor(private readonly dom: Dom) {
+    this.chatForm.addEventListener('submit', (event) => event.preventDefault());
   }
 
-  set onSentChatButtonClicked(value: () => void) {
-    this.sentChatButton.addEventListener('click', value);
+  set onChatFormSubmit(value: () => void) {
+    this.chatForm.addEventListener('submit', value);
   }
 
-  set onCallButton(value: () => void) {
+  set onCallButtonClicked(value: () => void) {
     this.callButton.addEventListener('click', value);
   }
 
@@ -31,7 +32,7 @@ export class RoomView {
   appendChatMessage(message: string): void {
     const el = document.createElement('li');
     el.innerText = message;
-    this.chatList.appendChild(el);
+    this.chatHistoryList.appendChild(el);
   }
 
   updateUserList(users: string[]): void {

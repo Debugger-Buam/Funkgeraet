@@ -22,7 +22,7 @@ export class RoomController {
   private currentUser: Optional<User> = Optional.empty();
 
   constructor(private readonly view: RoomView) {
-    view.onCallButton = () => {
+    view.onCallButtonClicked = () => {
       if (this.currentUser.isEmpty()) {
         throw new UserError('You are not logged in!');
       }
@@ -32,7 +32,7 @@ export class RoomController {
       this.call(new User(targetUserName));
     };
 
-    view.onSentChatButtonClicked = () => {
+    view.onChatFormSubmit = () => {
       this.socketServer.get().sendChatMessage(view.chatMessage);
       view.chatMessage = '';
     };
