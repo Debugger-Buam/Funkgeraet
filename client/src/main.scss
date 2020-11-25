@@ -52,6 +52,11 @@ html, body, #root {
   grid-column: 2 / 4;
   grid-row: 3;
   overflow: auto;
+  #attendees {
+    li {
+      cursor: pointer;
+    }
+  }
 }
 
 .received-video-container {

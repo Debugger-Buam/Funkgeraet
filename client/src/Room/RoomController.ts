@@ -4,7 +4,6 @@ import { User } from "../../../shared/User";
 import { Optional } from "typescript-optional";
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
-import {JoinRoomMessage} from '../../../shared/Messages';
 import {RoomView} from './RoomView';
 
 export class RoomController {
@@ -22,20 +21,21 @@ export class RoomController {
   private currentUser: Optional<User> = Optional.empty();
 
   constructor(private readonly view: RoomView) {
-    view.onCallButtonClicked = () => {
-      if (this.currentUser.isEmpty()) {
-        throw new UserError('You are not logged in!');
-      }
-      // now restricted to login with 2 browser, named test1 and test2
-      const targetUserName =
-        this.currentUser.get().name === 'test1' ? 'test2' : 'test1';
-      this.call(new User(targetUserName));
-    };
-
+    // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
       this.socketServer.get().sendChatMessage(view.chatMessage);
       view.chatMessage = '';
     };
+
+    view.setOnAttendeeClick(userName => {
+      if (this.currentUser.isEmpty()) {
+        throw new UserError('You are not logged in!');
+      }
+      if (this.currentUser.get().name === userName) {
+        throw new UserError('Du bist ah net die hellste Kerzn auf da Tortn');
+      }
+      this.call(new User(userName));
+    });
   }
 
   // this is the initial call when entering a username
@@ -44,6 +44,7 @@ export class RoomController {
 
     const user = new User(username);
     this.currentUser = Optional.of(user);
+    this.view.setCurrentUser(user);
     this.socketServer = Optional.of(new WebSocketServer(this.view));
     await this.socketServer.get().connect(user, roomname);
 

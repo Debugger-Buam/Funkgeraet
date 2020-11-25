@@ -1,4 +1,5 @@
 import {Dom} from '../View/Dom';
+import {User} from "../../../shared/User";
 
 export class RoomView {
   private readonly chatHistoryList = this.dom.chatHistoryList;
@@ -7,18 +8,26 @@ export class RoomView {
   private readonly localVideo = this.dom.localVideo;
   private readonly chatMessageInput = this.dom.chatMessageInput;
   private readonly chatForm = this.dom.chatForm;
-  private readonly callButton = this.dom.callButton;
+  private currentUser: User | undefined;
+  private onAttendeeClick: ((userName: string) => any) | undefined;
 
   constructor(private readonly dom: Dom) {
     this.chatForm.addEventListener('submit', (event) => event.preventDefault());
   }
 
-  set onChatFormSubmit(value: () => void) {
-    this.chatForm.addEventListener('submit', value);
+  // TODO: I don't know how this would be implemented with JS setter
+  public setCurrentUser(user: User) {
+    this.currentUser = user;
+    this.dom.userGreetingName.innerText = user.name;
   }
 
-  set onCallButtonClicked(value: () => void) {
-    this.callButton.addEventListener('click', value);
+  public setOnAttendeeClick(value: (userName: string) => any) {
+    this.onAttendeeClick = value;
+  }
+
+
+  set onChatFormSubmit(value: () => void) {
+    this.chatForm.addEventListener('submit', value);
   }
 
   get chatMessage(): string {
@@ -35,11 +44,14 @@ export class RoomView {
     this.chatHistoryList.appendChild(el);
   }
 
-  updateUserList(users: string[]): void {
+  updateUserList(userNames: string[]): void {
     this.attendeesList.innerHTML = '';
-    users.forEach((user) => {
+    userNames.forEach((userName) => {
       const el = document.createElement('li');
-      el.innerText = `${user}`;
+      el.innerText = this.currentUser?.name === userName ? `${userName} (This is you)` : userName;
+      el.onclick = () => {
+        this.onAttendeeClick?.(userName);
+      };
       this.attendeesList.appendChild(el);
     });
   }

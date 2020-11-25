@@ -90,10 +90,14 @@ export class WebSocketServer {
   }
 
   private onChatMessageReceived(message: ChatMessage) {
+    // TODO: WebSocketServer should NOT use view, an event that's delegated to the controller who then uses the view
+    // would be better
     this.view.appendChatMessage(`${message.username} - ${message.message}`);
   }
 
   private onUserListChanged(message: UserListChangedMessage) {
+    // TODO: WebSocketServer should NOT use view, an event that's delegated to the controller who then uses the view
+    // would be better
     this.view.updateUserList(message.users);
   }
 }
