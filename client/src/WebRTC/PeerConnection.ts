@@ -1,4 +1,4 @@
-import {WebSocketServer} from "../WebSocket/WebSocketServer";
+import {WebSocketServer} from '../WebSocket/WebSocketServer';
 import {User} from '../../../shared/User';
 import {
   PeerConnectionMessage,
@@ -7,7 +7,12 @@ import {
   PeerConnectionSdpMessageType,
   WebSocketMessageType,
 } from '../../../shared/Messages';
-import {Log} from "../../../shared/Util/Log";
+import {Log} from '../../../shared/Util/Log';
+
+export interface VideoCallResult {
+  isEndedByUser: boolean;
+  message: string;
+}
 
 /*
  https://media.prod.mdn.mozit.cloud/attachments/2018/08/22/16137/06b5fa4f9b25f5613dae3ce17b0185c5/WebRTC_-_Signaling_Diagram.svg
@@ -21,7 +26,9 @@ export class PeerConnection {
     private readonly socketServer: WebSocketServer,
     private readonly sourceUser: User,
     private readonly requestLocalMediaStream: () => Promise<MediaStream>,
-    onTrackListener: (evt: RTCTrackEvent) => any) {
+    onTrackListener: (evt: RTCTrackEvent) => void,
+    private readonly onCloseVideoCall: (e: VideoCallResult) => void,
+  ) {
     if (!process.env.STUN_SERVER_URL) {
       throw Error('STUN_SERVER_URL not defined in .env!');
     }
@@ -48,12 +55,16 @@ export class PeerConnection {
     if (this.webcamStream) {
       return;
     }
-    this.webcamStream = await this.requestLocalMediaStream();
-    this.webcamStream.getTracks().forEach((track) =>
-      this.rtcPeerConnection.addTransceiver(track, {
-        streams: [this.webcamStream as MediaStream],
-      }),
-    );
+    try {
+      this.webcamStream = await this.requestLocalMediaStream();
+      this.webcamStream.getTracks().forEach((track) =>
+        this.rtcPeerConnection.addTransceiver(track, {
+          streams: [this.webcamStream as MediaStream],
+        }),
+      );
+    } catch (e) {
+      this.handleLocalUserMediaError(e);
+    }
   }
 
   private async setAndSendLocalDescription(
@@ -61,34 +72,35 @@ export class PeerConnection {
       description: RTCSessionDescriptionInit
   ) {
     await this.rtcPeerConnection.setLocalDescription(description);
-    if (this.rtcPeerConnection.localDescription === null) {
-      throw Error("Local Description was not set!");
-    }
     this.socketServer.send(new PeerConnectionSdpMessage(type, this.sourceUser.name,
       this.targetUserName!,
-      this.rtcPeerConnection.localDescription));
+      this.rtcPeerConnection.localDescription!));
   }
 
   public async handleSocketOnMessageEvent(message: PeerConnectionMessage) {
-    switch (message.type) {
-      case WebSocketMessageType.VIDEO_OFFER: {
-        await this.handleVideoOfferMsg(
-          message as PeerConnectionSdpMessage,
-        );
-        break;
+    try {
+      switch (message.type) {
+        case WebSocketMessageType.VIDEO_OFFER: {
+          await this.handleVideoOfferMsg(
+            message as PeerConnectionSdpMessage,
+          );
+          break;
+        }
+        case WebSocketMessageType.VIDEO_ANSWER: {
+          await this.handleVideoAnswerMsg(
+            message as PeerConnectionSdpMessage,
+          );
+          break;
+        }
+        case WebSocketMessageType.NEW_ICE_CANDIDATE: {
+          await this.handleNewICECandidateMsg(
+            message as PeerConnectionNewICECandidateMessage,
+          );
+          break;
+        }
       }
-      case WebSocketMessageType.VIDEO_ANSWER: {
-        await this.handleVideoAnswerMsg(
-          message as PeerConnectionSdpMessage,
-        );
-        break;
-      }
-      case WebSocketMessageType.NEW_ICE_CANDIDATE: {
-        await this.handleNewICECandidateMsg(
-            message as PeerConnectionNewICECandidateMessage
-        );
-        break;
-      }
+    } catch (e) {
+      this.closeVideoCall(e);
     }
   }
 
@@ -97,25 +109,25 @@ export class PeerConnection {
     try {
       await this.rtcPeerConnection.addIceCandidate(candidate);
     } catch (error) {
-      Log.error("Error occured in handleNewICECandidateMsg!", error);
-      throw Error("Error occured in handleNewICECandidateMsg!");
+      Log.error(error);
     }
   }
 
-  private async handleVideoAnswerMsg(
-      message: PeerConnectionSdpMessage
-  ) {
+  private async handleVideoAnswerMsg(message: PeerConnectionSdpMessage) {
     const remoteDescription = new RTCSessionDescription(message.sdp);
     await this.rtcPeerConnection.setRemoteDescription(remoteDescription);
   }
 
-  private async handleVideoOfferMsg(
-      message: PeerConnectionSdpMessage
-  ) {
+  private async handleVideoOfferMsg(message: PeerConnectionSdpMessage) {
     this.targetUserName = message.name;
     const remoteDescription = new RTCSessionDescription(message.sdp);
-    if (this.rtcPeerConnection.signalingState !== "stable") {
-      throw Error("Signaling state is not stable during handleVideoOfferMsg!");
+    if (this.rtcPeerConnection.signalingState !== 'stable') {
+      Log.warn('Signaling state is not stable, so triggering rollback');
+      await Promise.all([
+        this.rtcPeerConnection.setLocalDescription({type: 'rollback'}),
+        this.rtcPeerConnection.setRemoteDescription(remoteDescription),
+      ]);
+      return;
     }
     await this.rtcPeerConnection.setRemoteDescription(remoteDescription);
     await this.setStreamOnRtcPeerConnection();
@@ -130,10 +142,7 @@ export class PeerConnection {
     if (!event.candidate) {
       return;
     }
-    if (!this.targetUserName) {
-      throw Error('Can\'t handle ICE candidate, targetUserName is empty!');
-    }
-    this.socketServer.send(new PeerConnectionNewICECandidateMessage(this.targetUserName, event.candidate));
+    this.socketServer.send(new PeerConnectionNewICECandidateMessage(this.targetUserName!, event.candidate));
   }
 
   private handleICEConnectionStateChangeEvent() {
@@ -141,23 +150,25 @@ export class PeerConnection {
       case "closed":
       case "failed":
       case "disconnected":
-        this.closeVideoCall();
+        this.closeVideoCall({
+          isEndedByUser: false,
+          message: `ICE connection state changed to ${this.rtcPeerConnection.iceConnectionState}`,
+        });
         break;
     }
 
   }
 
   private handleSignalingStateChangeEvent() {
-    switch (this.rtcPeerConnection.signalingState) {
-      case "closed":
-        this.closeVideoCall();
-        break;
+    if (this.rtcPeerConnection.signalingState === 'closed') {
+      this.closeVideoCall({isEndedByUser: false, message: 'Signaling state changed to closed.'});
     }
   }
 
-  private closeVideoCall() {
+  private closeVideoCall(e: VideoCallResult) {
     // TODO: clean up events like MDN example does, especially reset member variables like webcamStream, targetUser etc.!
-    Log.warn("closeVideoCall() called!");
+    Log.warn('closeVideoCall() called!');
+    this.onCloseVideoCall(e);
   }
 
   private async handleNegotiationNeededEvent() {
@@ -166,13 +177,36 @@ export class PeerConnection {
     }
     const offer = await this.rtcPeerConnection.createOffer();
 
-    if (this.rtcPeerConnection.signalingState !== "stable") {
-      Log.warn("Signaling state is not stable handleNegotiationNeededEvent. Postponing...");
+    if (this.rtcPeerConnection.signalingState !== 'stable') {
+      Log.warn('Signaling state is not stable handleNegotiationNeededEvent. Postponing...');
       return;
     }
     await this.setAndSendLocalDescription(
-        WebSocketMessageType.VIDEO_OFFER,
-        offer
+      WebSocketMessageType.VIDEO_OFFER,
+      offer,
     );
+  }
+
+  private handleLocalUserMediaError(exception: DOMException) {
+    Log.error(exception);
+    const result: VideoCallResult = {isEndedByUser: false, message: ''};
+    switch (exception.name) {
+      case 'NotAllowedError': {
+        result.message = 'Please allow webcam/microphone access.';
+        break;
+      }
+      case 'NotFoundError': {
+        result.message = 'No webcam/microphone found.';
+        break;
+      }
+      case 'NotReadableError': {
+        result.message = 'A hardware error has occurred when accessing your webcam/microphone.';
+        break;
+      }
+      default: {
+        result.message = `A ${exception.name} has occurred when accessing your webcam/microphone.`;
+      }
+    }
+    this.closeVideoCall(result);
   }
 }

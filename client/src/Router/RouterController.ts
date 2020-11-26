@@ -1,7 +1,8 @@
 import {RouterView} from './RouterView';
+import {ErrorController} from '../Error/ErrorController';
 
 export class RouterController {
-  constructor(readonly view: RouterView) {
+  constructor(readonly view: RouterView, readonly errorController: ErrorController) {
   }
 
   changeRoute(isLobby: boolean): void {

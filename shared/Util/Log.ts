@@ -1,7 +1,7 @@
 export class Log {
     static error(...args: any[]) {
         const time = new Date();
-        console.error("[" + time.toISOString() + "]", ...args);
+        console.trace('[' + time.toISOString() + ']', ...args);
     }
 
     static info(...args: any[]) {

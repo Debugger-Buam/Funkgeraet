@@ -1,6 +1,6 @@
 import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
-import {PeerConnection} from '../WebRTC/PeerConnection';
-import { User } from "../../../shared/User";
+import {PeerConnection, VideoCallResult} from '../WebRTC/PeerConnection';
+import {User} from '../../../shared/User';
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import {RoomView} from './RoomView';
@@ -9,6 +9,7 @@ import {
   PeerConnectionMessage,
   UserListChangedMessage,
 } from '../../../shared/Messages';
+import {ErrorController} from '../Error/ErrorController';
 
 export class RoomController implements MessageListener {
   private static readonly mediaConstraints = {
@@ -24,7 +25,7 @@ export class RoomController implements MessageListener {
   private peerConnection?: PeerConnection;
   private currentUser?: User;
 
-  constructor(private readonly view: RoomView) {
+  constructor(private readonly view: RoomView, readonly errorController: ErrorController) {
     // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
       this.socketServer!.sendChatMessage(view.chatMessage);
@@ -48,14 +49,24 @@ export class RoomController implements MessageListener {
       this.currentUser!,
       this.requestLocalMediaStream.bind(this),
       this.handleOnTrackEvent.bind(this),
+      this.cleanUpPeerConnection.bind(this),
     );
   }
 
-  public onPeerConnectionMsg(message: PeerConnectionMessage): void {
+  public async onPeerConnectionMsg(message: PeerConnectionMessage): Promise<void> {
     if (!this.peerConnection) {
       this.peerConnection = this.createPeerConnection();
     }
-    this.peerConnection.handleSocketOnMessageEvent(message);
+    await this.peerConnection.handleSocketOnMessageEvent(message);
+  }
+
+  private cleanUpPeerConnection(result: VideoCallResult): void {
+    this.peerConnection = undefined;
+    if (result.isEndedByUser) {
+      Log.info('User ended call');
+    } else {
+      this.errorController.handleError(result);
+    }
   }
 
   public onChatMessageReceived(message: ChatMessage): void {
