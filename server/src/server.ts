@@ -38,7 +38,7 @@ const roomManager = new RoomManager();
 
 wss.on("connection", (ws) => {
   // Handler
-  const con = connectionManager.addConnection(ws);
+  const con = connectionManager.newConnection(ws);
   Log.info(`Client connected Id: [${con.id}]`);
   ws.send(new InitMessage(con.id).pack());
 
@@ -77,7 +77,8 @@ wss.on("connection", (ws) => {
 
         con.user = new User(request.userName);
 
-        const room = roomManager.getRoomWithName(request.roomName);
+        // Creates a new room if it does not exist
+        const room = roomManager.getOrCreateRoom(request.roomName);
         con.room = room;
 
         room.addConnection(con);
