@@ -3,14 +3,16 @@ import { Log } from "../../../shared/Util/Log";
 import {
   BaseMessage,
   ChatMessage,
+  ChatMessageList,
   InitMessage,
-  JoinRoomMessage, PeerConnectionMessage,
+  JoinRoomMessage,
+  PeerConnectionMessage,
   UserListChangedMessage,
   WebSocketMessageType,
-} from '../../../shared/Messages';
+} from "../../../shared/Messages";
 
-import {WebSocketConnection} from './WebSocketConnection';
-import {User} from '../../../shared/User';
+import { WebSocketConnection } from "./WebSocketConnection";
+import { User } from "../../../shared/User";
 
 export interface MessageListener {
   onChatMessageReceived(message: ChatMessage): void;
@@ -24,17 +26,16 @@ export class WebSocketServer {
   private socket?: WebSocket;
   private connection?: WebSocketConnection;
 
-  constructor(private readonly listener: MessageListener) {
-  }
+  constructor(private readonly listener: MessageListener) {}
 
   connect(user: User, roomName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!process.env.WEB_SOCKET_SERVER_URL) {
-        throw Error('WEB_SOCKET_SERVER_URL not defined in .env!');
+        throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
       }
-      const urlPrefix = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const urlPrefix = window.location.protocol === "https:" ? "wss" : "ws";
       const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
-      const socket = new WebSocket(url, 'json');
+      const socket = new WebSocket(url, "json");
       this.socket = socket;
 
       socket.onerror = (event: Event) => {
@@ -73,6 +74,14 @@ export class WebSocketServer {
           case WebSocketMessageType.CHAT: {
             const chatMessage = message as ChatMessage;
             this.listener.onChatMessageReceived(chatMessage);
+            break;
+          }
+
+          case WebSocketMessageType.CHAT_LIST: {
+            const chatMessageList = message as ChatMessageList;
+            chatMessageList.messages.forEach((chatMessage) => {
+              this.listener.onChatMessageReceived(chatMessage);
+            });
             break;
           }
 

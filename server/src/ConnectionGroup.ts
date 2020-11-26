@@ -13,9 +13,8 @@ import { Log } from "../../shared/Util/Log";
 export class ConnectionGroup {
   protected connections = new Map<number, Connection>();
 
-  addConnection(con: Connection): Connection {
+  addConnection(con: Connection) {
     this.connections.set(con.id, con);
-    return con;
   }
 
   removeConnection(con: Connection) {

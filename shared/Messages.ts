@@ -42,6 +42,14 @@ export class ChatMessage extends BaseMessage {
   }
 }
 
+export class ChatMessageList extends BaseMessage {
+  constructor(
+    public readonly messages: ChatMessage[],
+  ) {
+    super(WebSocketMessageType.CHAT_LIST);
+  }
+}
+
 export class PeerConnectionMessage extends BaseMessage {
   constructor(type: WebSocketMessageType, public readonly target: string) {
     super(type);
@@ -76,6 +84,7 @@ export enum WebSocketMessageType {
   JOIN = "JOIN_ROOM",
   SET_NAME = "SET_NAME",
   CHAT = "CHAT",
+  CHAT_LIST = "CHAT_LIST",
   VIDEO_OFFER = "VIDEO_OFFER",
   VIDEO_ANSWER = "VIDEO_ANSWER",
   NEW_ICE_CANDIDATE = "NEW_ICE_CANDIDATE",

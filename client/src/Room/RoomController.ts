@@ -5,11 +5,9 @@ import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import {RoomView} from './RoomView';
 import {
-  BaseMessage,
   ChatMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
-  WebSocketMessageType,
 } from '../../../shared/Messages';
 
 export class RoomController implements MessageListener {

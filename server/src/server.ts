@@ -106,17 +106,6 @@ wss.on("connection", (ws) => {
 
         break;
       }
-
-      case WebSocketMessageType.CHAT: {
-        const request = message as ChatMessage;
-        const msg = new ChatMessage(
-          con.user?.name ?? request.username,
-          request.message
-        );
-
-        con.room?.broadcast(msg);
-        break;
-      }
       case WebSocketMessageType.NEW_ICE_CANDIDATE:
       case WebSocketMessageType.VIDEO_OFFER:
       case WebSocketMessageType.VIDEO_ANSWER: {
