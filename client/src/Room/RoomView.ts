@@ -25,7 +25,6 @@ export class RoomView {
     this.onAttendeeClick = value;
   }
 
-
   set onChatFormSubmit(value: () => void) {
     this.chatForm.addEventListener('submit', value);
   }

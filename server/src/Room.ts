@@ -2,6 +2,7 @@ import {
   BaseMessage,
   ChatMessage,
   ChatMessageList,
+  UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
 import { Connection } from "./Connection";
@@ -21,32 +22,30 @@ export class Room extends ConnectionGroup {
 
   addConnection(connection: Connection) {
     super.addConnection(connection);
+    this.broadcast(new UserListChangedMessage(this.getUsers()));
 
     // Listen on room specific messages
-    // TODO: Remove listener when connection is removed
     connection.socket.on("message", (data: any) => {
       const message: BaseMessage = JSON.parse(data);
-      switch (message.type) {
-        case WebSocketMessageType.CHAT: {
-          const request = message as ChatMessage;
-          const msg = new ChatMessage(
-            connection.user?.name ?? request.username,
-            request.message
-          );
+      if (message.type === WebSocketMessageType.CHAT) {
+        const request = message as ChatMessage;
+        const msg = new ChatMessage(
+          connection.user?.name ?? request.username,
+          request.message
+        );
 
-          this.onChatMessage(msg);
-          break;
-        }
+        this.onChatMessage(msg);
       }
     });
 
-    this.onNewConnection(connection);
-  }
-
-  private onNewConnection(connection: Connection) {
     if (connection.user != null) {
       this.send(new ChatMessageList(this.chatMessages), connection.user);
     }
+  }
+
+  removeConnection(connection: Connection) {
+    super.removeConnection(connection);
+    this.broadcast(new UserListChangedMessage(this.getUsers()));
   }
 
   private onChatMessage(message: ChatMessage) {

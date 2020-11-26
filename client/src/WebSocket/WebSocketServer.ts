@@ -97,7 +97,10 @@ export class WebSocketServer {
   }
 
   sendChatMessage(message: string) {
-    this.send(new ChatMessage(this.connection!.user.name, message));
+    message = message.trim();
+    if (message.length > 0) {
+      this.send(new ChatMessage(this.connection!.user.name, message));
+    }
   }
 
   send(message: BaseMessage) {

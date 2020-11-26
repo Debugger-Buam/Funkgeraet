@@ -1,7 +1,6 @@
 import WebSocket, { ServerOptions } from "ws";
 import {
   BaseMessage,
-  ChatMessage,
   InitMessage,
   JoinRoomMessage,
   PeerConnectionMessage,
@@ -46,11 +45,10 @@ wss.on("connection", (ws) => {
     Log.info(`Client disconnected Id: [${con.id}]`);
 
     con.room?.removeConnection(con);
-    con.room?.broadcast(new UserListChangedMessage(con.room?.getUsers()));
-
     con.room = undefined;
 
     connectionManager.removeConnection(con);
+    con.socket.removeAllListeners();
   });
 
   ws.on("message", (data: any) => {
@@ -80,9 +78,8 @@ wss.on("connection", (ws) => {
         // Creates a new room if it does not exist
         const room = roomManager.getOrCreateRoom(request.roomName);
         con.room = room;
-
+        
         room.addConnection(con);
-        con.room?.broadcast(new UserListChangedMessage(con.room?.getUsers()));
 
         Log.info("Number of rooms that exist is : ", roomManager.rooms.length);
 
