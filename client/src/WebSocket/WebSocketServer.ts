@@ -4,21 +4,28 @@ import {
   BaseMessage,
   ChatMessage,
   InitMessage,
-  JoinRoomMessage,
+  JoinRoomMessage, PeerConnectionMessage,
   UserListChangedMessage,
   WebSocketMessageType,
-} from "../../../shared/Messages";
+} from '../../../shared/Messages';
 
-import { Optional } from "typescript-optional";
-import { WebSocketConnection } from "./WebSocketConnection";
+import {Optional} from 'typescript-optional';
+import {WebSocketConnection} from './WebSocketConnection';
 import {User} from '../../../shared/User';
-import {RoomView} from '../Room/RoomView';
+
+export interface MessageListener {
+  onChatMessageReceived(message: ChatMessage): void;
+
+  onUserListChanged(message: UserListChangedMessage): void;
+
+  onPeerConnectionMsg(message: PeerConnectionMessage): void;
+}
 
 export class WebSocketServer {
   private socket: Optional<WebSocket> = Optional.empty();
   private connection: Optional<WebSocketConnection> = Optional.empty();
 
-  constructor(readonly view: RoomView) {
+  constructor(private readonly listener: MessageListener) {
   }
 
   connect(user: User, roomName: string): Promise<void> {
@@ -28,7 +35,7 @@ export class WebSocketServer {
       }
       const urlPrefix = window.location.protocol === 'https:' ? 'wss' : 'ws';
       const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
-      let socket = new WebSocket(url, 'json');
+      const socket = new WebSocket(url, 'json');
       this.socket = Optional.of(socket);
 
       socket.onerror = (event: Event) => {
@@ -60,13 +67,20 @@ export class WebSocketServer {
 
           case WebSocketMessageType.USER_LIST_CHANGED: {
             const userListChangedMessage = message as UserListChangedMessage;
-            this.onUserListChanged(userListChangedMessage);
+            this.listener.onUserListChanged(userListChangedMessage);
             break;
           }
 
           case WebSocketMessageType.CHAT: {
             const chatMessage = message as ChatMessage;
-            this.onChatMessageReceived(chatMessage);
+            this.listener.onChatMessageReceived(chatMessage);
+            break;
+          }
+
+          case WebSocketMessageType.VIDEO_OFFER:
+          case WebSocketMessageType.VIDEO_ANSWER:
+          case WebSocketMessageType.NEW_ICE_CANDIDATE: {
+            this.listener.onPeerConnectionMsg(message as PeerConnectionMessage);
             break;
           }
         }
@@ -87,17 +101,5 @@ export class WebSocketServer {
     // but you'd need an own event system for that, native events only work on DOM objects.
 
     this.socket.get().addEventListener("message", listener);
-  }
-
-  private onChatMessageReceived(message: ChatMessage) {
-    // TODO: WebSocketServer should NOT use view, an event that's delegated to the controller who then uses the view
-    // would be better
-    this.view.appendChatMessage(`${message.username} - ${message.message}`);
-  }
-
-  private onUserListChanged(message: UserListChangedMessage) {
-    // TODO: WebSocketServer should NOT use view, an event that's delegated to the controller who then uses the view
-    // would be better
-    this.view.updateUserList(message.users);
   }
 }

@@ -1,13 +1,13 @@
 import {WebSocketServer} from "../WebSocket/WebSocketServer";
-import {User} from "../../../shared/User";
+import {User} from '../../../shared/User';
 import {
-  BaseMessage,
+  PeerConnectionMessage,
   PeerConnectionNewICECandidateMessage,
   PeerConnectionSdpMessage,
   PeerConnectionSdpMessageType,
   WebSocketMessageType,
-} from "../../../shared/Messages";
-import {Optional} from "typescript-optional";
+} from '../../../shared/Messages';
+import {Optional} from 'typescript-optional';
 import {Log} from "../../../shared/Util/Log";
 
 /*
@@ -19,15 +19,16 @@ export class PeerConnection {
   private webcamStream: Optional<MediaStream> = Optional.empty();
 
   constructor(
-      private readonly socketServer: WebSocketServer,
-      private readonly sourceUser: User,
-      private readonly requestLocalMediaStream: () => Promise<MediaStream>) {
+    private readonly socketServer: WebSocketServer,
+    private readonly sourceUser: User,
+    private readonly requestLocalMediaStream: () => Promise<MediaStream>,
+    onTrackListener: (evt: RTCTrackEvent) => any) {
     if (!process.env.STUN_SERVER_URL) {
-      throw Error("STUN_SERVER_URL not defined in .env!");
+      throw Error('STUN_SERVER_URL not defined in .env!');
     }
 
     this.rtcPeerConnection = new RTCPeerConnection({
-      iceServers: [{urls: process.env.STUN_SERVER_URL, username: "webrtc", credential: "turnserver"}],
+      iceServers: [{urls: process.env.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}],
     });
     this.rtcPeerConnection.onicecandidate = event => this.handleICECandidateEvent(event);
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();
@@ -35,21 +36,13 @@ export class PeerConnection {
     this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
 
     this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
-    this.rtcPeerConnection.onicegatheringstatechange = () => Log.info("gathering state changed to ", this.rtcPeerConnection.iceGatheringState);
-
-
-    this.socketServer.addOnMessageEventListener((event) =>
-        this.handleSocketOnMessageEvent(event)
-    );
+    this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
+    this.rtcPeerConnection.ontrack = (event) => onTrackListener(event);
   }
 
   async call(targetUser: User) {
     this.targetUserName = Optional.of(targetUser.name);
     await this.setStreamOnRtcPeerConnection();
-  }
-
-  addOnTrackEventListener(listener: (evt: RTCTrackEvent) => any) {
-    this.rtcPeerConnection.addEventListener("track", listener);
   }
 
   private async setStreamOnRtcPeerConnection() {
@@ -77,18 +70,17 @@ export class PeerConnection {
         this.rtcPeerConnection.localDescription));
   }
 
-  private async handleSocketOnMessageEvent(event: MessageEvent) {
-    const message: BaseMessage = JSON.parse(event.data);
+  public async handleSocketOnMessageEvent(message: PeerConnectionMessage) {
     switch (message.type) {
       case WebSocketMessageType.VIDEO_OFFER: {
         await this.handleVideoOfferMsg(
-            message as PeerConnectionSdpMessage
+          message as PeerConnectionSdpMessage,
         );
         break;
       }
       case WebSocketMessageType.VIDEO_ANSWER: {
         await this.handleVideoAnswerMsg(
-            message as PeerConnectionSdpMessage
+          message as PeerConnectionSdpMessage,
         );
         break;
       }
