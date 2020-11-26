@@ -1,5 +1,6 @@
-import {Dom} from '../View/Dom';
-import {User} from "../../../shared/User";
+import "./room.scss";
+import { Dom } from "../View/Dom";
+import { User } from "../../../shared/User";
 
 export class RoomView {
   private readonly chatHistoryList = this.dom.chatHistoryList;
@@ -12,7 +13,7 @@ export class RoomView {
   private onAttendeeClick: ((userName: string) => any) | undefined;
 
   constructor(private readonly dom: Dom) {
-    this.chatForm.addEventListener('submit', (event) => event.preventDefault());
+    this.chatForm.addEventListener("submit", (event) => event.preventDefault());
   }
 
   // TODO: I don't know how this would be implemented with JS setter
@@ -26,7 +27,7 @@ export class RoomView {
   }
 
   set onChatFormSubmit(value: () => void) {
-    this.chatForm.addEventListener('submit', value);
+    this.chatForm.addEventListener("submit", value);
   }
 
   get chatMessage(): string {
@@ -38,16 +39,19 @@ export class RoomView {
   }
 
   appendChatMessage(message: string): void {
-    const el = document.createElement('li');
+    const el = document.createElement("li");
     el.innerText = message;
     this.chatHistoryList.appendChild(el);
   }
 
   updateUserList(userNames: string[]): void {
-    this.attendeesList.innerHTML = '';
+    this.attendeesList.innerHTML = "";
     userNames.forEach((userName) => {
-      const el = document.createElement('li');
-      el.innerText = this.currentUser?.name === userName ? `${userName} (This is you)` : userName;
+      const el = document.createElement("li");
+      el.innerText =
+        this.currentUser?.name === userName
+          ? `${userName} (This is you)`
+          : userName;
       el.onclick = () => {
         this.onAttendeeClick?.(userName);
       };

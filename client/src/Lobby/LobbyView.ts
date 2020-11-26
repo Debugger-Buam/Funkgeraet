@@ -1,3 +1,4 @@
+import './lobby.scss';
 import {Dom} from '../View/Dom';
 
 export class LobbyView {

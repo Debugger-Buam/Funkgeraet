@@ -29,12 +29,13 @@ export class Room extends ConnectionGroup {
       const message: BaseMessage = JSON.parse(data);
       if (message.type === WebSocketMessageType.CHAT) {
         const request = message as ChatMessage;
-        const msg = new ChatMessage(
-          connection.user?.name ?? request.username,
-          request.message
-        );
-
-        this.onChatMessage(msg);
+        if (request.message) {
+          const msg = new ChatMessage(
+            connection.user?.name ?? request.username,
+            request.message.trim()
+          );
+          this.onChatMessage(msg);
+        }
       }
     });
 
@@ -49,7 +50,9 @@ export class Room extends ConnectionGroup {
   }
 
   private onChatMessage(message: ChatMessage) {
-    this.chatMessages.push(message);
-    this.broadcast(message);
+    if (message.username.length > 0 || message.message.length > 0) {
+      this.chatMessages.push(message);
+      this.broadcast(message);
+    }
   }
 }
