@@ -19,11 +19,8 @@ export interface LocalMediaStreamProvider {
   requestLocalMediaStream(): Promise<MediaStream>;
 }
 
-export interface TrackListener {
+export interface PeerConnectionListener {
   onTrack(evt: RTCTrackEvent): void;
-}
-
-export interface CloseVideoCallListener {
   onCloseVideoCall(e: VideoCallResult): void;
 }
 
@@ -39,8 +36,7 @@ export class PeerConnection {
     private readonly socketServer: WebSocketServer,
     private readonly sourceUser: User,
     private readonly localMediaStreamProvider: LocalMediaStreamProvider,
-    trackListener: TrackListener,
-    private readonly closeVideoCallListener: CloseVideoCallListener,
+    private readonly peerConnectionListener: PeerConnectionListener
   ) {
     if (!process.env.STUN_SERVER_URL) {
       throw Error('STUN_SERVER_URL not defined in .env!');
@@ -55,7 +51,7 @@ export class PeerConnection {
     this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
     this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
-    this.rtcPeerConnection.ontrack = (event) => trackListener.onTrack(event);
+    this.rtcPeerConnection.ontrack = (event) => this.peerConnectionListener.onTrack(event);
   }
 
   async call(targetUser: User) {
@@ -200,7 +196,7 @@ export class PeerConnection {
     this.webcamStream = undefined;
     this.targetUserName = undefined;
 
-    this.closeVideoCallListener.onCloseVideoCall(e);
+    this.peerConnectionListener.onCloseVideoCall(e);
   }
 
   private async handleNegotiationNeededEvent() {

@@ -1,9 +1,8 @@
 import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
 import {
-  CloseVideoCallListener,
   LocalMediaStreamProvider,
   PeerConnection,
-  TrackListener,
+  PeerConnectionListener,
   VideoCallResult,
 } from '../WebRTC/PeerConnection';
 import {User} from '../../../shared/User';
@@ -17,7 +16,7 @@ import {
 } from '../../../shared/Messages';
 import {ErrorController} from '../Error/ErrorController';
 
-export class RoomController implements MessageListener, LocalMediaStreamProvider, TrackListener, CloseVideoCallListener {
+export class RoomController implements MessageListener, LocalMediaStreamProvider, PeerConnectionListener {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -51,7 +50,7 @@ export class RoomController implements MessageListener, LocalMediaStreamProvider
     return new PeerConnection(
       this.socketServer!,
       this.currentUser!,
-      this, this, this,
+      this, this,
     );
   }
 
