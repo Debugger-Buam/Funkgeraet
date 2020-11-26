@@ -108,7 +108,7 @@ wss.on("connection", (ws) => {
       case WebSocketMessageType.VIDEO_ANSWER:
       case WebSocketMessageType.HANG_UP: {
         const request = message as PeerConnectionMessage;
-        const target = new User(request.target);
+        const target = new User(request.receiver);
         con.room?.send(message, target);
         break;
       }

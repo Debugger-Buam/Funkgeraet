@@ -91,6 +91,10 @@ export class PeerConnection {
   }
 
   public async handleSocketOnMessageEvent(message: PeerConnectionMessage) {
+    if(this.targetUserName && message.sender !== this.targetUserName) {
+      Log.info(`handleSocketOnMessageEvent - rejected ${message.type} from ${message.sender} because we are in a call with ${this.targetUserName}`);
+      return;
+    }
     try {
       switch (message.type) {
         case WebSocketMessageType.VIDEO_OFFER: {
@@ -137,7 +141,7 @@ export class PeerConnection {
   }
 
   private async handleVideoOfferMsg(message: PeerConnectionSdpMessage) {
-    this.targetUserName = message.name;
+    this.targetUserName = message.sender;
     const remoteDescription = new RTCSessionDescription(message.sdp);
     if (this.rtcPeerConnection.signalingState !== 'stable') {
       Log.warn('Signaling state is not stable, so triggering rollback');
@@ -160,7 +164,7 @@ export class PeerConnection {
     if (!event.candidate) {
       return;
     }
-    this.socketServer.send(new PeerConnectionNewICECandidateMessage(this.targetUserName!, event.candidate));
+    this.socketServer.send(new PeerConnectionNewICECandidateMessage(this.sourceUser.name, this.targetUserName!, event.candidate));
   }
 
   private handleICEConnectionStateChangeEvent() {

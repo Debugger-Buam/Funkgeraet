@@ -51,7 +51,7 @@ export class ChatMessageList extends BaseMessage {
 }
 
 export class PeerConnectionMessage extends BaseMessage {
-  constructor(type: WebSocketMessageType, public readonly target: string) {
+  constructor(type: WebSocketMessageType, public readonly sender: string, readonly receiver: string) {
     super(type);
   }
 }
@@ -62,29 +62,30 @@ export declare type PeerConnectionSdpMessageType =
 export class PeerConnectionSdpMessage extends PeerConnectionMessage {
   constructor(
       type: PeerConnectionSdpMessageType,
-      public readonly name: string,
-      public readonly target: string,
+      public readonly sender: string,
+      public readonly receiver: string,
       public readonly sdp: RTCSessionDescription
   ) {
-    super(type, target);
+    super(type, sender, receiver);
   }
 }
 
 export class PeerConnectionHangUpMessage extends PeerConnectionMessage {
   constructor(
-      public readonly name: string,
-      public readonly target: string
+      public readonly sender: string,
+      public readonly receiver: string
   ) {
-    super(WebSocketMessageType.HANG_UP, target);
+    super(WebSocketMessageType.HANG_UP, sender, receiver);
   }
 }
 
 export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage {
   constructor(
-    public readonly target: string,
+    public readonly sender: string,
+    public readonly receiver: string,
     public readonly candidate: RTCIceCandidate
   ) {
-    super(WebSocketMessageType.NEW_ICE_CANDIDATE, target);
+    super(WebSocketMessageType.NEW_ICE_CANDIDATE, sender, receiver);
   }
 }
 

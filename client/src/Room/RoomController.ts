@@ -102,8 +102,7 @@ export class RoomController implements MessageListener, LocalMediaStreamProvider
 
     Log.info('user', this.currentUser.name, 'calls', clickedUser.name);
     if (this.peerConnection) {
-      Log.error(this.peerConnection);
-      throw Error('Impossible state'); // TODO better error handling
+      await this.hangUp(); // hang up current call to initiate new call
     }
     this.peerConnection = this.createPeerConnection();
     await this.peerConnection.call(clickedUser);
