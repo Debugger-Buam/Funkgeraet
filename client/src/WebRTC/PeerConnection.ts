@@ -1,6 +1,7 @@
 import {WebSocketServer} from '../WebSocket/WebSocketServer';
 import {User} from '../../../shared/User';
 import {
+  PeerConnectionHangUpMessage,
   PeerConnectionMessage,
   PeerConnectionNewICECandidateMessage,
   PeerConnectionSdpMessage,
@@ -40,7 +41,6 @@ export class PeerConnection {
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();
     this.rtcPeerConnection.onsignalingstatechange = () => this.handleSignalingStateChangeEvent();
     this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
-
     this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
     this.rtcPeerConnection.ontrack = (event) => onTrackListener(event);
@@ -49,6 +49,11 @@ export class PeerConnection {
   async call(targetUser: User) {
     this.targetUserName = targetUser.name;
     await this.setStreamOnRtcPeerConnection();
+  }
+
+  async hangUp() {
+    this.socketServer.send(new PeerConnectionHangUpMessage(this.sourceUser.name, this.targetUserName!));
+    this.closeVideoCall({isEndedByUser: true, message: "You hang up."});
   }
 
   private async setStreamOnRtcPeerConnection() {
@@ -98,9 +103,14 @@ export class PeerConnection {
           );
           break;
         }
+        case WebSocketMessageType.HANG_UP: {
+          this.closeVideoCall({isEndedByUser: true, message: "Your partner hang up."});
+          break;
+        }
       }
     } catch (e) {
-      this.closeVideoCall(e);
+      Log.error(e);
+      this.closeVideoCall({isEndedByUser: false, message: "During handling the socket message an unexpected exception occurred"});
     }
   }
 
@@ -166,8 +176,18 @@ export class PeerConnection {
   }
 
   private closeVideoCall(e: VideoCallResult) {
-    // TODO: clean up events like MDN example does, especially reset member variables like webcamStream, targetUser etc.!
-    Log.warn('closeVideoCall() called!');
+    this.rtcPeerConnection.onicecandidate = null;
+    this.rtcPeerConnection.oniceconnectionstatechange = null;
+    this.rtcPeerConnection.onsignalingstatechange = null;
+    this.rtcPeerConnection.onnegotiationneeded = null;
+    this.rtcPeerConnection.onsignalingstatechange = null;
+    this.rtcPeerConnection.onicegatheringstatechange = null;
+    this.rtcPeerConnection.ontrack = null
+    this.rtcPeerConnection.getTransceivers().forEach(transceiver => transceiver.stop());
+    this.rtcPeerConnection.close();
+    this.webcamStream = undefined;
+    this.targetUserName = undefined;
+
     this.onCloseVideoCall(e);
   }
 

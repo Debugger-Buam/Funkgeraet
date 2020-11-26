@@ -30,6 +30,10 @@ export class RoomView {
     this.chatForm.addEventListener("submit", value);
   }
 
+  set onHangupButton(value: () => void) {
+    this.dom.hangupButton.addEventListener("click", value);
+  }
+
   get chatMessage(): string {
     return this.chatMessageInput.value;
   }

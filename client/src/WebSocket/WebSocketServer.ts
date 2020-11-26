@@ -1,4 +1,4 @@
-import { Log } from "../../../shared/Util/Log";
+import {Log} from "../../../shared/Util/Log";
 
 import {
   BaseMessage,
@@ -11,8 +11,8 @@ import {
   WebSocketMessageType,
 } from "../../../shared/Messages";
 
-import { WebSocketConnection } from "./WebSocketConnection";
-import { User } from "../../../shared/User";
+import {WebSocketConnection} from "./WebSocketConnection";
+import {User} from "../../../shared/User";
 
 export interface MessageListener {
   onChatMessageReceived(message: ChatMessage): void;
@@ -87,7 +87,8 @@ export class WebSocketServer {
 
           case WebSocketMessageType.VIDEO_OFFER:
           case WebSocketMessageType.VIDEO_ANSWER:
-          case WebSocketMessageType.NEW_ICE_CANDIDATE: {
+          case WebSocketMessageType.NEW_ICE_CANDIDATE:
+          case WebSocketMessageType.HANG_UP: {
             this.listener.onPeerConnectionMsg(message as PeerConnectionMessage);
             break;
           }

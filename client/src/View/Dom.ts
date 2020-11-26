@@ -1,4 +1,4 @@
-type Id = 'attendees' | 'user-greeting-name'
+type Id = 'attendees' | 'user-greeting-name' | 'hang-up-button'
   | 'chat-form' | 'chat-history' | 'chat-message'
   | 'lobby-form' | 'lobby-root'
   | 'local-video'
@@ -12,6 +12,7 @@ export enum ClassName {
 
 export class Dom {
   readonly attendeesList = this.getElementById('ul', 'attendees');
+  readonly hangupButton = this.getElementById('div', 'hang-up-button');
   readonly userGreetingName = this.getElementById('span', 'user-greeting-name');
   readonly chatForm = this.getElementById('form', 'chat-form');
   readonly chatHistoryList = this.getElementById('ul', 'chat-history');

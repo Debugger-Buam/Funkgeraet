@@ -54,4 +54,9 @@
 .video-control-container {
   grid-column: 2 / 4;
   grid-row: 5;
+  #video-controls {
+    .video-control {
+      cursor: pointer;
+    }
+  }
 }

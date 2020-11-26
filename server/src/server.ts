@@ -1,4 +1,4 @@
-import WebSocket, { ServerOptions } from "ws";
+import WebSocket, {ServerOptions} from "ws";
 import {
   BaseMessage,
   InitMessage,
@@ -8,12 +8,12 @@ import {
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
-import { User } from "../../shared/User";
+import {User} from "../../shared/User";
 import fs from "fs";
 import https from "https";
-import { Log } from "../../shared/Util/Log";
-import { RoomManager } from "./RoomManager";
-import { ConnectionManager } from "./ConnectionManager";
+import {Log} from "../../shared/Util/Log";
+import {RoomManager} from "./RoomManager";
+import {ConnectionManager} from "./ConnectionManager";
 
 const port = 6503;
 let serverOptions: ServerOptions;
@@ -105,7 +105,8 @@ wss.on("connection", (ws) => {
       }
       case WebSocketMessageType.NEW_ICE_CANDIDATE:
       case WebSocketMessageType.VIDEO_OFFER:
-      case WebSocketMessageType.VIDEO_ANSWER: {
+      case WebSocketMessageType.VIDEO_ANSWER:
+      case WebSocketMessageType.HANG_UP: {
         const request = message as PeerConnectionMessage;
         const target = new User(request.target);
         con.room?.send(message, target);

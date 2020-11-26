@@ -61,12 +61,21 @@ export declare type PeerConnectionSdpMessageType =
   | WebSocketMessageType.VIDEO_OFFER;
 export class PeerConnectionSdpMessage extends PeerConnectionMessage {
   constructor(
-    type: PeerConnectionSdpMessageType,
-    public readonly name: string,
-    public readonly target: string,
-    public readonly sdp: RTCSessionDescription
+      type: PeerConnectionSdpMessageType,
+      public readonly name: string,
+      public readonly target: string,
+      public readonly sdp: RTCSessionDescription
   ) {
     super(type, target);
+  }
+}
+
+export class PeerConnectionHangUpMessage extends PeerConnectionMessage {
+  constructor(
+      public readonly name: string,
+      public readonly target: string
+  ) {
+    super(WebSocketMessageType.HANG_UP, target);
   }
 }
 
@@ -88,5 +97,6 @@ export enum WebSocketMessageType {
   VIDEO_OFFER = "VIDEO_OFFER",
   VIDEO_ANSWER = "VIDEO_ANSWER",
   NEW_ICE_CANDIDATE = "NEW_ICE_CANDIDATE",
+  HANG_UP = "HANG_UP",
   USER_LIST_CHANGED = "USER_LIST_CHANGED",
 }

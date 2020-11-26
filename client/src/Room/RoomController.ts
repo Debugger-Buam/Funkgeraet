@@ -33,14 +33,12 @@ export class RoomController implements MessageListener {
     };
 
     view.setOnAttendeeClick(userName => {
-      if (!this.currentUser) {
-        throw new UserError('You are not logged in!');
-      }
-      if (this.currentUser.name === userName) {
-        throw new UserError('Du bist ah net die hellste Kerzn auf da Tortn');
-      }
       this.call(new User(userName));
     });
+
+    view.onHangupButton = () => {
+      this.hangUp();
+    }
   }
 
   private createPeerConnection(): PeerConnection {
@@ -49,7 +47,7 @@ export class RoomController implements MessageListener {
       this.currentUser!,
       this.requestLocalMediaStream.bind(this),
       this.handleOnTrackEvent.bind(this),
-      this.cleanUpPeerConnection.bind(this),
+      this.onCloseVideoCall.bind(this),
     );
   }
 
@@ -60,13 +58,15 @@ export class RoomController implements MessageListener {
     await this.peerConnection.handleSocketOnMessageEvent(message);
   }
 
-  private cleanUpPeerConnection(result: VideoCallResult): void {
+  private onCloseVideoCall(result: VideoCallResult): void {
     this.peerConnection = undefined;
     if (result.isEndedByUser) {
       Log.info('User ended call');
     } else {
       this.errorController.handleError(result);
     }
+    this.view.receivedVideoSrc = null;
+    this.view.localVideoSrc = null;
   }
 
   public onChatMessageReceived(message: ChatMessage): void {
@@ -89,8 +89,15 @@ export class RoomController implements MessageListener {
   }
 
   // This is the click on the user name should start the call
-  public async call(clickedUser: User) {
-    Log.info('user', this.currentUser!.name, 'calls', clickedUser.name);
+  private async call(clickedUser: User) {
+    if (!this.currentUser) {
+      throw new UserError('You are not logged in!');
+    }
+    if (this.currentUser.name === clickedUser.name) {
+      throw new UserError('Can\'t call yourself stupid');
+    }
+
+    Log.info('user', this.currentUser.name, 'calls', clickedUser.name);
     if (this.peerConnection) {
       Log.error(this.peerConnection);
       throw Error('Impossible state'); // TODO better error handling
@@ -98,6 +105,13 @@ export class RoomController implements MessageListener {
     this.peerConnection = this.createPeerConnection();
     await this.peerConnection.call(clickedUser);
     Log.info('Call initialized.');
+  }
+
+  private async hangUp() {
+    if(!this.peerConnection) {
+      throw new UserError('No call to hang up idiot');
+    }
+    await this.peerConnection.hangUp();
   }
 
   private async requestLocalMediaStream(): Promise<MediaStream> {
