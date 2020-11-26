@@ -1,7 +1,7 @@
 #room-root {
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: max-content 1fr 1fr;
+  grid-template-columns: max-content 1fr 50vw;
   grid-template-rows: max-content max-content max-content 1fr max-content;
   height: 100vh;
   width: 100vw;
@@ -10,28 +10,40 @@
 .nav-bar-container {
   grid-column: 1 / 4;
   grid-row: 1;
+  background: #d2691eaa;
+  padding: 2rem;
 }
 
 .chat-history-container {
   grid-column: 1;
   grid-row: 2 / 5;
   overflow: auto;
+  background: #7fffd4aa;
+  padding: 2rem;
 }
 
 .chat-message-container {
   grid-column: 1;
   grid-row: 5;
+  background: #deb887aa;
+  padding: 2rem;
 }
 
 .room-control {
   grid-column: 2 / 4;
   grid-row: 2;
+  background: #ffd700aa;
+  padding: 2rem;
 }
 
 .attendees-container {
   grid-column: 2 / 4;
   grid-row: 3;
   overflow: auto;
+  background: #9400d3aa;
+  padding: 2rem;
+  white-space: nowrap;
+
   #attendees {
     li {
       cursor: pointer;
@@ -40,20 +52,38 @@
 }
 
 .received-video-container {
-  grid-column: 2;
-  grid-row: 4;
+  grid-column: 1 / 3;
+  grid-row: 2 / 6;
   overflow: hidden;
+  background: #6495ed;
+  height: 100%;
+  width: 100%;
+
+  video {
+    height: 100%;
+    width: 100%;
+  }
 }
 
 .local-video-container {
   grid-column: 3;
-  grid-row: 4;
+  grid-row: 2 / 6;
   overflow: hidden;
+  background: #adff2f;
+  height: 100%;
+  width: 100%;
+
+  video {
+    height: 100%;
+    width: 100%;
+  }
 }
 
 .video-control-container {
   grid-column: 2 / 4;
   grid-row: 5;
+  background: #8fbc8faa;
+  padding: 2rem;
   #video-controls {
     .video-control {
       cursor: pointer;

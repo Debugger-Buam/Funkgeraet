@@ -15,6 +15,18 @@ export interface VideoCallResult {
   message: string;
 }
 
+export interface LocalMediaStreamProvider {
+  requestLocalMediaStream(): Promise<MediaStream>;
+}
+
+export interface TrackListener {
+  onTrack(evt: RTCTrackEvent): void;
+}
+
+export interface CloseVideoCallListener {
+  onCloseVideoCall(e: VideoCallResult): void;
+}
+
 /*
  https://media.prod.mdn.mozit.cloud/attachments/2018/08/22/16137/06b5fa4f9b25f5613dae3ce17b0185c5/WebRTC_-_Signaling_Diagram.svg
  */
@@ -26,9 +38,9 @@ export class PeerConnection {
   constructor(
     private readonly socketServer: WebSocketServer,
     private readonly sourceUser: User,
-    private readonly requestLocalMediaStream: () => Promise<MediaStream>,
-    onTrackListener: (evt: RTCTrackEvent) => void,
-    private readonly onCloseVideoCall: (e: VideoCallResult) => void,
+    private readonly localMediaStreamProvider: LocalMediaStreamProvider,
+    trackListener: TrackListener,
+    private readonly closeVideoCallListener: CloseVideoCallListener,
   ) {
     if (!process.env.STUN_SERVER_URL) {
       throw Error('STUN_SERVER_URL not defined in .env!');
@@ -37,13 +49,13 @@ export class PeerConnection {
     this.rtcPeerConnection = new RTCPeerConnection({
       iceServers: [{urls: process.env.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}],
     });
-    this.rtcPeerConnection.onicecandidate = event => this.handleICECandidateEvent(event);
+    this.rtcPeerConnection.onicecandidate = (event) => this.handleICECandidateEvent(event);
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();
     this.rtcPeerConnection.onsignalingstatechange = () => this.handleSignalingStateChangeEvent();
     this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
     this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
-    this.rtcPeerConnection.ontrack = (event) => onTrackListener(event);
+    this.rtcPeerConnection.ontrack = (event) => trackListener.onTrack(event);
   }
 
   async call(targetUser: User) {
@@ -61,7 +73,7 @@ export class PeerConnection {
       return;
     }
     try {
-      this.webcamStream = await this.requestLocalMediaStream();
+      this.webcamStream = await this.localMediaStreamProvider.requestLocalMediaStream();
       this.webcamStream.getTracks().forEach((track) =>
         this.rtcPeerConnection.addTransceiver(track, {
           streams: [this.webcamStream as MediaStream],
@@ -188,7 +200,7 @@ export class PeerConnection {
     this.webcamStream = undefined;
     this.targetUserName = undefined;
 
-    this.onCloseVideoCall(e);
+    this.closeVideoCallListener.onCloseVideoCall(e);
   }
 
   private async handleNegotiationNeededEvent() {
