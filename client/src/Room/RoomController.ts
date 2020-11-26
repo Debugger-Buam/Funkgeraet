@@ -1,5 +1,11 @@
 import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
-import {PeerConnection, VideoCallResult} from '../WebRTC/PeerConnection';
+import {
+  CloseVideoCallListener,
+  LocalMediaStreamProvider,
+  PeerConnection,
+  TrackListener,
+  VideoCallResult,
+} from '../WebRTC/PeerConnection';
 import {User} from '../../../shared/User';
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
@@ -11,7 +17,7 @@ import {
 } from '../../../shared/Messages';
 import {ErrorController} from '../Error/ErrorController';
 
-export class RoomController implements MessageListener {
+export class RoomController implements MessageListener, LocalMediaStreamProvider, TrackListener, CloseVideoCallListener {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -47,9 +53,7 @@ export class RoomController implements MessageListener {
     return new PeerConnection(
       this.socketServer!,
       this.currentUser!,
-      this.requestLocalMediaStream.bind(this),
-      this.handleOnTrackEvent.bind(this),
-      this.cleanUpPeerConnection.bind(this),
+      this, this, this,
     );
   }
 
@@ -60,7 +64,7 @@ export class RoomController implements MessageListener {
     await this.peerConnection.handleSocketOnMessageEvent(message);
   }
 
-  private cleanUpPeerConnection(result: VideoCallResult): void {
+  public onCloseVideoCall(result: VideoCallResult): void {
     this.peerConnection = undefined;
     if (result.isEndedByUser) {
       Log.info('User ended call');
@@ -100,7 +104,7 @@ export class RoomController implements MessageListener {
     Log.info('Call initialized.');
   }
 
-  private async requestLocalMediaStream(): Promise<MediaStream> {
+  public async requestLocalMediaStream(): Promise<MediaStream> {
     // TODO: error handling when stream not found
     const stream = await navigator.mediaDevices.getUserMedia(
       RoomController.mediaConstraints,
@@ -109,8 +113,8 @@ export class RoomController implements MessageListener {
     return stream;
   }
 
-  private handleOnTrackEvent(event: RTCTrackEvent) {
-    Log.info('handleOnTrackEvent', event.streams);
+  public onTrack(event: RTCTrackEvent) {
+    Log.info('onTrack', event.streams);
     this.view.receivedVideoSrc = event.streams[0];
   }
 }
