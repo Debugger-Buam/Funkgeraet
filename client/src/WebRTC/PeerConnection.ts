@@ -15,12 +15,8 @@ export interface VideoCallResult {
   message: string;
 }
 
-export interface LocalMediaStreamProvider {
-  requestLocalMediaStream(): Promise<MediaStream>;
-}
-
 export interface PeerConnectionListener {
-  onTrack(evt: RTCTrackEvent): void;
+  onTrack(localStream: MediaStream, receivedStream: MediaStream): void;
   onCloseVideoCall(e: VideoCallResult): void;
 }
 
@@ -30,13 +26,13 @@ export interface PeerConnectionListener {
 export class PeerConnection {
   private readonly rtcPeerConnection: RTCPeerConnection;
   private targetUserName?: string;
-  private webcamStream?: MediaStream;
+  private isTransceiverSet: boolean = false;
 
   constructor(
     private readonly socketServer: WebSocketServer,
     private readonly sourceUser: User,
-    private readonly localMediaStreamProvider: LocalMediaStreamProvider,
-    private readonly peerConnectionListener: PeerConnectionListener
+    private readonly peerConnectionListener: PeerConnectionListener,
+    private readonly localWebcamStreamPromise: Promise<MediaStream>
   ) {
     if (!process.env.STUN_SERVER_URL) {
       throw Error('STUN_SERVER_URL not defined in .env!');
@@ -51,7 +47,9 @@ export class PeerConnection {
     this.rtcPeerConnection.onnegotiationneeded = () => this.handleNegotiationNeededEvent();
     this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
-    this.rtcPeerConnection.ontrack = (event) => this.peerConnectionListener.onTrack(event);
+    this.rtcPeerConnection.ontrack = async (event) => {
+      this.peerConnectionListener.onTrack(await this.localWebcamStreamPromise, event.streams[0]);
+    };
   }
 
   async call(targetUser: User) {
@@ -65,16 +63,17 @@ export class PeerConnection {
   }
 
   private async setStreamOnRtcPeerConnection() {
-    if (this.webcamStream) {
+    if (this.isTransceiverSet) {
       return;
     }
     try {
-      this.webcamStream = await this.localMediaStreamProvider.requestLocalMediaStream();
-      this.webcamStream.getTracks().forEach((track) =>
+      const stream = await this.localWebcamStreamPromise;
+      stream.getTracks().forEach((track) =>
         this.rtcPeerConnection.addTransceiver(track, {
-          streams: [this.webcamStream as MediaStream],
+          streams: [stream as MediaStream],
         }),
       );
+      this.isTransceiverSet = true;
     } catch (e) {
       this.handleLocalUserMediaError(e);
     }
@@ -197,7 +196,7 @@ export class PeerConnection {
     this.rtcPeerConnection.ontrack = null
     this.rtcPeerConnection.getTransceivers().forEach(transceiver => transceiver.stop());
     this.rtcPeerConnection.close();
-    this.webcamStream = undefined;
+    this.isTransceiverSet = false;
     this.targetUserName = undefined;
 
     this.peerConnectionListener.onCloseVideoCall(e);

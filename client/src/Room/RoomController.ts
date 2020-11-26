@@ -1,6 +1,5 @@
 import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
 import {
-  LocalMediaStreamProvider,
   PeerConnection,
   PeerConnectionListener,
   VideoCallResult,
@@ -16,7 +15,7 @@ import {
 } from '../../../shared/Messages';
 import {ErrorController} from '../Error/ErrorController';
 
-export class RoomController implements MessageListener, LocalMediaStreamProvider, PeerConnectionListener {
+export class RoomController implements MessageListener, PeerConnectionListener {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -46,19 +45,21 @@ export class RoomController implements MessageListener, LocalMediaStreamProvider
     }
   }
 
-  private createPeerConnection(): PeerConnection {
+  // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
+  // would therefore instantiate PeerConnection multiple times!
+  private createPeerConnection() {
     return new PeerConnection(
       this.socketServer!,
       this.currentUser!,
-      this, this,
+      this, this.getLocalWebcamStreamPromise()
     );
   }
 
-  public async onPeerConnectionMsg(message: PeerConnectionMessage): Promise<void> {
+  public onPeerConnectionMsg(message: PeerConnectionMessage) {
     if (!this.peerConnection) {
       this.peerConnection = this.createPeerConnection();
     }
-    await this.peerConnection.handleSocketOnMessageEvent(message);
+    this.peerConnection.handleSocketOnMessageEvent(message);
   }
 
   public onCloseVideoCall(result: VideoCallResult): void {
@@ -116,17 +117,14 @@ export class RoomController implements MessageListener, LocalMediaStreamProvider
     await this.peerConnection.hangUp();
   }
 
-  public async requestLocalMediaStream(): Promise<MediaStream> {
-    // TODO: error handling when stream not found
-    const stream = await navigator.mediaDevices.getUserMedia(
-      RoomController.mediaConstraints,
+  private getLocalWebcamStreamPromise(): Promise<MediaStream> {
+    return navigator.mediaDevices.getUserMedia(
+        RoomController.mediaConstraints,
     );
-    this.view.localVideoSrc = stream;
-    return stream;
   }
 
-  public onTrack(event: RTCTrackEvent) {
-    Log.info('onTrack', event.streams);
-    this.view.receivedVideoSrc = event.streams[0];
+  public onTrack(localStream: MediaStream, receivedStream: MediaStream) {
+    this.view.localVideoSrc = localStream;
+    this.view.receivedVideoSrc = receivedStream;
   }
 }
