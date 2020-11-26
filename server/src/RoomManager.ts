@@ -9,7 +9,7 @@ export class RoomManager {
     }
 
     // Room does not exist - Lets create one
-    var room = new Room(roomName);
+    const room = new Room(roomName);
     this.rooms.push(room);
     return room;
   }

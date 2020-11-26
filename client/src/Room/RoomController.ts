@@ -1,7 +1,6 @@
 import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
 import {PeerConnection} from '../WebRTC/PeerConnection';
 import { User } from "../../../shared/User";
-import { Optional } from "typescript-optional";
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import {RoomView} from './RoomView';
@@ -23,44 +22,42 @@ export class RoomController implements MessageListener {
       },
     },
   };
-  private socketServer: Optional<WebSocketServer> = Optional.empty();
-  private peerConnection: Optional<PeerConnection> = Optional.empty();
-  private currentUser: Optional<User> = Optional.empty();
+  private socketServer?: WebSocketServer;
+  private peerConnection?: PeerConnection;
+  private currentUser?: User;
 
   constructor(private readonly view: RoomView) {
     // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
-      this.socketServer.get().sendChatMessage(view.chatMessage);
+      this.socketServer!.sendChatMessage(view.chatMessage);
       view.chatMessage = '';
     };
 
     view.setOnAttendeeClick(userName => {
-      if (this.currentUser.isEmpty()) {
+      if (!this.currentUser) {
         throw new UserError('You are not logged in!');
       }
-      if (this.currentUser.get().name === userName) {
+      if (this.currentUser.name === userName) {
         throw new UserError('Du bist ah net die hellste Kerzn auf da Tortn');
       }
       this.call(new User(userName));
     });
   }
 
-  private createPeerConnection(): Optional<PeerConnection> {
-    return Optional.of(
-      new PeerConnection(
-        this.socketServer.get(),
-        this.currentUser.get(),
-        this.requestLocalMediaStream.bind(this),
-        this.handleOnTrackEvent.bind(this),
-      ),
+  private createPeerConnection(): PeerConnection {
+    return new PeerConnection(
+      this.socketServer!,
+      this.currentUser!,
+      this.requestLocalMediaStream.bind(this),
+      this.handleOnTrackEvent.bind(this),
     );
   }
 
   public onPeerConnectionMsg(message: PeerConnectionMessage): void {
-    if (this.peerConnection.isEmpty()) {
+    if (!this.peerConnection) {
       this.peerConnection = this.createPeerConnection();
     }
-    this.peerConnection.get().handleSocketOnMessageEvent(message);
+    this.peerConnection.handleSocketOnMessageEvent(message);
   }
 
   public onChatMessageReceived(message: ChatMessage): void {
@@ -76,21 +73,21 @@ export class RoomController implements MessageListener {
     Log.info(`Joining room ${roomname} with name ${username}`);
 
     const user = new User(username);
-    this.currentUser = Optional.of(user);
+    this.currentUser = user;
     this.view.setCurrentUser(user);
-    this.socketServer = Optional.of(new WebSocketServer(this));
-    await this.socketServer.get().connect(user, roomname);
+    this.socketServer = new WebSocketServer(this);
+    await this.socketServer.connect(user, roomname);
   }
 
   // This is the click on the user name should start the call
   public async call(clickedUser: User) {
-    Log.info('user', this.currentUser.get().name, 'calls', clickedUser.name);
-    if (this.peerConnection.isPresent()) {
+    Log.info('user', this.currentUser!.name, 'calls', clickedUser.name);
+    if (this.peerConnection) {
       Log.error(this.peerConnection);
       throw Error('Impossible state'); // TODO better error handling
     }
     this.peerConnection = this.createPeerConnection();
-    await this.peerConnection.get().call(clickedUser);
+    await this.peerConnection.call(clickedUser);
     Log.info('Call initialized.');
   }
 

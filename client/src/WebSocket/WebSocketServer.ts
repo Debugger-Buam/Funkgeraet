@@ -9,7 +9,6 @@ import {
   WebSocketMessageType,
 } from '../../../shared/Messages';
 
-import {Optional} from 'typescript-optional';
 import {WebSocketConnection} from './WebSocketConnection';
 import {User} from '../../../shared/User';
 
@@ -22,8 +21,8 @@ export interface MessageListener {
 }
 
 export class WebSocketServer {
-  private socket: Optional<WebSocket> = Optional.empty();
-  private connection: Optional<WebSocketConnection> = Optional.empty();
+  private socket?: WebSocket;
+  private connection?: WebSocketConnection;
 
   constructor(private readonly listener: MessageListener) {
   }
@@ -36,7 +35,7 @@ export class WebSocketServer {
       const urlPrefix = window.location.protocol === 'https:' ? 'wss' : 'ws';
       const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
       const socket = new WebSocket(url, 'json');
-      this.socket = Optional.of(socket);
+      this.socket = socket;
 
       socket.onerror = (event: Event) => {
         Log.error("Socket.onerror", event);
@@ -54,10 +53,10 @@ export class WebSocketServer {
           case WebSocketMessageType.INIT: {
             const initMessage = message as InitMessage;
 
-            this.connection = Optional.of({
+            this.connection = {
               id: initMessage.clientId,
               user: user,
-            });
+            };
 
             this.send(new JoinRoomMessage(roomName, user.name));
 
@@ -89,17 +88,10 @@ export class WebSocketServer {
   }
 
   sendChatMessage(message: string) {
-    this.send(new ChatMessage(this.connection.get().user.name, message));
+    this.send(new ChatMessage(this.connection!.user.name, message));
   }
 
   send(message: BaseMessage) {
-    this.socket.get().send(message.pack());
-  }
-
-  addOnMessageEventListener(listener: (evt: MessageEvent) => any) {
-    // TODO: probably would be cleaner subscribing events directly on WebSocketServer and only parsing message once
-    // but you'd need an own event system for that, native events only work on DOM objects.
-
-    this.socket.get().addEventListener("message", listener);
+    this.socket!.send(message.pack());
   }
 }

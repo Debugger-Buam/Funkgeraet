@@ -7,7 +7,6 @@ import {
   PeerConnectionSdpMessageType,
   WebSocketMessageType,
 } from '../../../shared/Messages';
-import {Optional} from 'typescript-optional';
 import {Log} from "../../../shared/Util/Log";
 
 /*
@@ -15,8 +14,8 @@ import {Log} from "../../../shared/Util/Log";
  */
 export class PeerConnection {
   private readonly rtcPeerConnection: RTCPeerConnection;
-  private targetUserName: Optional<string> = Optional.empty();
-  private webcamStream: Optional<MediaStream> = Optional.empty();
+  private targetUserName?: string;
+  private webcamStream?: MediaStream;
 
   constructor(
     private readonly socketServer: WebSocketServer,
@@ -41,19 +40,19 @@ export class PeerConnection {
   }
 
   async call(targetUser: User) {
-    this.targetUserName = Optional.of(targetUser.name);
+    this.targetUserName = targetUser.name;
     await this.setStreamOnRtcPeerConnection();
   }
 
   private async setStreamOnRtcPeerConnection() {
-    if (this.webcamStream.isPresent()) {
+    if (this.webcamStream) {
       return;
     }
-    this.webcamStream = Optional.of(await this.requestLocalMediaStream());
-    this.webcamStream.get().getTracks().forEach((track) =>
-        this.rtcPeerConnection.addTransceiver(track, {
-          streams: [this.webcamStream.get() as MediaStream],
-        })
+    this.webcamStream = await this.requestLocalMediaStream();
+    this.webcamStream.getTracks().forEach((track) =>
+      this.rtcPeerConnection.addTransceiver(track, {
+        streams: [this.webcamStream as MediaStream],
+      }),
     );
   }
 
@@ -66,8 +65,8 @@ export class PeerConnection {
       throw Error("Local Description was not set!");
     }
     this.socketServer.send(new PeerConnectionSdpMessage(type, this.sourceUser.name,
-        this.targetUserName.get(),
-        this.rtcPeerConnection.localDescription));
+      this.targetUserName!,
+      this.rtcPeerConnection.localDescription));
   }
 
   public async handleSocketOnMessageEvent(message: PeerConnectionMessage) {
@@ -113,7 +112,7 @@ export class PeerConnection {
   private async handleVideoOfferMsg(
       message: PeerConnectionSdpMessage
   ) {
-    this.targetUserName = Optional.of(message.name);
+    this.targetUserName = message.name;
     const remoteDescription = new RTCSessionDescription(message.sdp);
     if (this.rtcPeerConnection.signalingState !== "stable") {
       throw Error("Signaling state is not stable during handleVideoOfferMsg!");
@@ -131,10 +130,10 @@ export class PeerConnection {
     if (!event.candidate) {
       return;
     }
-    if (this.targetUserName.isEmpty()) {
-      throw Error("Can't handle ICE candidate, targetUserName is empty!");
+    if (!this.targetUserName) {
+      throw Error('Can\'t handle ICE candidate, targetUserName is empty!');
     }
-    this.socketServer.send(new PeerConnectionNewICECandidateMessage(this.targetUserName.get(), event.candidate));
+    this.socketServer.send(new PeerConnectionNewICECandidateMessage(this.targetUserName, event.candidate));
   }
 
   private handleICEConnectionStateChangeEvent() {
@@ -162,8 +161,8 @@ export class PeerConnection {
   }
 
   private async handleNegotiationNeededEvent() {
-    if (this.targetUserName.isEmpty()) {
-      throw Error("Negotiation needed, but no target user yet set!");
+    if (!this.targetUserName) {
+      throw Error('Negotiation needed, but no target user yet set!');
     }
     const offer = await this.rtcPeerConnection.createOffer();
 
