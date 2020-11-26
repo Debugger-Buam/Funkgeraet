@@ -70,7 +70,7 @@ export class PeerConnection {
       const stream = await this.localWebcamStreamPromise;
       stream.getTracks().forEach((track) =>
         this.rtcPeerConnection.addTransceiver(track, {
-          streams: [stream as MediaStream],
+          streams: [stream],
         }),
       );
       this.isTransceiverSet = true;
