@@ -18,7 +18,9 @@
     "isolatedModules": true,
     "noFallthroughCasesInSwitch": true,
     "removeComments": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
     "src",

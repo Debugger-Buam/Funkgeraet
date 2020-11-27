@@ -1,6 +1,8 @@
 import {RouterView} from './RouterView';
 import {ErrorController} from '../Error/ErrorController';
+import { Injectable } from '../injection';
 
+@Injectable()
 export class RouterController {
   constructor(readonly view: RouterView, readonly errorController: ErrorController) {
   }
