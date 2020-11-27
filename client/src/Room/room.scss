@@ -6,9 +6,10 @@
   height: 100vh;
   width: 100vw;
   &.no-call {
-    .local-video-container, .video-control-container, .received-video-container {
+    .local-video-container, .video-controls-container, .received-video-container {
       display: none;
     }
+
     .chat-history-container {
       grid-column: 2 / 4;
       grid-row: 3 / 5;
