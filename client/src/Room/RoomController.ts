@@ -62,17 +62,6 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     this.peerConnection.handleSocketOnMessageEvent(message);
   }
 
-  public onCloseVideoCall(result: VideoCallResult): void {
-    this.peerConnection = undefined;
-    if (result.isEndedByUser) {
-      Log.info('User ended call');
-    } else {
-      this.errorController.handleError(result);
-    }
-    this.view.receivedVideoSrc = null;
-    this.view.localVideoSrc = null;
-  }
-
   public onChatMessageReceived(message: ChatMessage): void {
     this.view.appendChatMessage(`${message.username} - ${message.message}`);
   }
@@ -123,8 +112,17 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     );
   }
 
-  public onTrack(localStream: MediaStream, receivedStream: MediaStream) {
-    this.view.localVideoSrc = localStream;
-    this.view.receivedVideoSrc = receivedStream;
+  public onVideoCallStarted(localStream: MediaStream, receivedStream: MediaStream) {
+    this.view.startCall(localStream, receivedStream);
+  }
+
+  public onVideoCallEnded(result: VideoCallResult): void {
+    this.peerConnection = undefined;
+    if (result.isEndedByUser) {
+      Log.info('User ended call');
+    } else {
+      this.errorController.handleError(result);
+    }
+    this.view.endCall();
   }
 }

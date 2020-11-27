@@ -5,6 +5,37 @@
   grid-template-rows: max-content max-content max-content 1fr max-content;
   height: 100vh;
   width: 100vw;
+  &.no-call {
+    .local-video-container, .video-control-container, .received-video-container {
+      display: none;
+    }
+    .chat-history-container {
+      grid-column: 2 / 4;
+      grid-row: 3 / 5;
+    }
+    .chat-message-container {
+      grid-column: 2 / 4;
+      grid-row: 5;
+    }
+    .attendees-container {
+      grid-column: 1;
+      grid-row: 2 / 6;
+    }
+  }
+  &.active-call {
+    .chat-history-container {
+      grid-column: 1;
+      grid-row: 2 / 5;
+    }
+    .chat-message-container {
+      grid-column: 1;
+      grid-row: 5;
+    }
+    .attendees-container {
+      grid-column: 2 / 4;
+      grid-row: 3;
+    }
+  }
 }
 
 .nav-bar-container {
@@ -16,8 +47,6 @@
 }
 
 .chat-history-container {
-  grid-column: 1;
-  grid-row: 2 / 5;
   overflow: auto;
   background: #7fffd4aa;
   padding: 2rem;
@@ -25,8 +54,6 @@
 }
 
 .chat-message-container {
-  grid-column: 1;
-  grid-row: 5;
   background: #deb887aa;
   padding: 2rem;
   z-index: 10;
@@ -41,8 +68,6 @@
 }
 
 .attendees-container {
-  grid-column: 2 / 4;
-  grid-row: 3;
   overflow: auto;
   background: #9400d3aa;
   padding: 2rem;

@@ -1,5 +1,5 @@
 import "./room.scss";
-import { Dom } from "../View/Dom";
+import {ClassName, Dom} from "../View/Dom";
 import { User } from "../../../shared/User";
 
 export class RoomView {
@@ -63,11 +63,17 @@ export class RoomView {
     });
   }
 
-  set receivedVideoSrc(value: MediaProvider | null) {
-    this.receivedVideo.srcObject = value;
+  public startCall(localStream: MediaStream, receivedStream: MediaStream) {
+    this.receivedVideo.srcObject = receivedStream;
+    this.localVideo.srcObject = localStream;
+    this.dom.roomRoot.classList.add(ClassName.activeCall);
+    this.dom.roomRoot.classList.remove(ClassName.noCall);
   }
 
-  set localVideoSrc(value: MediaProvider | null) {
-    this.localVideo.srcObject = value;
+  public endCall() {
+    this.receivedVideo.srcObject = null;
+    this.localVideo.srcObject = null;
+    this.dom.roomRoot.classList.add(ClassName.noCall);
+    this.dom.roomRoot.classList.remove(ClassName.activeCall);
   }
 }

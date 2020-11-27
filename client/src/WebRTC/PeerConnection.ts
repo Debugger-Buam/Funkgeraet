@@ -16,8 +16,8 @@ export interface VideoCallResult {
 }
 
 export interface PeerConnectionListener {
-  onTrack(localStream: MediaStream, receivedStream: MediaStream): void;
-  onCloseVideoCall(e: VideoCallResult): void;
+  onVideoCallStarted(localStream: MediaStream, receivedStream: MediaStream): void;
+  onVideoCallEnded(e: VideoCallResult): void;
 }
 
 /*
@@ -48,7 +48,7 @@ export class PeerConnection {
     this.rtcPeerConnection.onsignalingstatechange = () => Log.info("signaling state changed to ", this.rtcPeerConnection.signalingState);
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
     this.rtcPeerConnection.ontrack = async (event) => {
-      this.peerConnectionListener.onTrack(await this.localWebcamStreamPromise, event.streams[0]);
+      this.peerConnectionListener.onVideoCallStarted(await this.localWebcamStreamPromise, event.streams[0]);
     };
   }
 
@@ -199,7 +199,7 @@ export class PeerConnection {
     this.isTransceiverSet = false;
     this.targetUserName = undefined;
 
-    this.peerConnectionListener.onCloseVideoCall(e);
+    this.peerConnectionListener.onVideoCallEnded(e);
   }
 
   private async handleNegotiationNeededEvent() {

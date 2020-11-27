@@ -7,7 +7,7 @@ type Id = 'attendees' | 'user-greeting-name' | 'hang-up-button'
   | 'username'
 
 export enum ClassName {
-  hidden = 'hidden',
+  hidden = 'hidden', activeCall = 'active-call', noCall = 'no-call'
 }
 
 export class Dom {
