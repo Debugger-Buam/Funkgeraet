@@ -4,14 +4,19 @@
     <meta charset="UTF-8" />
     <title>Funkgerät</title>
     <script src="bundle.js" defer></script>
+    <script src="https://unpkg.com/ionicons@5.2.3/dist/ionicons.js"></script>
   </head>
   <body>
     <div id="root">
       <div id="lobby-root">
         <form id="lobby-form">
-          <input id="username" placeholder="Username" autofocus/><br>
-          <input id="roomname" placeholder="#SomeRoomName"/><br>
-          <button>Join Room</button>
+          <div id="logo">
+            <ion-icon name="paper-plane-outline"></ion-icon>
+          </div>
+          <h2 class="text-center">Funkgerät</h2>
+          <input type="text" id="username" class="no-border-bottom" placeholder="Username" autocomplete="off" autofocus />
+          <input type="text" id="roomname" class="no-border-top" placeholder="#RoomName" autocomplete="off" />
+          <button class="btn blue bold w-100 space-top">Join Room</button>
         </form>
       </div>
       <div id="room-root" class="hidden no-call">
@@ -22,9 +27,11 @@
           <video id="local-video" autoplay muted></video>
         </div>
         <div class="nav-bar-container">
-          Navigation bar
           <div class="user-greeting">
-            Welcome, <span id="user-greeting-name"></span>
+            <ion-icon name="paper-plane-outline"></ion-icon>
+            Welcome,&nbsp;
+            <b><span id="user-greeting-name"></span></b>!
+            <button class="logout red">Logout</button>
           </div>
         </div>
         <div class="chat-history-container">

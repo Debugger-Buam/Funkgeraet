@@ -42,9 +42,26 @@
 .nav-bar-container {
   grid-column: 1 / 4;
   grid-row: 1;
-  background: #d2691eaa;
-  padding: 2rem;
+  background: #fff;
+  padding: 15px;
   z-index: 10;
+
+  .logout {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+}
+
+.user-greeting {
+  display: flex;
+  font-size: 24px;
+  align-items: center;
+
+  ion-icon {
+    font-size: 30px;
+    margin-right: 20px;
+  }
 }
 
 .chat-history-container {

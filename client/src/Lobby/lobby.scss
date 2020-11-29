@@ -6,9 +6,35 @@
   justify-items: center;
   height: 100vh;
   width: 100vw;
+  background-color: #eee;
 }
 
 #lobby-form {
-  background: #8b008baa;
   padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+#lobby-form input:focus {
+  z-index: 10;
+}
+
+#lobby-form input.no-border-bottom {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#lobby-form input.no-border-top {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+#logo {
+  font-size: 48px;
+  text-align: center;
+}
+
+#lobby-form h2 {
+  margin: 10px 0 20px 0;
 }
