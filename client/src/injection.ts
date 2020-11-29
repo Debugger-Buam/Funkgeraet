@@ -1,23 +1,22 @@
 import "reflect-metadata";
 
-export interface Type<T> {
-  new (...args: any[]): T;
+interface Type<T> {
+  new (...args: unknown[]): T;
 }
+type GenericClassDecorator<T> = (target: T) => void;
 
-export type GenericClassDecorator<T> = (target: T) => void;
-
-export const Injectable = (): GenericClassDecorator<Type<any>> => {
-  return (target) => {};
+export const Injectable = (): GenericClassDecorator<Type<unknown>> => {
+  return (_) => {};
 };
 
 export class DependencyContainer {
   private resolvedClasses = new Map();
 
-  public install(target: Type<any>, instance: any) {
+  public install(target: Type<unknown>, instance: unknown) {
     this.resolvedClasses.set(target, instance);
   }
 
-  private resolve<T>(target: Type<any>, dependencyTree: Type<any>[]): T {
+  private resolve<T>(target: Type<unknown>, dependencyTree: Type<unknown>[]): T {
     if (this.resolvedClasses.has(target)) {
       return this.resolvedClasses.get(target);
     }
@@ -28,7 +27,7 @@ export class DependencyContainer {
 
     dependencyTree.push(target);
 
-    var paramTypes = Reflect.getMetadata("design:paramtypes", target);
+    const paramTypes = Reflect.getMetadata("design:paramtypes", target);
 
     if (paramTypes == null) {
       throw new Error(
@@ -36,21 +35,21 @@ export class DependencyContainer {
       );
     }
 
-    var params = paramTypes.map((p: any) =>
-      this.resolve<any>(p, dependencyTree)
+    const params = paramTypes.map((p: Type<unknown>) =>
+      this.resolve<unknown>(p, dependencyTree)
     );
 
     const instance = new target(...params);
 
     this.resolvedClasses.set(target, instance);
-    return instance;
+    return instance as T;
   }
 
-  public get<T>(target: Type<any>): T {
+  public get<T>(target: Type<unknown>): T {
     return this.resolve(target, []);
   }
 
-  public bootstrap(classes: Type<any>[]) {
-    classes.forEach((c) => this.get<any>(c));
+  public bootstrap(classes: Type<unknown>[]) {
+    classes.forEach((c) => this.get<unknown>(c));
   }
 }

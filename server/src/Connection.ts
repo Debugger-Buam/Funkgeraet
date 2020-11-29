@@ -1,4 +1,3 @@
-import { type } from "os";
 import WebSocket from "ws";
 import { User } from "../../shared/User";
 import { Room } from "./Room";
