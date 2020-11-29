@@ -1,7 +1,8 @@
 import "reflect-metadata";
 
+// TODO: Figure out how to replace any with unknown here.
 interface Type<T> {
-  new (...args: unknown[]): T;
+  new (...args: any[]): T;
 }
 type GenericClassDecorator<T> = (target: T) => void;
 
@@ -9,11 +10,51 @@ export const Injectable = (): GenericClassDecorator<Type<unknown>> => {
   return (_) => {};
 };
 
+/**
+ * The @type {DependencyContainer} class can be used for dependency
+ * injection and inversion of control.
+ * 
+ * Bootstrapping creates instances of each class and it's dependencies
+ * automagically.
+ */
 export class DependencyContainer {
   private resolvedClasses = new Map();
 
+
+  /**
+   * This method allows for manual installation of a dependency.
+   * This can be useful in cases where a dependency is required by
+   * other classes can not be created automatically itself.
+   *  
+   * @param target The type that should be resolvable
+   * @param instance The concrete instance that will be resolved
+   */
   public install(target: Type<unknown>, instance: unknown) {
     this.resolvedClasses.set(target, instance);
+  }
+
+  /**
+   * Returns the resolved instance of a target type.
+   * 
+   * @example
+   * 
+   *  let service = get<IServiceName>(IServiceName);
+   * 
+   * @param target The target type that should be resolved
+   */
+  public get<T>(target: Type<unknown>): T {
+    return this.resolve(target, []);
+  }
+
+  /**
+   * Bootstraps all classes handed in to this method.
+   * This guarantees the creation of each class and it's
+   * dependencies.
+   * 
+   * @param classes An array of the classes to create
+   */
+  public bootstrap(classes: Type<unknown>[]) {
+    classes.forEach((c) => this.get<unknown>(c));
   }
 
   private resolve<T>(target: Type<unknown>, dependencyTree: Type<unknown>[]): T {
@@ -43,13 +84,5 @@ export class DependencyContainer {
 
     this.resolvedClasses.set(target, instance);
     return instance as T;
-  }
-
-  public get<T>(target: Type<unknown>): T {
-    return this.resolve(target, []);
-  }
-
-  public bootstrap(classes: Type<unknown>[]) {
-    classes.forEach((c) => this.get<unknown>(c));
   }
 }

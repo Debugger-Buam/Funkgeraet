@@ -8,7 +8,7 @@ import { ErrorController } from "./Error/ErrorController";
 import { DependencyContainer } from "./injection";
 
 try {
-  var container = new DependencyContainer();
+  const container = new DependencyContainer();
   container.install(Dom, new Dom(document));
   
   const controllers = [
