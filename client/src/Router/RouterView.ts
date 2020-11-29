@@ -1,5 +1,7 @@
+import { Injectable } from '../injection';
 import {ClassName, Dom} from '../View/Dom';
 
+@Injectable()
 export class RouterView {
   private readonly lobbyRoot = this.dom.lobbyRoot;
   private readonly roomRoot = this.dom.roomRoot;

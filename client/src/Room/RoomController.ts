@@ -14,7 +14,9 @@ import {
   UserListChangedMessage,
 } from '../../../shared/Messages';
 import {ErrorController} from '../Error/ErrorController';
+import { Injectable } from '../injection';
 
+@Injectable()
 export class RoomController implements MessageListener, PeerConnectionListener {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve

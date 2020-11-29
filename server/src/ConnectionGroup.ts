@@ -1,6 +1,6 @@
-import { Connection } from "./Connection";
 
 import WebSocket from "ws";
+import { Connection, ConnectionId } from "./Connection";
 import { BaseMessage } from "../../shared/Messages";
 import { User } from "../../shared/User";
 import { Log } from "../../shared/Util/Log";
@@ -11,7 +11,7 @@ import { Log } from "../../shared/Util/Log";
  * sending to a specific user in the group or getting all users.
  */
 export class ConnectionGroup {
-  protected connections = new Map<number, Connection>();
+  protected connections = new Map<ConnectionId, Connection>();
 
   addConnection(con: Connection) {
     this.connections.set(con.id, con);
@@ -21,7 +21,7 @@ export class ConnectionGroup {
     this.connections.delete(con.id);
   }
 
-  broadcast(message: BaseMessage, except?: number) {
+  broadcast(message: BaseMessage, except?: ConnectionId) {
     for (const [_, con] of this.connections) {
       if (con.id == except && except != null) {
         continue;

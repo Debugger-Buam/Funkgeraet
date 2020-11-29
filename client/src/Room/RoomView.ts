@@ -1,7 +1,9 @@
 import "./room.scss";
 import {ClassName, Dom} from "../View/Dom";
 import { User } from "../../../shared/User";
+import { Injectable } from "../injection";
 
+@Injectable()
 export class RoomView {
   private readonly chatHistoryList = this.dom.chatHistoryList;
   private readonly attendeesList = this.dom.attendeesList;
