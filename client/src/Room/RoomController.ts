@@ -17,7 +17,7 @@ import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
 import { RouterController } from "../Router/RouterController";
 import { Route } from "../Router/Route";
-import { UsernameStorage } from "../Lobby/UsernameStorage";
+import { UsernameController } from "../Lobby/UsernameController";
 
 @Injectable()
 export class RoomController implements MessageListener, PeerConnectionListener {
@@ -38,7 +38,7 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     private readonly view: RoomView,
     readonly errorController: ErrorController,
     private router: RouterController,
-    private usernameStorage: UsernameStorage
+    private usernameStorage: UsernameController
   ) {
     // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
@@ -56,6 +56,13 @@ export class RoomController implements MessageListener, PeerConnectionListener {
 
     view.onLogoutButton = () => {
       this.router.goToLobby();
+    };
+
+    view.onCopyRoomIconClicked = () => {
+      if (navigator.clipboard) {
+        const url = window.location.host + window.location.pathname;
+        navigator.clipboard.writeText(url);
+      }
     };
 
     router.onRouteChanged = (route: Route) => this.onRouteChanged(route);

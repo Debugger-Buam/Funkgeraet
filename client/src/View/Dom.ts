@@ -13,7 +13,8 @@ type Id =
   | "roomname"
   | "username"
   | "logout-button"
-  | "room-name-display";
+  | "room-name-display"
+  | "copy-room-icon";
 
 export enum ClassName {
   hidden = "hidden",
@@ -37,6 +38,7 @@ export class Dom {
   readonly roomNameInput = this.getElementById("roomname", "input");
   readonly usernameInput = this.getElementById("username", "input");
   readonly roomNameDisplay = this.getElementById("room-name-display");
+  readonly copyRoomIcon = this.getElementById("copy-room-icon");
 
   constructor(private readonly root: Document) {}
 

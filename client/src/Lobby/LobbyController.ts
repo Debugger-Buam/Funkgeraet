@@ -3,7 +3,7 @@ import { LobbyView } from "./LobbyView";
 import { RoomController } from "../Room/RoomController";
 import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
-import { UsernameStorage } from "./UsernameStorage";
+import { UsernameController } from "./UsernameController";
 
 @Injectable()
 export class LobbyController {
@@ -12,7 +12,7 @@ export class LobbyController {
     private readonly errorController: ErrorController,
     private router: RouterController,
     private room: RoomController,
-    private usernameService: UsernameStorage
+    private usernameService: UsernameController
   ) {
     this.init();
   }

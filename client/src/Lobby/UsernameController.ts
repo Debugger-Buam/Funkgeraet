@@ -1,20 +1,22 @@
 import { Injectable } from "../injection";
 
 @Injectable()
-export class UsernameStorage {
+export class UsernameController {
   private static readonly UsernameKey = "username";
 
   public constructor() {}
 
   loadUsername(): Promise<string | null> {
-    return Promise.resolve(localStorage.getItem(UsernameStorage.UsernameKey));
+    return Promise.resolve(
+      localStorage.getItem(UsernameController.UsernameKey)
+    );
   }
 
   saveUsername(username?: string): Promise<void> {
     return Promise.resolve(
       username || username?.length == 0
-        ? localStorage.setItem(UsernameStorage.UsernameKey, username)
-        : localStorage.removeItem(UsernameStorage.UsernameKey)
+        ? localStorage.setItem(UsernameController.UsernameKey, username)
+        : localStorage.removeItem(UsernameController.UsernameKey)
     );
   }
 }

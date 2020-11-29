@@ -40,6 +40,10 @@ export class RoomView {
     this.dom.logoutButton.addEventListener("click", value);
   }
 
+  set onCopyRoomIconClicked(value: () => void) {
+    this.dom.copyRoomIcon.addEventListener("click", value);
+  }
+
   set roomName(value: string) {
     this.dom.roomNameDisplay.innerText = value;
   }
