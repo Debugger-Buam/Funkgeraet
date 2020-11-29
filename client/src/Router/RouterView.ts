@@ -1,13 +1,12 @@
-import { Injectable } from '../injection';
-import {ClassName, Dom} from '../View/Dom';
+import { Injectable } from "../injection";
+import { ClassName, Dom } from "../View/Dom";
 
 @Injectable()
 export class RouterView {
   private readonly lobbyRoot = this.dom.lobbyRoot;
   private readonly roomRoot = this.dom.roomRoot;
 
-  constructor(private readonly dom: Dom) {
-  }
+  constructor(private readonly dom: Dom) {}
 
   showLobby(): void {
     this.lobbyRoot.classList.remove(ClassName.hidden);

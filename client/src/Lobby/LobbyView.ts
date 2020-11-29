@@ -16,6 +16,10 @@ export class LobbyView {
     this.lobbyForm.addEventListener("submit", value);
   }
 
+  set onUsernameChanged(value: () => void) {
+    this.usernameInput.addEventListener("keydown", value);
+  }
+
   get username(): string {
     return this.usernameInput.value;
   }
@@ -30,6 +34,10 @@ export class LobbyView {
 
   set roomName(value: string) {
     this.roomNameInput.value = value;
+  }
+
+  focusRoomInput() {
+    this.roomNameInput.focus();
   }
 }
 

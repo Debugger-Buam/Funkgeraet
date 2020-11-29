@@ -1,20 +1,23 @@
-import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
+import { MessageListener, WebSocketServer } from "../WebSocket/WebSocketServer";
 import {
   PeerConnection,
   PeerConnectionListener,
   VideoCallResult,
-} from '../WebRTC/PeerConnection';
-import {User} from '../../../shared/User';
+} from "../WebRTC/PeerConnection";
+import { User } from "../../../shared/User";
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
-import {RoomView} from './RoomView';
+import { RoomView } from "./RoomView";
 import {
   ChatMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
-} from '../../../shared/Messages';
-import {ErrorController} from '../Error/ErrorController';
-import { Injectable } from '../injection';
+} from "../../../shared/Messages";
+import { ErrorController } from "../Error/ErrorController";
+import { Injectable } from "../injection";
+import { RouterController } from "../Router/RouterController";
+import { Route } from "../Router/Route";
+import { UsernameStorage } from "../Lobby/UsernameStorage";
 
 @Injectable()
 export class RoomController implements MessageListener, PeerConnectionListener {
@@ -31,19 +34,46 @@ export class RoomController implements MessageListener, PeerConnectionListener {
   private peerConnection?: PeerConnection;
   private currentUser?: User;
 
-  constructor(private readonly view: RoomView, readonly errorController: ErrorController) {
+  constructor(
+    private readonly view: RoomView,
+    readonly errorController: ErrorController,
+    private router: RouterController,
+    private usernameStorage: UsernameStorage
+  ) {
     // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
       this.socketServer!.sendChatMessage(view.chatMessage);
-      view.chatMessage = '';
+      view.chatMessage = "";
     };
 
-    view.setOnAttendeeClick(userName => {
+    view.setOnAttendeeClick((userName) => {
       this.call(new User(userName));
     });
 
     view.onHangupButton = () => {
       this.hangUp();
+    };
+
+    view.onLogoutButton = () => {
+      this.router.goToLobby();
+    };
+
+    router.onRouteChanged = (route: Route) => this.onRouteChanged(route);
+  }
+
+  private async onRouteChanged(route: Route) {
+    if (route.isRoomRoute) {
+      const username = await this.usernameStorage.loadUsername();
+      const roomName = route.params?.get("roomname") as string;
+
+      if (!username || !roomName) {
+        this.router.goToLobby();
+        return;
+      }
+
+      this.joinRoom(username, roomName);
+    } else {
+      this.leaveRoom();
     }
   }
 
@@ -53,7 +83,8 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     return new PeerConnection(
       this.socketServer!,
       this.currentUser!,
-      this, this.getLocalWebcamStreamPromise()
+      this,
+      this.getLocalWebcamStreamPromise()
     );
   }
 
@@ -73,55 +104,62 @@ export class RoomController implements MessageListener, PeerConnectionListener {
   }
 
   // this is the initial call when entering a username
-  public async joinRoom(username: string, roomname: string) {
+  public async joinRoom(username: string, roomname: string): Promise<void> {
     Log.info(`Joining room ${roomname} with name ${username}`);
 
     const user = new User(username);
     this.currentUser = user;
     this.view.setCurrentUser(user);
+    this.view.roomName = roomname;
+
     this.socketServer = new WebSocketServer(this);
     await this.socketServer.connect(user, roomname);
+  }
+
+  public leaveRoom(): Promise<void> {
+    return Promise.resolve(this.socketServer?.disconnect());
   }
 
   // This is the click on the user name should start the call
   private async call(clickedUser: User) {
     if (!this.currentUser) {
-      throw new UserError('You are not logged in!');
+      throw new UserError("You are not logged in!");
     }
     if (this.currentUser.name === clickedUser.name) {
-      throw new UserError('Can\'t call yourself stupid');
+      throw new UserError("Can't call yourself stupid");
     }
 
-    Log.info('user', this.currentUser.name, 'calls', clickedUser.name);
+    Log.info("user", this.currentUser.name, "calls", clickedUser.name);
     if (this.peerConnection) {
       await this.hangUp(); // hang up current call to initiate new call
     }
     this.peerConnection = this.createPeerConnection();
     await this.peerConnection.call(clickedUser);
-    Log.info('Call initialized.');
+    Log.info("Call initialized.");
   }
 
   private async hangUp() {
-    if(!this.peerConnection) {
-      throw new UserError('No call to hang up idiot');
+    if (!this.peerConnection) {
+      throw new UserError("No call to hang up idiot");
     }
     await this.peerConnection.hangUp();
   }
 
   private getLocalWebcamStreamPromise(): Promise<MediaStream> {
-    return navigator.mediaDevices.getUserMedia(
-        RoomController.mediaConstraints,
-    );
+    return navigator.mediaDevices.getUserMedia(RoomController.mediaConstraints);
   }
 
-  public onVideoCallStarted(localStream: MediaStream, receivedStream: MediaStream) {
+  public onVideoCallStarted(
+    localStream: MediaStream,
+    receivedStream: MediaStream
+  ) {
     this.view.startCall(localStream, receivedStream);
   }
 
   public onVideoCallEnded(result: VideoCallResult): void {
     this.peerConnection = undefined;
     if (result.isEndedByUser) {
-      Log.info('User ended call');
+      Log.info("User ended call");
     } else {
       this.errorController.handleError(result);
     }

@@ -1,5 +1,5 @@
 import "./room.scss";
-import {ClassName, Dom} from "../View/Dom";
+import { ClassName, Dom } from "../View/Dom";
 import { User } from "../../../shared/User";
 import { Injectable } from "../injection";
 
@@ -34,6 +34,14 @@ export class RoomView {
 
   set onHangupButton(value: () => void) {
     this.dom.hangupButton.addEventListener("click", value);
+  }
+
+  set onLogoutButton(value: () => void) {
+    this.dom.logoutButton.addEventListener("click", value);
+  }
+
+  set roomName(value: string) {
+    this.dom.roomNameDisplay.innerText = value;
   }
 
   get chatMessage(): string {
