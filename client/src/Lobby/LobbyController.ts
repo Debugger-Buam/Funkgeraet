@@ -31,7 +31,7 @@ export class LobbyController implements Routable {
 
     this.view.onLobbyFormSubmit = async () => {
       try {
-        this.router.changeUrl(this.view.roomName);
+        this.router.navigateTo(this.view.roomName);
         this.view.roomName = "";
       } catch (error) {
         this.errorController.handleError(error);

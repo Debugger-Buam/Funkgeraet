@@ -56,6 +56,10 @@ export class RoomView {
     this.chatMessageInput.value = value;
   }
 
+  clearChatlist() {
+    this.chatHistoryList.innerHTML = "";
+  }
+
   appendChatMessage(message: string): void {
     const el = document.createElement("li");
     el.innerText = message;

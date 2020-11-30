@@ -17,10 +17,11 @@ import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
 import { RouterController } from "../Router/RouterController";
 import { UsernameController } from "../Lobby/UsernameController";
-import {Routable} from "../Router/Routable";
+import { Routable } from "../Router/Routable";
 
 @Injectable()
-export class RoomController implements MessageListener, PeerConnectionListener, Routable {
+export class RoomController
+  implements MessageListener, PeerConnectionListener, Routable {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -58,7 +59,7 @@ export class RoomController implements MessageListener, PeerConnectionListener, 
     };
 
     view.onLogoutButton = () => {
-      this.router.changeUrl("/");
+      this.router.navigateTo("/");
     };
 
     view.onCopyRoomIconClicked = () => {
@@ -164,6 +165,7 @@ export class RoomController implements MessageListener, PeerConnectionListener, 
 
   onRouteLeft(): void {
     this.leaveRoom();
+    this.view.clearChatlist();
     this.view.hide();
   }
 
@@ -180,7 +182,7 @@ export class RoomController implements MessageListener, PeerConnectionListener, 
     const username = await this.usernameStorage.loadUsername();
 
     if (!username || !roomName) {
-      this.router.changeUrl("/");
+      this.router.navigateTo("/");
       return;
     }
 
