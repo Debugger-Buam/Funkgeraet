@@ -97,6 +97,11 @@ export class WebSocketServer {
     });
   }
 
+  disconnect() {
+    this.socket?.close();
+    this.socket = undefined;
+  }
+
   sendChatMessage(message: string) {
     message = message.trim();
     if (message.length > 0) {

@@ -1,23 +1,27 @@
-import {MessageListener, WebSocketServer} from '../WebSocket/WebSocketServer';
+import { MessageListener, WebSocketServer } from "../WebSocket/WebSocketServer";
 import {
   PeerConnection,
   PeerConnectionListener,
   VideoCallResult,
-} from '../WebRTC/PeerConnection';
-import {User} from '../../../shared/User';
+} from "../WebRTC/PeerConnection";
+import { User } from "../../../shared/User";
 import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
-import {RoomView} from './RoomView';
+import { RoomView } from "./RoomView";
 import {
   ChatMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
-} from '../../../shared/Messages';
-import {ErrorController} from '../Error/ErrorController';
-import { Injectable } from '../injection';
+} from "../../../shared/Messages";
+import { ErrorController } from "../Error/ErrorController";
+import { Injectable } from "../injection";
+import { RouterController } from "../Router/RouterController";
+import { UsernameController } from "../Lobby/UsernameController";
+import { Routable } from "../Router/Routable";
 
 @Injectable()
-export class RoomController implements MessageListener, PeerConnectionListener {
+export class RoomController
+  implements MessageListener, PeerConnectionListener, Routable {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -31,20 +35,39 @@ export class RoomController implements MessageListener, PeerConnectionListener {
   private peerConnection?: PeerConnection;
   private currentUser?: User;
 
-  constructor(private readonly view: RoomView, readonly errorController: ErrorController) {
+  constructor(
+    private readonly view: RoomView,
+    readonly errorController: ErrorController,
+    private router: RouterController,
+    private usernameStorage: UsernameController
+  ) {
+    // TODO: register controller on route?
+    router.registerRoute(this);
+
     // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
       this.socketServer!.sendChatMessage(view.chatMessage);
-      view.chatMessage = '';
+      view.chatMessage = "";
     };
 
-    view.setOnAttendeeClick(userName => {
+    view.setOnAttendeeClick((userName) => {
       this.call(new User(userName));
     });
 
     view.onHangupButton = () => {
       this.hangUp();
-    }
+    };
+
+    view.onLogoutButton = () => {
+      this.router.navigateTo("/");
+    };
+
+    view.onCopyRoomIconClicked = () => {
+      if (navigator.clipboard) {
+        const url = window.location.host + window.location.pathname;
+        navigator.clipboard.writeText(url);
+      }
+    };
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -53,7 +76,8 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     return new PeerConnection(
       this.socketServer!,
       this.currentUser!,
-      this, this.getLocalWebcamStreamPromise()
+      this,
+      this.getLocalWebcamStreamPromise()
     );
   }
 
@@ -73,58 +97,95 @@ export class RoomController implements MessageListener, PeerConnectionListener {
   }
 
   // this is the initial call when entering a username
-  public async joinRoom(username: string, roomname: string) {
+  public async joinRoom(username: string, roomname: string): Promise<void> {
     Log.info(`Joining room ${roomname} with name ${username}`);
 
     const user = new User(username);
     this.currentUser = user;
     this.view.setCurrentUser(user);
+    this.view.roomName = roomname;
+
     this.socketServer = new WebSocketServer(this);
     await this.socketServer.connect(user, roomname);
+  }
+
+  public leaveRoom(): Promise<void> {
+    return Promise.resolve(this.socketServer?.disconnect());
   }
 
   // This is the click on the user name should start the call
   private async call(clickedUser: User) {
     if (!this.currentUser) {
-      throw new UserError('You are not logged in!');
+      throw new UserError("You are not logged in!");
     }
     if (this.currentUser.name === clickedUser.name) {
-      throw new UserError('Can\'t call yourself stupid');
+      throw new UserError("Can't call yourself stupid");
     }
 
-    Log.info('user', this.currentUser.name, 'calls', clickedUser.name);
+    Log.info("user", this.currentUser.name, "calls", clickedUser.name);
     if (this.peerConnection) {
       await this.hangUp(); // hang up current call to initiate new call
     }
     this.peerConnection = this.createPeerConnection();
     await this.peerConnection.call(clickedUser);
-    Log.info('Call initialized.');
+    Log.info("Call initialized.");
   }
 
   private async hangUp() {
-    if(!this.peerConnection) {
-      throw new UserError('No call to hang up idiot');
+    if (!this.peerConnection) {
+      throw new UserError("No call to hang up idiot");
     }
     await this.peerConnection.hangUp();
   }
 
   private getLocalWebcamStreamPromise(): Promise<MediaStream> {
-    return navigator.mediaDevices.getUserMedia(
-        RoomController.mediaConstraints,
-    );
+    return navigator.mediaDevices.getUserMedia(RoomController.mediaConstraints);
   }
 
-  public onVideoCallStarted(localStream: MediaStream, receivedStream: MediaStream) {
+  public onVideoCallStarted(
+    localStream: MediaStream,
+    receivedStream: MediaStream
+  ) {
     this.view.startCall(localStream, receivedStream);
   }
 
   public onVideoCallEnded(result: VideoCallResult): void {
     this.peerConnection = undefined;
     if (result.isEndedByUser) {
-      Log.info('User ended call');
+      Log.info("User ended call");
     } else {
       this.errorController.handleError(result);
     }
     this.view.endCall();
+  }
+
+  getRouteRegex(): RegExp {
+    return /\w+/g;
+  }
+
+  onRouteLeft(): void {
+    this.leaveRoom();
+    this.view.clearChatlist();
+    this.view.hide();
+  }
+
+  onRouteVisited(matchResult: RegExpMatchArray): void {
+    this.changeToRoom(matchResult[0]);
+    this.view.show();
+  }
+
+  getTitle(): string {
+    return "Funkgerät - Room";
+  }
+
+  private async changeToRoom(roomName: string) {
+    const username = await this.usernameStorage.loadUsername();
+
+    if (!username || !roomName) {
+      this.router.navigateTo("/");
+      return;
+    }
+
+    this.joinRoom(username, roomName);
   }
 }

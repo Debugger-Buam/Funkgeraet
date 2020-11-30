@@ -19,6 +19,8 @@ try {
   ];
   container.bootstrap(controllers);
 
+  container.get<RouterController>(RouterController).initRouting();
+
 } catch (e) {
   alert(`FATAL INITIALIZATION ERROR: ${e}`);
   Log.error(e);

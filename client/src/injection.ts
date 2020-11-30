@@ -76,7 +76,7 @@ export class DependencyContainer {
 
     if (paramTypes == null) {
       throw new Error(
-        `Type "${target.name}" not found. Did you forget to add @Injectable()?`
+        `Type "${target.name}" not found. Did you forget to add @Injectable() or declare a constructor?`
       );
     }
 

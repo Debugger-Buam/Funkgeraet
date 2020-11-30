@@ -1,5 +1,5 @@
 import "./lobby.scss";
-import { Dom } from "../View/Dom";
+import {ClassName, Dom} from "../View/Dom";
 import { Injectable } from "../injection";
 
 @Injectable()
@@ -14,6 +14,10 @@ export class LobbyView {
 
   set onLobbyFormSubmit(value: () => void) {
     this.lobbyForm.addEventListener("submit", value);
+  }
+
+  set onUsernameChanged(value: () => void) {
+    this.usernameInput.addEventListener("keydown", value);
   }
 
   get username(): string {
@@ -31,12 +35,16 @@ export class LobbyView {
   set roomName(value: string) {
     this.roomNameInput.value = value;
   }
-}
 
-class Dependency {
-  constructor(
-    public readonly name: string,
-    public readonly con: Function,
-    public readonly subDeps: string[]
-  ) {}
+  focusRoomInput() {
+    this.roomNameInput.focus();
+  }
+
+  public show() {
+    this.dom.lobbyRoot.classList.remove(ClassName.hidden);
+  }
+
+  public hide() {
+    this.dom.lobbyRoot.classList.add(ClassName.hidden);
+  }
 }

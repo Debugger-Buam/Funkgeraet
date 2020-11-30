@@ -1,5 +1,5 @@
 import "./room.scss";
-import {ClassName, Dom} from "../View/Dom";
+import { ClassName, Dom } from "../View/Dom";
 import { User } from "../../../shared/User";
 import { Injectable } from "../injection";
 
@@ -36,12 +36,28 @@ export class RoomView {
     this.dom.hangupButton.addEventListener("click", value);
   }
 
+  set onLogoutButton(value: () => void) {
+    this.dom.logoutButton.addEventListener("click", value);
+  }
+
+  set onCopyRoomIconClicked(value: () => void) {
+    this.dom.copyRoomIcon.addEventListener("click", value);
+  }
+
+  set roomName(value: string) {
+    this.dom.roomNameDisplay.innerText = value;
+  }
+
   get chatMessage(): string {
     return this.chatMessageInput.value;
   }
 
   set chatMessage(value: string) {
     this.chatMessageInput.value = value;
+  }
+
+  clearChatlist() {
+    this.chatHistoryList.innerHTML = "";
   }
 
   appendChatMessage(message: string): void {
@@ -63,6 +79,14 @@ export class RoomView {
       };
       this.attendeesList.appendChild(el);
     });
+  }
+
+  public show() {
+    this.dom.roomRoot.classList.remove(ClassName.hidden);
+  }
+
+  public hide() {
+    this.dom.roomRoot.classList.add(ClassName.hidden);
   }
 
   public startCall(localStream: MediaStream, receivedStream: MediaStream) {
