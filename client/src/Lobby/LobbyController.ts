@@ -3,15 +3,17 @@ import { LobbyView } from "./LobbyView";
 import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
 import { UsernameController } from "./UsernameController";
+import {Routable} from "../Router/Routable";
 
 @Injectable()
-export class LobbyController {
+export class LobbyController implements Routable {
   constructor(
     private view: LobbyView,
     private readonly errorController: ErrorController,
     private router: RouterController,
     private usernameService: UsernameController
   ) {
+    this.router.registerRoute(this);
     this.init();
   }
 
@@ -29,11 +31,25 @@ export class LobbyController {
 
     this.view.onLobbyFormSubmit = async () => {
       try {
-        this.router.goToRoom(this.view.roomName);
+        this.router.changeUrl(this.view.roomName);
         this.view.roomName = "";
       } catch (error) {
         this.errorController.handleError(error);
       }
     };
+  }
+
+  getRouteRegex(): RegExp {
+    return /(.*?)/g;
+  }
+  getTitle(): string {
+    return "Funkgerät - Lobby";
+  }
+  onRouteVisited(matchResult: RegExpMatchArray): void {
+    console.log('visited lobby route', matchResult);
+    this.view.show();
+  }
+  onRouteLeft(): void {
+    this.view.hide();
   }
 }

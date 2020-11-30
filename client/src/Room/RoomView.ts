@@ -77,6 +77,14 @@ export class RoomView {
     });
   }
 
+  public show() {
+    this.dom.roomRoot.classList.remove(ClassName.hidden);
+  }
+
+  public hide() {
+    this.dom.roomRoot.classList.add(ClassName.hidden);
+  }
+
   public startCall(localStream: MediaStream, receivedStream: MediaStream) {
     this.receivedVideo.srcObject = receivedStream;
     this.localVideo.srcObject = localStream;

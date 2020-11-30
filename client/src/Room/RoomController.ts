@@ -16,11 +16,11 @@ import {
 import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
 import { RouterController } from "../Router/RouterController";
-import { Route } from "../Router/Route";
 import { UsernameController } from "../Lobby/UsernameController";
+import {Routable} from "../Router/Routable";
 
 @Injectable()
-export class RoomController implements MessageListener, PeerConnectionListener {
+export class RoomController implements MessageListener, PeerConnectionListener, Routable {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -40,6 +40,9 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     private router: RouterController,
     private usernameStorage: UsernameController
   ) {
+    // TODO: register controller on route?
+    router.registerRoute(this);
+
     // TODO: those are mandatory listeners, should be supplied via constructor?
     view.onChatFormSubmit = () => {
       this.socketServer!.sendChatMessage(view.chatMessage);
@@ -55,7 +58,7 @@ export class RoomController implements MessageListener, PeerConnectionListener {
     };
 
     view.onLogoutButton = () => {
-      this.router.goToLobby();
+      this.router.changeUrl("/");
     };
 
     view.onCopyRoomIconClicked = () => {
@@ -64,24 +67,6 @@ export class RoomController implements MessageListener, PeerConnectionListener {
         navigator.clipboard.writeText(url);
       }
     };
-
-    router.addRouteChangedCallback((route: Route) => this.onRouteChanged(route));
-  }
-
-  private async onRouteChanged(route: Route) {
-    if (route.isRoomRoute) {
-      const username = await this.usernameStorage.loadUsername();
-      const roomName = route.params?.get("roomname") as string;
-
-      if (!username || !roomName) {
-        this.router.goToLobby();
-        return;
-      }
-
-      this.joinRoom(username, roomName);
-    } else {
-      this.leaveRoom();
-    }
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -171,5 +156,34 @@ export class RoomController implements MessageListener, PeerConnectionListener {
       this.errorController.handleError(result);
     }
     this.view.endCall();
+  }
+
+  getRouteRegex(): RegExp {
+    return /\w+/g;
+  }
+
+  onRouteLeft(): void {
+    this.leaveRoom();
+    this.view.hide();
+  }
+
+  onRouteVisited(matchResult: RegExpMatchArray): void {
+    this.changeToRoom(matchResult[0]);
+    this.view.show();
+  }
+
+  getTitle(): string {
+    return "Funkgerät - Room";
+  }
+
+  private async changeToRoom(roomName: string) {
+    const username = await this.usernameStorage.loadUsername();
+
+    if (!username || !roomName) {
+      this.router.changeUrl("/");
+      return;
+    }
+
+    this.joinRoom(username, roomName);
   }
 }

@@ -1,5 +1,5 @@
 import "./lobby.scss";
-import { Dom } from "../View/Dom";
+import {ClassName, Dom} from "../View/Dom";
 import { Injectable } from "../injection";
 
 @Injectable()
@@ -39,12 +39,12 @@ export class LobbyView {
   focusRoomInput() {
     this.roomNameInput.focus();
   }
-}
 
-class Dependency {
-  constructor(
-    public readonly name: string,
-    public readonly con: Function,
-    public readonly subDeps: string[]
-  ) {}
+  public show() {
+    this.dom.lobbyRoot.classList.remove(ClassName.hidden);
+  }
+
+  public hide() {
+    this.dom.lobbyRoot.classList.add(ClassName.hidden);
+  }
 }
