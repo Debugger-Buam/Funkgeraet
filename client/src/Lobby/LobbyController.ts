@@ -1,6 +1,5 @@
 import { RouterController } from "../Router/RouterController";
 import { LobbyView } from "./LobbyView";
-import { RoomController } from "../Room/RoomController";
 import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
 import { UsernameController } from "./UsernameController";
@@ -11,7 +10,6 @@ export class LobbyController {
     private view: LobbyView,
     private readonly errorController: ErrorController,
     private router: RouterController,
-    private room: RoomController,
     private usernameService: UsernameController
   ) {
     this.init();

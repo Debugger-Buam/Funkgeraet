@@ -65,7 +65,7 @@ export class RoomController implements MessageListener, PeerConnectionListener {
       }
     };
 
-    router.onRouteChanged = (route: Route) => this.onRouteChanged(route);
+    router.addRouteChangedCallback((route: Route) => this.onRouteChanged(route));
   }
 
   private async onRouteChanged(route: Route) {
