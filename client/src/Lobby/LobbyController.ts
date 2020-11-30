@@ -46,7 +46,6 @@ export class LobbyController implements Routable {
     return "Funkgerät - Lobby";
   }
   onRouteVisited(matchResult: RegExpMatchArray): void {
-    console.log('visited lobby route', matchResult);
     this.view.show();
   }
   onRouteLeft(): void {
