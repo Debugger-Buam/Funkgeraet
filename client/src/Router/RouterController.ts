@@ -14,7 +14,6 @@ export class RouterController {
 
   public registerRoute(routable: Routable) {
     this.registeredRoutables.push(routable);
-    this.updateCurrentRoute();
   }
 
   public navigateTo(path: string) {
