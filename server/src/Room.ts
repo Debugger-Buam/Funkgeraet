@@ -5,8 +5,11 @@ import {
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
+import { Log } from "../../shared/Util/Log";
+import { Configuration } from "./Configuration";
 import { Connection } from "./Connection";
 import { ConnectionGroup } from "./ConnectionGroup";
+import { RoomManager } from "./RoomManager";
 
 /**
  * A room groups individual connections based and consists of
@@ -16,12 +19,23 @@ import { ConnectionGroup } from "./ConnectionGroup";
 export class Room extends ConnectionGroup {
   private chatMessages: ChatMessage[] = [];
 
-  constructor(public roomName: string) {
+  private staleTimeout?: NodeJS.Timeout;
+
+  constructor(public roomName: string, private roomManager: RoomManager) {
     super();
   }
 
   addConnection(connection: Connection) {
     super.addConnection(connection);
+
+    if (this.staleTimeout) {
+      clearTimeout(this.staleTimeout);
+      Log.info(
+        `Stopped room inactive timeout for room "${this.roomName}" since a new connection entered.`
+      );
+      this.staleTimeout = undefined;
+    }
+
     this.broadcast(new UserListChangedMessage(this.getUsers()));
 
     // Listen on room specific messages
@@ -47,6 +61,21 @@ export class Room extends ConnectionGroup {
   removeConnection(connection: Connection) {
     super.removeConnection(connection);
     this.broadcast(new UserListChangedMessage(this.getUsers()));
+
+    if (this.connections.size == 0 && !this.staleTimeout) {
+      this.staleTimeout = setTimeout(
+        this.onStaleTimeoutElapsed.bind(this),
+        Configuration.INACTIVE_ROOM_LIFETIME_MS
+      );
+      Log.info(
+        `Started room inactive timeout for room "${this.roomName}" since room is empty.`
+      );
+    }
+  }
+
+  private onStaleTimeoutElapsed() {
+    Log.info(`Room inactive timeout elapsed for room "${this.roomName}".`);
+    this.roomManager.removeRoom(this);
   }
 
   private onChatMessage(message: ChatMessage) {

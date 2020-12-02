@@ -1,4 +1,4 @@
-import WebSocket, {ServerOptions} from "ws";
+import WebSocket, { ServerOptions } from "ws";
 import {
   BaseMessage,
   InitMessage,
@@ -8,14 +8,14 @@ import {
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
-import {User} from "../../shared/User";
+import { User } from "../../shared/User";
 import fs from "fs";
 import https from "https";
-import {Log} from "../../shared/Util/Log";
-import {RoomManager} from "./RoomManager";
-import {ConnectionManager} from "./ConnectionManager";
+import { Log } from "../../shared/Util/Log";
+import { RoomManager } from "./RoomManager";
+import { ConnectionManager } from "./ConnectionManager";
+import { Configuration } from "./Configuration";
 
-const port = 6503;
 let serverOptions: ServerOptions;
 
 if (process.env.IS_SECURE === "1") {
@@ -24,10 +24,10 @@ if (process.env.IS_SECURE === "1") {
       cert: fs.readFileSync("../certs/local.pem"),
       key: fs.readFileSync("../certs/local-key.pem"),
     })
-    .listen(port);
+    .listen(Configuration.PORT);
   serverOptions = { server };
 } else {
-  serverOptions = { port };
+  serverOptions = { port: Configuration.PORT };
 }
 
 const wss = new WebSocket.Server(serverOptions);
@@ -78,7 +78,7 @@ wss.on("connection", (ws) => {
         // Creates a new room if it does not exist
         const room = roomManager.getOrCreateRoom(request.roomName);
         con.room = room;
-        
+
         room.addConnection(con);
 
         Log.info("Number of rooms that exist is : ", roomManager.rooms.length);
