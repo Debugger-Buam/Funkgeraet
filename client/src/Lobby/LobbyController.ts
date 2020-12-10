@@ -3,10 +3,10 @@ import { LobbyView } from "./LobbyView";
 import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
 import { UsernameController } from "./UsernameController";
-import {Routable} from "../Router/Routable";
+import { Routable } from "../Router/Routable";
 
 @Injectable()
-export class LobbyController implements Routable {
+export class LobbyController implements Routable<string> {
   constructor(
     private view: LobbyView,
     private readonly errorController: ErrorController,
@@ -28,7 +28,6 @@ export class LobbyController implements Routable {
       try {
         await this.usernameService.saveUsername(this.view.username);
         this.router.navigateTo(this.view.roomName);
-        this.view.roomName = "";
       } catch (error) {
         this.errorController.handleError(error);
       }
@@ -41,7 +40,8 @@ export class LobbyController implements Routable {
   getTitle(): string {
     return "Funkgerät - Lobby";
   }
-  onRouteVisited(matchResult: RegExpMatchArray): void {
+  onRouteVisited(matchResult: RegExpMatchArray, error?: string): void {
+    this.view.error = error ?? "";
     this.view.show();
   }
   onRouteLeft(): void {

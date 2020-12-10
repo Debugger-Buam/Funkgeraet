@@ -10,6 +10,7 @@ import { UserError } from "./UserError";
 import { RoomView } from "./RoomView";
 import {
   ChatMessage,
+  JoinRoomRequestMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
 } from "../../../shared/Messages";
@@ -21,7 +22,7 @@ import { Routable } from "../Router/Routable";
 
 @Injectable()
 export class RoomController
-  implements MessageListener, PeerConnectionListener, Routable {
+  implements MessageListener, PeerConnectionListener, Routable<void> {
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -97,16 +98,24 @@ export class RoomController
   }
 
   // this is the initial call when entering a username
-  public async joinRoom(username: string, roomname: string): Promise<void> {
-    Log.info(`Joining room ${roomname} with name ${username}`);
+  public async joinRoom(username: string, roomName: string) {
+    this.view.hide();
+
+    Log.info(`Joining room ${roomName} with name ${username}`);
 
     const user = new User(username);
     this.currentUser = user;
     this.view.setCurrentUser(user);
-    this.view.roomName = roomname;
 
-    this.socketServer = new WebSocketServer(this);
-    await this.socketServer.connect(user, roomname);
+    try {
+      this.socketServer = new WebSocketServer(this);
+      await this.socketServer.connect(user, roomName);
+      this.view.roomName = roomName;
+      this.view.show();
+    } catch (e) {
+      this.view.hide();
+      this.router.navigateTo("/", e);
+    }
   }
 
   public leaveRoom(): Promise<void> {

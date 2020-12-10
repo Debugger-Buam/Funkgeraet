@@ -1,4 +1,4 @@
-import {User} from "./User";
+import { User } from "./User";
 
 export abstract class BaseMessage {
   constructor(public readonly type: WebSocketMessageType) {}
@@ -8,10 +8,29 @@ export abstract class BaseMessage {
   }
 }
 
-export class JoinRoomMessage extends BaseMessage {
+export abstract class BaseResponseMessage extends BaseMessage {
+  constructor(
+    public readonly type: WebSocketMessageType,
+    public readonly error?: string
+  ) {
+    super(type);
+  }
+}
+
+export class JoinRoomRequestMessage extends BaseMessage {
   constructor(
     public readonly roomName: string,
     public readonly userName: string
+  ) {
+    super(WebSocketMessageType.JOIN);
+  }
+}
+
+export class JoinRoomResponseMessage extends BaseResponseMessage {
+  constructor(
+    public readonly roomName: string,
+    public readonly userName: string,
+    public readonly error?: string
   ) {
     super(WebSocketMessageType.JOIN);
   }
@@ -45,15 +64,17 @@ export class ChatMessage extends BaseMessage {
 }
 
 export class ChatMessageList extends BaseMessage {
-  constructor(
-    public readonly messages: ChatMessage[],
-  ) {
+  constructor(public readonly messages: ChatMessage[]) {
     super(WebSocketMessageType.CHAT_LIST);
   }
 }
 
 export class PeerConnectionMessage extends BaseMessage {
-  constructor(type: WebSocketMessageType, public readonly sender: string, readonly receiver: string) {
+  constructor(
+    type: WebSocketMessageType,
+    public readonly sender: string,
+    readonly receiver: string
+  ) {
     super(type);
   }
 }
@@ -63,10 +84,10 @@ export declare type PeerConnectionSdpMessageType =
   | WebSocketMessageType.VIDEO_OFFER;
 export class PeerConnectionSdpMessage extends PeerConnectionMessage {
   constructor(
-      type: PeerConnectionSdpMessageType,
-      public readonly sender: string,
-      public readonly receiver: string,
-      public readonly sdp: RTCSessionDescription
+    type: PeerConnectionSdpMessageType,
+    public readonly sender: string,
+    public readonly receiver: string,
+    public readonly sdp: RTCSessionDescription
   ) {
     super(type, sender, receiver);
   }
@@ -74,8 +95,8 @@ export class PeerConnectionSdpMessage extends PeerConnectionMessage {
 
 export class PeerConnectionHangUpMessage extends PeerConnectionMessage {
   constructor(
-      public readonly sender: string,
-      public readonly receiver: string
+    public readonly sender: string,
+    public readonly receiver: string
   ) {
     super(WebSocketMessageType.HANG_UP, sender, receiver);
   }
@@ -89,6 +110,14 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
   ) {
     super(WebSocketMessageType.NEW_ICE_CANDIDATE, sender, receiver);
   }
+}
+
+export interface RequestTypeMap {
+  JOIN_ROOM: JoinRoomRequestMessage;
+}
+
+export interface ResponseTypeMap {
+  JOIN_ROOM: JoinRoomResponseMessage;
 }
 
 export enum WebSocketMessageType {

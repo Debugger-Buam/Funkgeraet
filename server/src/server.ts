@@ -2,7 +2,8 @@ import WebSocket, { ServerOptions } from "ws";
 import {
   BaseMessage,
   InitMessage,
-  JoinRoomMessage,
+  JoinRoomRequestMessage,
+  JoinRoomResponseMessage,
   PeerConnectionMessage,
   UserCallStateMessage,
   UserListChangedMessage,
@@ -55,7 +56,7 @@ wss.on("connection", (ws) => {
     const message: BaseMessage = JSON.parse(data);
     switch (message.type) {
       case WebSocketMessageType.JOIN: {
-        const request = message as JoinRoomMessage;
+        const request = message as JoinRoomRequestMessage;
 
         if (
           !request.userName ||
@@ -66,23 +67,48 @@ wss.on("connection", (ws) => {
           Log.warn(
             `Client tried to join with invalid Room [${request.roomName}] or Username: "${request.userName}"`
           );
+          con.socket.send(
+            new JoinRoomResponseMessage(
+              request.roomName,
+              request.userName,
+              "Invalid arguments - Room or username cannot be empty"
+            ).pack()
+          );
           return;
         }
 
+        // Creates a new room if it does not exist
+        const room = roomManager.getOrCreateRoom(request.roomName);
+
+        // Check if username already exists in room
+
+        for (const user of room.getUsers()) {
+          if (user.name === request.userName) {
+            // Username already exists
+            con.socket.send(
+              new JoinRoomResponseMessage(
+                request.roomName,
+                request.userName,
+                "Username already exists"
+              ).pack()
+            );
+            return;
+          }
+        }
+
+        con.user = new User(request.userName);
         Log.info(
           `Client joined Room [${request.roomName}] : Username: "${request.userName}"`
         );
-
-        con.user = new User(request.userName);
-
-        // Creates a new room if it does not exist
-        const room = roomManager.getOrCreateRoom(request.roomName);
         con.room = room;
-
         room.addConnection(con);
 
         Log.info("Number of rooms that exist is : ", roomManager.rooms.length);
 
+        // Send 'valid-join' response
+        con.socket.send(
+          new JoinRoomResponseMessage(request.roomName, request.userName).pack()
+        );
         break;
       }
 

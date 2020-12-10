@@ -1,5 +1,5 @@
 import "./lobby.scss";
-import {ClassName, Dom} from "../View/Dom";
+import { ClassName, Dom } from "../View/Dom";
 import { Injectable } from "../injection";
 
 @Injectable()
@@ -7,6 +7,7 @@ export class LobbyView {
   private readonly lobbyForm = this.dom.lobbyForm;
   private readonly usernameInput = this.dom.usernameInput;
   private readonly roomNameInput = this.dom.roomNameInput;
+  private readonly errorSpan = this.dom.errorSpan;
 
   constructor(private readonly dom: Dom) {
     this.lobbyForm.addEventListener("submit", (e) => e.preventDefault());
@@ -18,6 +19,11 @@ export class LobbyView {
 
   get username(): string {
     return this.usernameInput.value;
+  }
+
+  set error(errorText: string) {
+    console.log("Error is: ", errorText);
+    this.errorSpan.innerText = errorText;
   }
 
   set username(value: string) {

@@ -1,18 +1,19 @@
-import {Log} from "../../../shared/Util/Log";
+import { Log } from "../../../shared/Util/Log";
 
 import {
   BaseMessage,
   ChatMessage,
   ChatMessageList,
   InitMessage,
-  JoinRoomMessage,
+  JoinRoomRequestMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../../shared/Messages";
 
-import {WebSocketConnection} from "./WebSocketConnection";
-import {User} from "../../../shared/User";
+import { WebSocketConnection } from "./WebSocketConnection";
+import { User } from "../../../shared/User";
+import { Socket } from "./Socket";
 
 export interface MessageListener {
   onChatMessageReceived(message: ChatMessage): void;
@@ -23,7 +24,7 @@ export interface MessageListener {
 }
 
 export class WebSocketServer {
-  private socket?: WebSocket;
+  private socket?: Socket;
   private connection?: WebSocketConnection;
 
   constructor(private readonly listener: MessageListener) {}
@@ -35,7 +36,7 @@ export class WebSocketServer {
       }
       const urlPrefix = window.location.protocol === "https:" ? "wss" : "ws";
       const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
-      const socket = new WebSocket(url, "json");
+      const socket = new Socket(url, "json");
       this.socket = socket;
 
       socket.onerror = (event: Event) => {
@@ -43,7 +44,7 @@ export class WebSocketServer {
         reject(event);
       };
 
-      socket.onmessage = (event: MessageEvent) => {
+      socket.addMessageListener(async (event: MessageEvent) => {
         const message: BaseMessage = JSON.parse(event.data);
 
         Log.info("Socket.onmessage", message);
@@ -59,9 +60,13 @@ export class WebSocketServer {
               user: user,
             };
 
-            this.send(new JoinRoomMessage(roomName, user.name));
-
-            resolve();
+            const msg = new JoinRoomRequestMessage(roomName, user.name);
+            try {
+              await socket.request("JOIN_ROOM", msg);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
             break;
           }
 
@@ -93,7 +98,7 @@ export class WebSocketServer {
             break;
           }
         }
-      };
+      });
     });
   }
 
