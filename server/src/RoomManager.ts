@@ -1,3 +1,4 @@
+import { Log } from "../../shared/Util/Log";
 import { Room } from "./Room";
 
 /**
@@ -30,8 +31,25 @@ export class RoomManager {
     }
 
     // Room does not exist - Lets create one
-    const newRoom = new Room(roomName);
+    const newRoom = new Room(roomName, this);
     this.rooms.push(newRoom);
+    Log.info(`Created a new room with name "${roomName}".`);
     return newRoom;
+  }
+
+  public removeRoom(room: Room) {
+    if (room.getConnectionCount() > 0) {
+      Log.error(
+        `Tried to remove room "${
+          room.roomName
+        }" with ${room.getConnectionCount()} connections in it. Only empty rooms can be removed.`
+      );
+    }
+
+    const index = this.rooms.indexOf(room);
+    if (index > -1) {
+      this.rooms.splice(index, 1);
+    }
+    Log.info(`Removed room with name "${room.roomName}".`);
   }
 }

@@ -57,4 +57,8 @@ export class ConnectionGroup {
     });
     return users;
   }
+
+  getConnectionCount(): number {
+    return this.connections.size;
+  }
 }
