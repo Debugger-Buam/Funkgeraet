@@ -119,7 +119,7 @@ export class RoomController
       throw new UserError("You are not logged in!");
     }
     if (this.currentUser.name === clickedUser.name) {
-      throw new UserError("Can't call yourself stupid");
+      throw new UserError("Can't call yourself!");
     }
 
     Log.info("user", this.currentUser.name, "calls", clickedUser.name);
@@ -133,7 +133,7 @@ export class RoomController
 
   private async hangUp() {
     if (!this.peerConnection) {
-      throw new UserError("No call to hang up idiot");
+      throw new UserError("No call to hang up!");
     }
     await this.peerConnection.hangUp();
   }
