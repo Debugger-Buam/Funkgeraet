@@ -92,7 +92,7 @@
   white-space: nowrap;
   z-index: 10;
   #attendees {
-    li {
+    li.callable {
       cursor: pointer;
     }
   }
