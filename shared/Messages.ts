@@ -35,12 +35,6 @@ export class UserCallStateMessage extends BaseMessage {
   }
 }
 
-export class SetNameMessage extends BaseMessage {
-  constructor(public readonly username: string) {
-    super(WebSocketMessageType.SET_NAME);
-  }
-}
-
 export class ChatMessage extends BaseMessage {
   constructor(
     public readonly username: string,
@@ -100,7 +94,6 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
 export enum WebSocketMessageType {
   INIT = "INIT",
   JOIN = "JOIN_ROOM",
-  SET_NAME = "SET_NAME",
   CHAT = "CHAT",
   CHAT_LIST = "CHAT_LIST",
   VIDEO_OFFER = "VIDEO_OFFER",

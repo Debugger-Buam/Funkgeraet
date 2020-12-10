@@ -4,7 +4,7 @@ import {
   InitMessage,
   JoinRoomMessage,
   PeerConnectionMessage,
-  SetNameMessage, UserCallStateMessage,
+  UserCallStateMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
@@ -86,23 +86,6 @@ wss.on("connection", (ws) => {
         break;
       }
 
-      case WebSocketMessageType.SET_NAME: {
-        const request = message as SetNameMessage;
-
-        Log.info(
-          `Setting client with Id: [${con.id}] to username "${request.username}"`
-        );
-
-        if (con.user != null) {
-          con.user.name = request.username;
-        } else {
-          con.user = new User(request.username);
-        }
-
-        con.room?.broadcast(new UserListChangedMessage(con.room?.getUsers()));
-
-        break;
-      }
       case WebSocketMessageType.NEW_ICE_CANDIDATE:
       case WebSocketMessageType.VIDEO_OFFER:
       case WebSocketMessageType.VIDEO_ANSWER:
