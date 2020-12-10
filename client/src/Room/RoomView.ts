@@ -66,17 +66,21 @@ export class RoomView {
     this.chatHistoryList.appendChild(el);
   }
 
-  updateUserList(userNames: string[]): void {
+  updateUserList(users: User[]): void {
     this.attendeesList.innerHTML = "";
-    userNames.forEach((userName) => {
+    users.forEach((user) => {
       const el = document.createElement("li");
-      el.innerText =
-        this.currentUser?.name === userName
-          ? `${userName} (This is you)`
-          : userName;
-      el.onclick = () => {
-        this.onAttendeeClick?.(userName);
-      };
+      el.innerText = user.name;
+      if (user.isInCall) {
+        el.innerText += " is in Call";
+      }
+      if (this.currentUser?.name === user.name) {
+        el.innerText += " (You)";
+      } else {
+        el.onclick = () => {
+          this.onAttendeeClick?.(user.name);
+        };
+      }
       this.attendeesList.appendChild(el);
     });
   }

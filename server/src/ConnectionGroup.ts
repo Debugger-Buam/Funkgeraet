@@ -48,13 +48,13 @@ export class ConnectionGroup {
     socket.send(JSON.stringify(message));
   }
 
-  getUsers(): Array<string> {
-    const userNames: Array<string> = [];
+  getUsers(): Array<User> {
+    const users: Array<User> = [];
     this.connections.forEach((con) => {
       if (con.user) {
-        userNames.push(con.user.name);
+        users.push(con.user);
       }
     });
-    return userNames;
+    return users;
   }
 }

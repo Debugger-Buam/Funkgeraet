@@ -1,3 +1,5 @@
+import {User} from "./User";
+
 export abstract class BaseMessage {
   constructor(public readonly type: WebSocketMessageType) {}
 
@@ -22,8 +24,14 @@ export class InitMessage extends BaseMessage {
 }
 
 export class UserListChangedMessage extends BaseMessage {
-  constructor(public readonly users: Array<string>) {
+  constructor(public readonly users: Array<User>) {
     super(WebSocketMessageType.USER_LIST_CHANGED);
+  }
+}
+
+export class UserIsInCallMessage extends BaseMessage {
+  constructor(public readonly user: User) {
+    super(WebSocketMessageType.USER_IN_CALL);
   }
 }
 
@@ -100,4 +108,5 @@ export enum WebSocketMessageType {
   NEW_ICE_CANDIDATE = "NEW_ICE_CANDIDATE",
   HANG_UP = "HANG_UP",
   USER_LIST_CHANGED = "USER_LIST_CHANGED",
+  USER_IN_CALL = "USER_IN_CALL",
 }

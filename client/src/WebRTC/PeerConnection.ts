@@ -5,8 +5,7 @@ import {
   PeerConnectionMessage,
   PeerConnectionNewICECandidateMessage,
   PeerConnectionSdpMessage,
-  PeerConnectionSdpMessageType,
-  WebSocketMessageType,
+  PeerConnectionSdpMessageType, UserIsInCallMessage, WebSocketMessageType,
 } from '../../../shared/Messages';
 import {Log} from '../../../shared/Util/Log';
 
@@ -49,6 +48,9 @@ export class PeerConnection {
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
     this.rtcPeerConnection.ontrack = async (event) => {
       this.peerConnectionListener.onVideoCallStarted(await this.localWebcamStreamPromise, event.streams[0]);
+      this.sourceUser.isInCall = true;
+      this.socketServer.send(new UserIsInCallMessage(this.sourceUser))
+      Log.info("User", sourceUser.name, " is in call = ", this.sourceUser.isInCall)
     };
   }
 
@@ -194,7 +196,7 @@ export class PeerConnection {
     this.rtcPeerConnection.onsignalingstatechange = null;
     this.rtcPeerConnection.onicegatheringstatechange = null;
     this.rtcPeerConnection.ontrack = null
-    this.rtcPeerConnection.getTransceivers().forEach(transceiver => transceiver.stop());
+    this.rtcPeerConnection.getTransceivers().forEach(transceiver => transceiver.receiver.track.stop());
     this.rtcPeerConnection.close();
     this.isTransceiverSet = false;
     this.targetUserName = undefined;
