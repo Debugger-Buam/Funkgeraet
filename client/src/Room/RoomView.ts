@@ -71,12 +71,18 @@ export class RoomView {
     users.forEach((user) => {
       const el = document.createElement("li");
       el.innerText = user.name;
+      let isCallable = true;
       if (user.isInCall) {
         el.innerText += " is in Call";
+        isCallable = false;
       }
       if (this.currentUser?.name === user.name) {
         el.innerText += " (You)";
-      } else {
+        isCallable = false;
+      }
+
+      if (isCallable) {
+        el.className = "callable";
         el.onclick = () => {
           this.onAttendeeClick?.(user.name);
         };

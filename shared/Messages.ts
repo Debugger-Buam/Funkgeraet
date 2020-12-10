@@ -29,9 +29,9 @@ export class UserListChangedMessage extends BaseMessage {
   }
 }
 
-export class UserIsInCallMessage extends BaseMessage {
+export class UserCallStateMessage extends BaseMessage {
   constructor(public readonly user: User) {
-    super(WebSocketMessageType.USER_IN_CALL);
+    super(WebSocketMessageType.USER_CALL_STATE_CHANGED);
   }
 }
 
@@ -108,5 +108,5 @@ export enum WebSocketMessageType {
   NEW_ICE_CANDIDATE = "NEW_ICE_CANDIDATE",
   HANG_UP = "HANG_UP",
   USER_LIST_CHANGED = "USER_LIST_CHANGED",
-  USER_IN_CALL = "USER_IN_CALL",
+  USER_CALL_STATE_CHANGED = "USER_CALL_STATE_CHANGED",
 }

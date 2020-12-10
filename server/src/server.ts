@@ -4,7 +4,7 @@ import {
   InitMessage,
   JoinRoomMessage,
   PeerConnectionMessage,
-  SetNameMessage, UserIsInCallMessage,
+  SetNameMessage, UserCallStateMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
@@ -112,11 +112,11 @@ wss.on("connection", (ws) => {
         con.room?.send(message, target);
         break;
       }
-      case WebSocketMessageType.USER_IN_CALL: {
-        const request = message as UserIsInCallMessage;
+      case WebSocketMessageType.USER_CALL_STATE_CHANGED: {
+        const request = message as UserCallStateMessage;
         con.room?.getUsers().forEach((user) => {
           if (user.name === request.user.name) {
-            user.isInCall = true;
+            user.isInCall = request.user.isInCall;
           }
         });
         con.room?.broadcast(new UserListChangedMessage(con.room?.getUsers()));

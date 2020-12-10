@@ -5,7 +5,7 @@ import {
   PeerConnectionMessage,
   PeerConnectionNewICECandidateMessage,
   PeerConnectionSdpMessage,
-  PeerConnectionSdpMessageType, UserIsInCallMessage, WebSocketMessageType,
+  PeerConnectionSdpMessageType, UserCallStateMessage, WebSocketMessageType,
 } from '../../../shared/Messages';
 import {Log} from '../../../shared/Util/Log';
 
@@ -49,8 +49,8 @@ export class PeerConnection {
     this.rtcPeerConnection.ontrack = async (event) => {
       this.peerConnectionListener.onVideoCallStarted(await this.localWebcamStreamPromise, event.streams[0]);
       this.sourceUser.isInCall = true;
-      this.socketServer.send(new UserIsInCallMessage(this.sourceUser))
-      Log.info("User", sourceUser.name, " is in call = ", this.sourceUser.isInCall)
+      this.socketServer.send(new UserCallStateMessage(this.sourceUser))
+      Log.info("User", sourceUser.name, "is in call =", this.sourceUser.isInCall)
     };
   }
 
@@ -202,6 +202,10 @@ export class PeerConnection {
     this.targetUserName = undefined;
 
     this.peerConnectionListener.onVideoCallEnded(e);
+
+    this.sourceUser.isInCall = false;
+    this.socketServer.send(new UserCallStateMessage(this.sourceUser))
+    Log.info("User", this.sourceUser.name, "is not in a call anymore =", this.sourceUser.isInCall)
   }
 
   private async handleNegotiationNeededEvent() {
