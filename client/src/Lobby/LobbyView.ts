@@ -16,10 +16,6 @@ export class LobbyView {
     this.lobbyForm.addEventListener("submit", value);
   }
 
-  set onUsernameChanged(value: () => void) {
-    this.usernameInput.addEventListener("keydown", value);
-  }
-
   get username(): string {
     return this.usernameInput.value;
   }

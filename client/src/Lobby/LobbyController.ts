@@ -24,13 +24,9 @@ export class LobbyController implements Routable {
       this.view.focusRoomInput();
     }
 
-    this.view.onUsernameChanged = async () => {
-      const username = this.view.username;
-      this.usernameService.saveUsername(username);
-    };
-
     this.view.onLobbyFormSubmit = async () => {
       try {
+        await this.usernameService.saveUsername(this.view.username);
         this.router.navigateTo(this.view.roomName);
         this.view.roomName = "";
       } catch (error) {
