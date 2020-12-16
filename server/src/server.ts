@@ -55,7 +55,7 @@ wss.on("connection", (ws) => {
   ws.on("message", (data: any) => {
     const message: BaseMessage = JSON.parse(data);
     switch (message.type) {
-      case WebSocketMessageType.JOIN: {
+      case WebSocketMessageType.JOIN_REQUEST: {
         const request = message as JoinRoomRequestMessage;
 
         if (
