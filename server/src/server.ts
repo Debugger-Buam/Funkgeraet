@@ -4,9 +4,6 @@ import {
   InitMessage,
   JoinRoomRequestMessage,
   JoinRoomResponseMessage,
-  PeerConnectionMessage,
-  UserCallStateMessage,
-  UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
 import { User } from "../../shared/User";
