@@ -1,5 +1,6 @@
 import {
   BaseMessage,
+  JoinRoomResponseMessage,
   RequestTypeMap,
   ResponseTypeMap,
 } from "../../../shared/Messages";
@@ -16,16 +17,13 @@ export class Socket extends WebSocket {
   ): Promise<ResponseTypeMap[K]> {
     return new Promise((resolve, reject) => {
       const listener = (event: MessageEvent) => {
-        const message: BaseMessage = JSON.parse(event.data);
-        if (message.type === responseType) {
-          const error = (message as any).error;
-          if (error) {
-            reject(error);
-          }
-
-          resolve(message as any);
-          cleanup();
+        const message: JoinRoomResponseMessage = JSON.parse(event.data);
+        if (message.error) {
+          reject(message.error);
         }
+
+        resolve(message as any);
+        cleanup();
       };
 
       this.addMessageListener(listener);
