@@ -43,7 +43,7 @@ export class Socket extends WebSocket {
         cleanup();
         reject(
           new Error(
-            `Timeout occured while waiting for event of type: ${responseType} `
+            `Timeout occured while waiting for event of type: ${responseType}`
           )
         );
       }, timeout);
