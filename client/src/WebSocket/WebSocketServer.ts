@@ -51,7 +51,7 @@ export class WebSocketServer {
 
       socket.addMessageListener(async (event: MessageEvent) => {
         try {
-          const message: BaseMessage = JSON.parse(event.data);
+          const message: BaseMessage = BaseMessage.parse(event.data);
 
           Log.info("Socket.onmessage", message);
 
@@ -96,6 +96,12 @@ export class WebSocketServer {
               break;
             }
 
+            case WebSocketMessageType.CALL_REQUEST: {
+              const callRequestMessage = message as CallRequestMessage;
+              this.listener.onIncomingCallReceived(callRequestMessage);
+              break;
+            }
+
             case WebSocketMessageType.VIDEO_OFFER:
             case WebSocketMessageType.VIDEO_ANSWER:
             case WebSocketMessageType.NEW_ICE_CANDIDATE:
@@ -106,8 +112,8 @@ export class WebSocketServer {
               break;
             }
           }
-        } catch {
-          console.error("failed to pass", event.data);
+        } catch (e) {
+          console.error("Failed to handle Message: ", event.data, e);
           return;
         }
       });
@@ -144,7 +150,7 @@ export class WebSocketServer {
     );
 
     const response = await this.socket.request<CallResponseMessage>(
-      WebSocketMessageType.CALL_REQUEST,
+      WebSocketMessageType.CALL_RESPONSE,
       message
     );
 

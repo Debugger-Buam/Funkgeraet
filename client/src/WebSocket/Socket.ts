@@ -12,8 +12,7 @@ export class Socket extends WebSocket {
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const listener = (event: MessageEvent) => {
-        const message: BaseMessage = JSON.parse(event.data);
-
+        const message: BaseMessage = BaseMessage.parse(event.data);
         if (message.type === responseType) {
           const error = (message as any).error;
           if (error) {
@@ -40,7 +39,7 @@ export class Socket extends WebSocket {
         cleanup();
         reject(
           new Error(
-            `Timeout occured while waiting for event of type: ${responseType} `
+            `Timeout occured while waiting for event of type: ${responseType}`
           )
         );
       }, timeout);

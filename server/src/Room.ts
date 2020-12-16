@@ -41,7 +41,7 @@ export class Room extends ConnectionGroup {
 
     // Listen on room specific messages
     connection.socket.on("message", (data: any) => {
-      const message: BaseMessage = JSON.parse(data);
+      const message: BaseMessage = BaseMessage.parse(data);
       if (message.type === WebSocketMessageType.CHAT) {
         this.handleChatMessage(connection, message as ChatMessage);
       } else if (message.type === WebSocketMessageType.REDIRECT_MESSAGE) {
@@ -90,8 +90,14 @@ export class Room extends ConnectionGroup {
     }
 
     const targetUser = this.findUser(message.targetUsername);
+    Log.info(
+      `Handling Redirect message to: ${message.targetUsername}, redirecting message of type: ${message.wrappedMessage.type}`
+    );
 
-    if (!targetUser) {
+    if (targetUser == null) {
+      Log.warn(
+        `Target ${message.targetUsername} of RedirectMessage not found in Room ${this.roomName}`
+      );
       return;
     }
 

@@ -62,11 +62,11 @@ export class ConnectionGroup {
   }
 
   findUser(username: string): User | null {
-    this.connections.forEach((con) => {
+    for (const [_, con] of this.connections.entries()) {
       if (con.user && con.user.name === username) {
         return con.user;
       }
-    });
+    }
     return null;
   }
 

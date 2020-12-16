@@ -204,7 +204,8 @@ export class PeerConnection {
     this.peerConnectionListener.onVideoCallEnded(e);
 
     this.sourceUser.isInCall = false;
-    this.socketServer.send(new UserCallStateMessage(this.sourceUser))
+    this.socketServer.send(new UserCallStateMessage(this.sourceUser));
+    this.localWebcamStreamPromise.then((stream) => stream.getTracks().forEach((track) => track.stop()));
     Log.info("User", this.sourceUser.name, "is not in a call anymore =", this.sourceUser.isInCall)
   }
 

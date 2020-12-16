@@ -124,7 +124,7 @@ export class RoomController
   }
 
   public onIncomingCallReceived(message: CallRequestMessage): void {
-    throw new Error("Method not implemented.");
+    this.socketServer?.answerCall(message.callerName, true);
   }
 
   // This is the click on the user name should start the call
@@ -138,17 +138,21 @@ export class RoomController
     if (this.currentUser.name === clickedUser.name) {
       throw new UserError("Can't call yourself!");
     }
+    if (!this.socketServer) {
+      throw new UserError("Cannot call without having a server connection");
+    }
 
     Log.info("user", this.currentUser.name, "calls", clickedUser.name);
 
     this.hasCallPending = true;
     try {
-      const accepted = await this.socketServer?.requestCall(clickedUser.name);
+      const accepted = await this.socketServer.requestCall(clickedUser.name);
       if (accepted) {
         this.onCallAccepted(clickedUser);
       }
-    } catch {
+    } catch (e) {
       // Something happend and we treat it as a decline ...
+      console.error(e);
     } finally {
       this.hasCallPending = false;
     }

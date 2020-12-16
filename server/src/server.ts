@@ -55,7 +55,7 @@ wss.on("connection", (ws) => {
   ws.on("message", (data: any) => {
     const message: BaseMessage = JSON.parse(data);
     switch (message.type) {
-      case WebSocketMessageType.JOIN: {
+      case WebSocketMessageType.JOIN_REQUEST: {
         const request = message as JoinRoomRequestMessage;
 
         if (
@@ -82,18 +82,18 @@ wss.on("connection", (ws) => {
 
         // Check if username already exists in room
 
-        for (const user of room.getUsers()) {
-          if (user.name === request.userName) {
-            // Username already exists
-            con.socket.send(
-              new JoinRoomResponseMessage(
-                request.roomName,
-                request.userName,
-                "Username already exists"
-              ).pack()
-            );
-            return;
-          }
+        const userWithName = room.findUser(request.userName);
+
+        if (userWithName != null) {
+          // Username already exists
+          con.socket.send(
+            new JoinRoomResponseMessage(
+              request.roomName,
+              request.userName,
+              "Username already exists"
+            ).pack()
+          );
+          return;
         }
 
         con.user = new User(request.userName);
