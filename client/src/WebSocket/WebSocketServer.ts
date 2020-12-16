@@ -151,7 +151,8 @@ export class WebSocketServer {
 
     const response = await this.socket.request<CallResponseMessage>(
       WebSocketMessageType.CALL_RESPONSE,
-      message
+      message,
+      60 * 1000 // 1 Minute to accept the call
     );
 
     return response.accepted;

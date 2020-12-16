@@ -124,7 +124,10 @@ export class RoomController
   }
 
   public onIncomingCallReceived(message: CallRequestMessage): void {
-    this.socketServer?.answerCall(message.callerName, true);
+    this.socketServer?.answerCall(
+      message.callerName,
+      confirm(`'${message.callerName}' is calling you. Do you want to accept?`)
+    );
   }
 
   // This is the click on the user name should start the call
