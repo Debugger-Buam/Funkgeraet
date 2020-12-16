@@ -54,83 +54,60 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (data: any) => {
     const message: BaseMessage = JSON.parse(data);
-    switch (message.type) {
-      case WebSocketMessageType.JOIN_REQUEST: {
-        const request = message as JoinRoomRequestMessage;
+    if (message.type === WebSocketMessageType.JOIN_REQUEST) {
+      const request = message as JoinRoomRequestMessage;
 
-        if (
-          !request.userName ||
-          request.userName.length < 1 ||
-          !request.roomName ||
-          request.roomName.length < 1
-        ) {
-          Log.warn(
-            `Client tried to join with invalid Room [${request.roomName}] or Username: "${request.userName}"`
-          );
-          con.socket.send(
-            new JoinRoomResponseMessage(
-              request.roomName,
-              request.userName,
-              "Invalid arguments - Room or username cannot be empty"
-            ).pack()
-          );
-          return;
-        }
-
-        // Creates a new room if it does not exist
-        const room = roomManager.getOrCreateRoom(request.roomName);
-
-        // Check if username already exists in room
-
-        const userWithName = room.findUser(request.userName);
-
-        if (userWithName != null) {
-          // Username already exists
-          con.socket.send(
-            new JoinRoomResponseMessage(
-              request.roomName,
-              request.userName,
-              "Username already exists"
-            ).pack()
-          );
-          return;
-        }
-
-        con.user = new User(request.userName);
-        Log.info(
-          `Client joined Room [${request.roomName}] : Username: "${request.userName}"`
+      if (
+        !request.userName ||
+        request.userName.length < 1 ||
+        !request.roomName ||
+        request.roomName.length < 1
+      ) {
+        Log.warn(
+          `Client tried to join with invalid Room [${request.roomName}] or Username: "${request.userName}"`
         );
-        con.room = room;
-        room.addConnection(con);
-
-        Log.info("Number of rooms that exist is : ", roomManager.rooms.length);
-
-        // Send 'valid-join' response
         con.socket.send(
-          new JoinRoomResponseMessage(request.roomName, request.userName).pack()
+          new JoinRoomResponseMessage(
+            request.roomName,
+            request.userName,
+            "Invalid arguments - Room or username cannot be empty"
+          ).pack()
         );
-        break;
+        return;
       }
 
-      case WebSocketMessageType.NEW_ICE_CANDIDATE:
-      case WebSocketMessageType.VIDEO_OFFER:
-      case WebSocketMessageType.VIDEO_ANSWER:
-      case WebSocketMessageType.HANG_UP: {
-        const request = message as PeerConnectionMessage;
-        const target = new User(request.receiver);
-        con.room?.send(message, target);
-        break;
+      // Creates a new room if it does not exist
+      const room = roomManager.getOrCreateRoom(request.roomName);
+
+      // Check if username already exists in room
+
+      const userWithName = room.findUser(request.userName);
+
+      if (userWithName != null) {
+        // Username already exists
+        con.socket.send(
+          new JoinRoomResponseMessage(
+            request.roomName,
+            request.userName,
+            "Username already exists"
+          ).pack()
+        );
+        return;
       }
-      case WebSocketMessageType.USER_CALL_STATE_CHANGED: {
-        const request = message as UserCallStateMessage;
-        con.room?.getUsers().forEach((user) => {
-          if (user.name === request.user.name) {
-            user.isInCall = request.user.isInCall;
-          }
-        });
-        con.room?.broadcast(new UserListChangedMessage(con.room?.getUsers()));
-        break;
-      }
+
+      con.user = new User(request.userName);
+      Log.info(
+        `Client joined Room [${request.roomName}] : Username: "${request.userName}"`
+      );
+      con.room = room;
+      room.addConnection(con);
+
+      Log.info("Number of rooms that exist is : ", roomManager.rooms.length);
+
+      // Send 'valid-join' response
+      con.socket.send(
+        new JoinRoomResponseMessage(request.roomName, request.userName).pack()
+      );
     }
   });
 });

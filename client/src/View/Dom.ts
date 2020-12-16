@@ -15,7 +15,12 @@ type Id =
   | "logout-button"
   | "room-name-display"
   | "copy-room-icon"
-  | "error-span";
+  | "error-span"
+  | "modal"
+  | "modal-close"
+  | "modal-content"
+  | "modal-button-positive"
+  | "modal-button-negative";
 
 export enum ClassName {
   hidden = "hidden",
@@ -41,6 +46,12 @@ export class Dom {
   readonly roomNameDisplay = this.getElementById("room-name-display");
   readonly copyRoomIcon = this.getElementById("copy-room-icon");
   readonly errorSpan = this.getElementById("error-span");
+  // Modal
+  readonly modal = this.getElementById("modal");
+  readonly modalContent = this.getElementById("modal-content");
+  readonly modalButtonPositive = this.getElementById("modal-button-positive");
+  readonly modalButtonNegative = this.getElementById("modal-button-negative");
+  readonly modalCloseButton = this.getElementById("modal-close");
 
   constructor(private readonly root: Document) {}
 

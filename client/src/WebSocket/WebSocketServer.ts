@@ -25,7 +25,7 @@ export interface MessageListener {
 
   onPeerConnectionMsg(message: PeerConnectionMessage): void;
 
-  onIncomingCallReceived(message: CallRequestMessage): void;
+  onIncomingCallReceived(message: CallRequestMessage): Promise<void>;
 }
 
 export class WebSocketServer {

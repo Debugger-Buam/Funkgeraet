@@ -2,10 +2,13 @@ import {
   BaseMessage,
   ChatMessage,
   ChatMessageList,
+  PeerConnectionMessage,
   RedirectMessage,
+  UserCallStateMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
+import { User } from "../../shared/User";
 import { Log } from "../../shared/Util/Log";
 import { Configuration } from "./Configuration";
 import { Connection } from "./Connection";
@@ -42,10 +45,24 @@ export class Room extends ConnectionGroup {
     // Listen on room specific messages
     connection.socket.on("message", (data: any) => {
       const message: BaseMessage = BaseMessage.parse(data);
-      if (message.type === WebSocketMessageType.CHAT) {
-        this.handleChatMessage(connection, message as ChatMessage);
-      } else if (message.type === WebSocketMessageType.REDIRECT_MESSAGE) {
-        this.handleRedirectMessage(message as RedirectMessage);
+      switch (message.type) {
+        case WebSocketMessageType.CHAT:
+          this.handleChatMessage(connection, message as ChatMessage);
+          break;
+        case WebSocketMessageType.REDIRECT_MESSAGE:
+          this.handleRedirectMessage(message as RedirectMessage);
+          break;
+        case WebSocketMessageType.NEW_ICE_CANDIDATE:
+        case WebSocketMessageType.VIDEO_OFFER:
+        case WebSocketMessageType.VIDEO_ANSWER:
+        case WebSocketMessageType.HANG_UP: {
+          this.handlePeerConnectionMessage(message as PeerConnectionMessage);
+          break;
+        }
+        case WebSocketMessageType.USER_CALL_STATE_CHANGED: {
+          this.handleUserCallStateMessage(message as UserCallStateMessage);
+          break;
+        }
       }
     });
 
@@ -69,6 +86,20 @@ export class Room extends ConnectionGroup {
     }
   }
 
+  private handlePeerConnectionMessage(request: PeerConnectionMessage) {
+    const target = new User(request.receiver);
+    this.send(request, target);
+  }
+
+  private handleUserCallStateMessage(request: UserCallStateMessage) {
+    const user = this.findUser(request.user.name);
+    if (user) {
+      user.isInCall = request.user.isInCall;
+    }
+
+    this.broadcast(new UserListChangedMessage(this.getUsers()));
+  }
+
   private handleChatMessage(connection: Connection, message: ChatMessage) {
     if (message.message) {
       const msg = new ChatMessage(
@@ -76,16 +107,15 @@ export class Room extends ConnectionGroup {
         message.message.trim()
       );
 
-      if (message.username.length > 0 || message.message.length > 0) {
-        this.chatMessages.push(message);
-        this.broadcast(message);
+      if (msg.username.length > 0 || msg.message.length > 0) {
+        this.chatMessages.push(msg);
+        this.broadcast(msg);
       }
     }
   }
 
   private handleRedirectMessage(message: RedirectMessage) {
-    const request = message as RedirectMessage;
-    if (!request.targetUsername || !request.wrappedMessage) {
+    if (!message.targetUsername || !message.wrappedMessage) {
       return;
     }
 
@@ -101,7 +131,7 @@ export class Room extends ConnectionGroup {
       return;
     }
 
-    this.send(request.wrappedMessage, targetUser);
+    this.send(message.wrappedMessage, targetUser);
   }
 
   private onStaleTimeoutElapsed() {

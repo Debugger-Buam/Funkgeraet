@@ -19,6 +19,7 @@ import { Injectable } from "../injection";
 import { RouterController } from "../Router/RouterController";
 import { UsernameController } from "../Lobby/UsernameController";
 import { Routable } from "../Router/Routable";
+import { ModalController } from "../Modal/ModalController";
 
 @Injectable()
 export class RoomController
@@ -41,7 +42,8 @@ export class RoomController
     private readonly view: RoomView,
     readonly errorController: ErrorController,
     private router: RouterController,
-    private usernameStorage: UsernameController
+    private usernameStorage: UsernameController,
+    private modalController: ModalController
   ) {
     // TODO: register controller on route?
     router.registerRoute(this);
@@ -123,11 +125,20 @@ export class RoomController
     return Promise.resolve(this.socketServer?.disconnect());
   }
 
-  public onIncomingCallReceived(message: CallRequestMessage): void {
-    this.socketServer?.answerCall(
-      message.callerName,
-      confirm(`'${message.callerName}' is calling you. Do you want to accept?`)
+  public async onIncomingCallReceived(message: CallRequestMessage) {
+    var audio = new Audio("./music/ringtone.mp3");
+    audio.addEventListener("ended", () => {
+      audio.currentTime = 0;
+      audio.play();
+    });
+    audio.play();
+
+    const accepted = await this.modalController.showModal(
+      `'${message.callerName}' is calling you. Do you want to accept?`
     );
+    audio.pause();
+
+    this.socketServer?.answerCall(message.callerName, accepted);
   }
 
   // This is the click on the user name should start the call
