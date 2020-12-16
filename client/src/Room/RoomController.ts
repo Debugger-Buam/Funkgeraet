@@ -9,8 +9,8 @@ import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import { RoomView } from "./RoomView";
 import {
+  CallRequestMessage,
   ChatMessage,
-  JoinRoomRequestMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
 } from "../../../shared/Messages";
@@ -35,6 +35,7 @@ export class RoomController
   private socketServer?: WebSocketServer;
   private peerConnection?: PeerConnection;
   private currentUser?: User;
+  private hasCallPending = false;
 
   constructor(
     private readonly view: RoomView,
@@ -52,7 +53,7 @@ export class RoomController
     };
 
     view.setOnAttendeeClick((userName) => {
-      this.call(new User(userName));
+      this.requestCall(new User(userName));
     });
 
     view.onHangupButton = () => {
@@ -122,8 +123,15 @@ export class RoomController
     return Promise.resolve(this.socketServer?.disconnect());
   }
 
+  public onIncomingCallReceived(message: CallRequestMessage): void {
+    throw new Error("Method not implemented.");
+  }
+
   // This is the click on the user name should start the call
-  private async call(clickedUser: User) {
+  private async requestCall(clickedUser: User) {
+    if (this.hasCallPending) {
+      throw new UserError("Cannot call while call is pending");
+    }
     if (!this.currentUser) {
       throw new UserError("You are not logged in!");
     }
@@ -132,11 +140,26 @@ export class RoomController
     }
 
     Log.info("user", this.currentUser.name, "calls", clickedUser.name);
+
+    this.hasCallPending = true;
+    try {
+      const accepted = await this.socketServer?.requestCall(clickedUser.name);
+      if (accepted) {
+        this.onCallAccepted(clickedUser);
+      }
+    } catch {
+      // Something happend and we treat it as a decline ...
+    } finally {
+      this.hasCallPending = false;
+    }
+  }
+
+  private async onCallAccepted(withUser: User) {
     if (this.peerConnection) {
       await this.hangUp(); // hang up current call to initiate new call
     }
     this.peerConnection = this.createPeerConnection();
-    await this.peerConnection.call(clickedUser);
+    await this.peerConnection.call(withUser);
     Log.info("Call initialized.");
   }
 

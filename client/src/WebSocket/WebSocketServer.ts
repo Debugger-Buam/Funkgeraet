@@ -2,11 +2,14 @@ import { Log } from "../../../shared/Util/Log";
 
 import {
   BaseMessage,
+  CallRequestMessage,
+  CallResponseMessage,
   ChatMessage,
   ChatMessageList,
   InitMessage,
   JoinRoomRequestMessage,
   PeerConnectionMessage,
+  RedirectMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../../shared/Messages";
@@ -21,6 +24,8 @@ export interface MessageListener {
   onUserListChanged(message: UserListChangedMessage): void;
 
   onPeerConnectionMsg(message: PeerConnectionMessage): void;
+
+  onIncomingCallReceived(message: CallRequestMessage): void;
 }
 
 export class WebSocketServer {
@@ -45,58 +50,65 @@ export class WebSocketServer {
       };
 
       socket.addMessageListener(async (event: MessageEvent) => {
-        const message: BaseMessage = JSON.parse(event.data);
+        try {
+          const message: BaseMessage = JSON.parse(event.data);
 
-        Log.info("Socket.onmessage", message);
+          Log.info("Socket.onmessage", message);
 
-        // Message Handler
+          // Message Handler
 
-        switch (message.type) {
-          case WebSocketMessageType.INIT: {
-            const initMessage = message as InitMessage;
+          switch (message.type) {
+            case WebSocketMessageType.INIT: {
+              const initMessage = message as InitMessage;
 
-            this.connection = {
-              id: initMessage.clientId,
-              user: user,
-            };
+              this.connection = {
+                id: initMessage.clientId,
+                user: user,
+              };
 
-            const msg = new JoinRoomRequestMessage(roomName, user.name);
-            try {
-              await socket.request("JOIN_ROOM", msg);
-              resolve();
-            } catch (e) {
-              reject(e);
+              const msg = new JoinRoomRequestMessage(roomName, user.name);
+              try {
+                await socket.request(WebSocketMessageType.JOIN_RESPONSE, msg);
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+              break;
             }
-            break;
-          }
 
-          case WebSocketMessageType.USER_LIST_CHANGED: {
-            const userListChangedMessage = message as UserListChangedMessage;
-            this.listener.onUserListChanged(userListChangedMessage);
-            break;
-          }
+            case WebSocketMessageType.USER_LIST_CHANGED: {
+              const userListChangedMessage = message as UserListChangedMessage;
+              this.listener.onUserListChanged(userListChangedMessage);
+              break;
+            }
 
-          case WebSocketMessageType.CHAT: {
-            const chatMessage = message as ChatMessage;
-            this.listener.onChatMessageReceived(chatMessage);
-            break;
-          }
-
-          case WebSocketMessageType.CHAT_LIST: {
-            const chatMessageList = message as ChatMessageList;
-            chatMessageList.messages.forEach((chatMessage) => {
+            case WebSocketMessageType.CHAT: {
+              const chatMessage = message as ChatMessage;
               this.listener.onChatMessageReceived(chatMessage);
-            });
-            break;
-          }
+              break;
+            }
 
-          case WebSocketMessageType.VIDEO_OFFER:
-          case WebSocketMessageType.VIDEO_ANSWER:
-          case WebSocketMessageType.NEW_ICE_CANDIDATE:
-          case WebSocketMessageType.HANG_UP: {
-            this.listener.onPeerConnectionMsg(message as PeerConnectionMessage);
-            break;
+            case WebSocketMessageType.CHAT_LIST: {
+              const chatMessageList = message as ChatMessageList;
+              chatMessageList.messages.forEach((chatMessage) => {
+                this.listener.onChatMessageReceived(chatMessage);
+              });
+              break;
+            }
+
+            case WebSocketMessageType.VIDEO_OFFER:
+            case WebSocketMessageType.VIDEO_ANSWER:
+            case WebSocketMessageType.NEW_ICE_CANDIDATE:
+            case WebSocketMessageType.HANG_UP: {
+              this.listener.onPeerConnectionMsg(
+                message as PeerConnectionMessage
+              );
+              break;
+            }
           }
+        } catch {
+          console.error("failed to pass", event.data);
+          return;
         }
       });
     });
@@ -116,5 +128,41 @@ export class WebSocketServer {
 
   send(message: BaseMessage) {
     this.socket!.send(message.pack());
+  }
+
+  async requestCall(username: string): Promise<boolean> {
+    if (!this.connection || !this.socket) {
+      throw Error("Requesting call without a connection");
+    }
+
+    const callerName = this.connection.user.name;
+    const calleeName = username;
+
+    const message = new RedirectMessage(
+      username,
+      new CallRequestMessage(callerName, calleeName)
+    );
+
+    const response = await this.socket.request<CallResponseMessage>(
+      WebSocketMessageType.CALL_REQUEST,
+      message
+    );
+
+    return response.accepted;
+  }
+
+  async answerCall(callerName: string, accept: boolean) {
+    if (!this.connection || !this.socket) {
+      throw Error("Answering call without a connection");
+    }
+
+    const calleeName = this.connection.user.name;
+
+    const message = new RedirectMessage(
+      callerName,
+      new CallResponseMessage(callerName, calleeName, accept)
+    );
+
+    this.socket.send(message.pack());
   }
 }

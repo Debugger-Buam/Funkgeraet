@@ -2,6 +2,7 @@ import {
   BaseMessage,
   ChatMessage,
   ChatMessageList,
+  RedirectMessage,
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
@@ -42,14 +43,9 @@ export class Room extends ConnectionGroup {
     connection.socket.on("message", (data: any) => {
       const message: BaseMessage = JSON.parse(data);
       if (message.type === WebSocketMessageType.CHAT) {
-        const request = message as ChatMessage;
-        if (request.message) {
-          const msg = new ChatMessage(
-            connection.user?.name ?? request.username,
-            request.message.trim()
-          );
-          this.onChatMessage(msg);
-        }
+        this.handleChatMessage(connection, message as ChatMessage);
+      } else if (message.type === WebSocketMessageType.REDIRECT_MESSAGE) {
+        this.handleRedirectMessage(message as RedirectMessage);
       }
     });
 
@@ -73,15 +69,37 @@ export class Room extends ConnectionGroup {
     }
   }
 
+  private handleChatMessage(connection: Connection, message: ChatMessage) {
+    if (message.message) {
+      const msg = new ChatMessage(
+        connection.user?.name ?? message.username,
+        message.message.trim()
+      );
+
+      if (message.username.length > 0 || message.message.length > 0) {
+        this.chatMessages.push(message);
+        this.broadcast(message);
+      }
+    }
+  }
+
+  private handleRedirectMessage(message: RedirectMessage) {
+    const request = message as RedirectMessage;
+    if (!request.targetUsername || !request.wrappedMessage) {
+      return;
+    }
+
+    const targetUser = this.findUser(message.targetUsername);
+
+    if (!targetUser) {
+      return;
+    }
+
+    this.send(request.wrappedMessage, targetUser);
+  }
+
   private onStaleTimeoutElapsed() {
     Log.info(`Room inactive timeout elapsed for room "${this.roomName}".`);
     this.roomManager.removeRoom(this);
-  }
-
-  private onChatMessage(message: ChatMessage) {
-    if (message.username.length > 0 || message.message.length > 0) {
-      this.chatMessages.push(message);
-      this.broadcast(message);
-    }
   }
 }

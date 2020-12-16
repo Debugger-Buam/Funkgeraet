@@ -32,7 +32,27 @@ export class JoinRoomResponseMessage extends BaseResponseMessage {
     public readonly userName: string,
     public readonly error?: string
   ) {
-    super(WebSocketMessageType.JOIN);
+    super(WebSocketMessageType.JOIN_RESPONSE);
+  }
+}
+
+export class CallRequestMessage extends BaseMessage {
+  constructor(
+    public readonly callerName: string,
+    public readonly calleeName: string
+  ) {
+    super(WebSocketMessageType.CALL_REQUEST);
+  }
+}
+
+export class CallResponseMessage extends BaseResponseMessage {
+  constructor(
+    public readonly callerName: string,
+    public readonly calleeName: string,
+    public readonly accepted: boolean,
+    public readonly error?: string
+  ) {
+    super(WebSocketMessageType.CALL_RESPONSE);
   }
 }
 
@@ -66,6 +86,15 @@ export class ChatMessage extends BaseMessage {
 export class ChatMessageList extends BaseMessage {
   constructor(public readonly messages: ChatMessage[]) {
     super(WebSocketMessageType.CHAT_LIST);
+  }
+}
+
+export class RedirectMessage extends BaseMessage {
+  constructor(
+    public readonly targetUsername: string,
+    public readonly wrappedMessage: BaseMessage
+  ) {
+    super(WebSocketMessageType.REDIRECT_MESSAGE);
   }
 }
 
@@ -112,18 +141,14 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
   }
 }
 
-export interface RequestTypeMap {
-  JOIN_ROOM: JoinRoomRequestMessage;
-}
-
-export interface ResponseTypeMap {
-  JOIN_ROOM: JoinRoomResponseMessage;
-}
-
 export enum WebSocketMessageType {
   INIT = "INIT",
   JOIN = "JOIN_ROOM",
+  JOIN_RESPONSE = "JOIN_ROOM_RESPONSE",
+  CALL_REQUEST = "CALL_REQUEST",
+  CALL_RESPONSE = "CALL_RESPONSE",
   CHAT = "CHAT",
+  REDIRECT_MESSAGE = "REDIRECT_MESSAGE",
   CHAT_LIST = "CHAT_LIST",
   VIDEO_OFFER = "VIDEO_OFFER",
   VIDEO_ANSWER = "VIDEO_ANSWER",
