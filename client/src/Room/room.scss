@@ -133,7 +133,7 @@ $desktopChatWidth: 30rem;
    links: .call-active.call-fullscreen
    rechts: NO_CLASS OR .call-active
  */
-  @media only screen and (min-width: 47rem) {
+  @media screen and (min-width: 47rem) {
     grid-template-columns: $desktopChatWidth 1fr;
     #header {
       grid-column: 1 / 2;
@@ -192,7 +192,7 @@ $desktopChatWidth: 30rem;
       }
     }
   }
-  @media only screen and (max-width: 47rem) {
+  @media not screen and (min-width: 47rem) {
     #open-chat-button, #open-whiteboard-button {
       position: absolute;
       top: $headerHeight + $attendeesHeight + $spacing;
