@@ -7,6 +7,7 @@ import { Dom } from "../View/Dom";
 export class ModalView {
   private readonly modal = this.dom.modal;
   private readonly modalContent = this.dom.modalContent;
+  private readonly modalTitle = this.dom.modalTitle;
 
   private readonly positiveButton = this.dom.modalButtonPositive;
   private readonly negativeButton = this.dom.modalButtonNegative;
@@ -14,8 +15,12 @@ export class ModalView {
 
   constructor(private readonly dom: Dom) {}
 
+  set title(value: string) {
+    this.modalTitle.innerText = value;
+  }
+
   set content(value: string) {
-    this.modalContent.innerText = value;
+    this.modalContent.innerHTML = value;
   }
 
   set onPositiveAction(
@@ -34,6 +39,9 @@ export class ModalView {
   reset() {
     this.positiveButton.onclick = null;
     this.negativeButton.onclick = null;
+    this.showPositiveButton();
+    this.showNegativeButton();
+    this.showCloseButton();
     this.hide();
   }
 
@@ -43,5 +51,29 @@ export class ModalView {
 
   hide() {
     this.modal.style.display = "none";
+  }
+
+  showPositiveButton() {
+    this.positiveButton.style.display = "";
+  }
+
+  hidePositiveButton() {
+    this.positiveButton.style.display = "none";
+  }
+
+  showNegativeButton() {
+    this.negativeButton.style.display = "";
+  }
+
+  hideNegativeButton() {
+    this.negativeButton.style.display = "none";
+  }
+
+  showCloseButton() {
+    this.closeButton.style.display = "";
+  }
+
+  hideCloseButton() {
+    this.closeButton.style.display = "none";
   }
 }

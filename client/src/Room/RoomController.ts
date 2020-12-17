@@ -19,7 +19,7 @@ import { Injectable } from "../injection";
 import { RouterController } from "../Router/RouterController";
 import { UsernameController } from "../Lobby/UsernameController";
 import { Routable } from "../Router/Routable";
-import { ModalController } from "../Modal/ModalController";
+import { ModalController, ModalType } from "../Modal/ModalController";
 
 @Injectable()
 export class RoomController
@@ -126,17 +126,25 @@ export class RoomController
   }
 
   public async onIncomingCallReceived(message: CallRequestMessage) {
-    var audio = new Audio("./music/ringtone.mp3");
-    audio.addEventListener("ended", () => {
-      audio.currentTime = 0;
+    let audio: HTMLAudioElement | undefined;
+    try {
+      audio = new Audio("./music/ringtone.mp3");
+      audio.addEventListener("ended", () => {
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play();
+        }
+      });
       audio.play();
-    });
-    audio.play();
+    } catch (e) {
+      Log.warn("An error occured when playing RingTone.", e);
+    }
 
     const accepted = await this.modalController.showModal(
-      `'${message.callerName}' is calling you. Do you want to accept?`
+      "Incoming Call",
+      `You are receiving an incoming call from <strong>${message.callerName}</strong>.<br>Do you want to accept?`
     );
-    audio.pause();
+    audio?.pause();
 
     this.socketServer?.answerCall(message.callerName, accepted);
   }
@@ -160,7 +168,16 @@ export class RoomController
 
     this.hasCallPending = true;
     try {
+      this.modalController.showModal(
+        `Calling ${clickedUser.name}`,
+        `Waiting for <strong>${clickedUser.name}</strong> to accept or decline the call.`,
+        { type: ModalType.NoButtons }
+      );
+
       const accepted = await this.socketServer.requestCall(clickedUser.name);
+
+      this.modalController.close();
+
       if (accepted) {
         this.onCallAccepted(clickedUser);
       }

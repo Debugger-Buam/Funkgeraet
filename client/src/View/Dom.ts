@@ -19,6 +19,7 @@ type Id =
   | "modal"
   | "modal-close"
   | "modal-content"
+  | "modal-title"
   | "modal-button-positive"
   | "modal-button-negative";
 
@@ -52,6 +53,7 @@ export class Dom {
   readonly modalButtonPositive = this.getElementById("modal-button-positive");
   readonly modalButtonNegative = this.getElementById("modal-button-negative");
   readonly modalCloseButton = this.getElementById("modal-close");
+  readonly modalTitle = this.getElementById("modal-title");
 
   constructor(private readonly root: Document) {}
 
