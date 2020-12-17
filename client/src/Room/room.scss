@@ -1,16 +1,20 @@
+$foregroundZIndex: 10;
 $spacing: 0.5rem;
-$attendeeWidthHeight: 2.5rem;
+$attendeeWidthHeight: 3rem; // TODO import iconbutton width
 $attendeesHeight: $attendeeWidthHeight + 2 * $spacing;
 $headerButtonHeight: 2rem;
 $headerHeight: $headerButtonHeight + 2 * $spacing;
 
 $popoutVideoMaxHeight: 7rem;
 $popoutVideoMaxWidth: 5rem;
+$desktopChatWidth: 30rem;
 
 #room-root {
   display: grid;
   height: 100vh;
   width: 100vw;
+  grid-gap: 0.1rem;
+  grid-template-rows: $headerHeight $attendeesHeight 1fr;
 
   #header {
     display: grid;
@@ -32,15 +36,8 @@ $popoutVideoMaxWidth: 5rem;
     overflow: auto;
     background: #9400d3aa;
     white-space: nowrap;
-    z-index: 10;
 
     .attendee {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      width: $attendeeWidthHeight;
-      height: $attendeeWidthHeight;
-      border-radius: 50%;
       margin: $spacing 0 $spacing $spacing;
       background-color: blue;
       position: relative;
@@ -82,63 +79,110 @@ $popoutVideoMaxWidth: 5rem;
   #received-video-container {
     background-color: red;
   }
+  &.call-fullscreen {
+    #received-video-container {
+      overflow: hidden;
+      position: relative;
+      video {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+    }
+  }
+  &:not(.call-fullscreen) {
+    #received-video-container {
+      video {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
 
   #local-video-container {
     background-color: green;
-  }
-
-  #received-video-container, #local-video-container {
     video {
-      height: 100%;
       width: 100%;
+      height: 100%;
+    }
+  }
+  #hang-up-button {
+    position: absolute;
+    bottom: $spacing;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &:not(.call-active) {
+    #received-video-container {
+      display: none;
     }
   }
 
-   /*
-  Mobil
-    links: .call-active.call-fullscreen
-    mitte: NO_CLASS OR .call-active
-    rechts: .whiteboard-active OR .whiteboard-active.call-active
-  Desktop
-    links: .call-active
-    rechts: .whiteboard-active OR .whiteboard-active.call-active
-  */
-  @media only screen and (max-width: 47rem) {
-    grid-gap: 0.1rem;
-    grid-template-rows: $headerHeight $attendeesHeight 1fr;
-
-    #open-chat-button, #open-whiteboard-button {
+  /*
+ Mobil
+   links: .call-active.call-fullscreen
+   mitte: NO_CLASS OR .call-active
+   rechts: .whiteboard-active OR .whiteboard-active.call-active
+ Desktop
+   links: .call-active.call-fullscreen
+   rechts: NO_CLASS OR .call-active
+ */
+  @media only screen and (min-width: 47rem) {
+    grid-template-columns: $desktopChatWidth 1fr;
+    #header {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+    #attendees {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+    }
+    #chat-form {
+      grid-column: 1 / 2;
+      grid-row: 3 / 4;
+    }
+    #whiteboard-container {
+      grid-column: 2 / 3;
+      grid-row: 1 / 4;
+    }
+    #open-video-button, #open-whiteboard-button {
       position: absolute;
-      top: $headerHeight + $attendeesHeight + $spacing;
-      left: $spacing;
+      top: $spacing;
+      left: $desktopChatWidth + $spacing;
     }
 
-    &:not(.call-fullscreen):not(.whiteboard-active) {
-      #open-chat-button, #whiteboard-container, #received-video-container, #local-video-container, #hang-up-button,
-      #open-video-button {
+    &:not(.call-fullscreen) {
+      /*
+      #open-chat-button, #whiteboard-container, #local-video-container, #hang-up-button,
+      #open-video-button,  #open-whiteboard-button, #chat-form, #received-video-container
+       */
+      #open-chat-button, #local-video-container, #hang-up-button, #open-whiteboard-button {
         display: none;
       }
-    }
 
-    &.whiteboard-active {
-      #received-video-container, #local-video-container, #hang-up-button,
-      #open-video-button, #open-whiteboard-button, #chat-form {
-        display: none;
-      }
-    }
-
-    &.call-fullscreen{
-      display: unset;
-
-      #header, #attendees-container, #hang-up-button, #open-video-button, #open-whiteboard-button, #chat-form,
-      #whiteboard-container {
-        display: none;
-      }
-      #open-chat-button {
-        top: unset;
-        left: unset;
-        bottom: $spacing;
+      #received-video-container {
+        position: absolute;
+        top: $spacing;
         right: $spacing;
+        max-width: $popoutVideoMaxWidth;
+        max-height: $popoutVideoMaxHeight;
+      }
+    }
+
+    &.call-fullscreen {
+      #open-chat-button, #whiteboard-container, #open-video-button {
+        display: none;
+      }
+      #received-video-container {
+        grid-column: 2 / 3;
+        grid-row: 1 / 4;
       }
       #local-video-container {
         position: absolute;
@@ -147,16 +191,54 @@ $popoutVideoMaxWidth: 5rem;
         max-width: $popoutVideoMaxWidth;
         max-height: $popoutVideoMaxHeight;
       }
+    }
+  }
+  @media only screen and (max-width: 47rem) {
+    #open-chat-button, #open-whiteboard-button {
+      position: absolute;
+      top: $headerHeight + $attendeesHeight + $spacing;
+      left: $spacing;
+    }
+
+    &:not(.call-fullscreen):not(.whiteboard-active) {
+      #open-chat-button, #whiteboard-container, #local-video-container, #hang-up-button,
+      #open-video-button {
+        display: none;
+      }
+    }
+
+    &.whiteboard-active {
+      #local-video-container, #hang-up-button,
+      #open-video-button, #open-whiteboard-button, #chat-form {
+        display: none;
+      }
+    }
+
+    &.call-fullscreen{
+      display: unset;
+
+      #header, #attendees-container, #open-video-button, #open-whiteboard-button, #chat-form,
+      #whiteboard-container {
+        display: none;
+      }
+      #open-chat-button {
+        top: unset;
+        left: unset;
+        bottom: $spacing;
+        right: $spacing;
+        z-index: $foregroundZIndex;
+      }
+      #local-video-container {
+        position: absolute;
+        top: $spacing;
+        right: $spacing;
+        max-width: $popoutVideoMaxWidth;
+        max-height: $popoutVideoMaxHeight;
+        z-index: $foregroundZIndex;
+      }
       #received-video-container {
         width: 100%;
         height: 100%;
-      }
-      //#received-video-container, #local-video-container, #open-chat-button
-    }
-
-    &:not(.call-active) {
-      #received-video-container {
-        display: none;
       }
     }
 
@@ -169,38 +251,5 @@ $popoutVideoMaxWidth: 5rem;
         max-height: $popoutVideoMaxHeight;
       }
     }
-
-
   }
 }
-
-
-/*
-.received-video-container {
-  grid-column: 1 / 3;
-  grid-row: 2 / 6;
-  overflow: hidden;
-  background: #6495ed;
-  height: 100%;
-  width: 100%;
-  video {
-    height: 100%;
-    width: 100%;
-  }
-}
-
-.local-video-container {
-  grid-column: 3;
-  grid-row: 2 / 6;
-  overflow: hidden;
-  background: #adff2f;
-  height: 100%;
-  width: 100%;
-  video {
-    height: 100%;
-    width: 100%;
-  }
-}
- */
-
-

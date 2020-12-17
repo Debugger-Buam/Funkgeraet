@@ -19,6 +19,7 @@ export class Dom {
   readonly usernameInput = this.getElementById("username", "input");
   readonly roomNameDisplay = this.getElementById("room-name-display");
   readonly copyRoomButton = this.getElementById("copy-room-button");
+  readonly shareRoomButton = this.getElementById("share-room-button");
   readonly errorSpan = this.getElementById("error-span");
 
   constructor(private readonly root: Document) {}

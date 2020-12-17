@@ -16,6 +16,11 @@ export class RoomView {
 
   constructor(private readonly dom: Dom) {
     this.chatForm.addEventListener("submit", (event) => event.preventDefault());
+    if (typeof navigator.share === "undefined") {
+      this.dom.shareRoomButton.classList.add(ClassName.hidden);
+    } else {
+      this.dom.copyRoomButton.classList.add(ClassName.hidden);
+    }
   }
 
   public setCurrentUser(user: User) {

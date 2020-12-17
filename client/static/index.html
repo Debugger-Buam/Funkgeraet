@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Funkgerät</title>
     <script src="bundle.js" defer></script>
     <script
@@ -40,7 +41,7 @@
           <strong><span id="error-span"></span></strong>
         </form>
       </div>
-      <div id="room-root" class="call-active call-fullscreen">
+      <div id="room-root" class="call-active">
         <div id="header">
           <span id="logout-button">
             <ion-icon name="log-out"></ion-icon>
@@ -52,18 +53,20 @@
             <ion-icon name="share-social-outline"></ion-icon>
           </span>
 
-          <button id="copy-room-button" class="icon-button" style="display: none">
+          <span id="copy-room-button" class="icon-button">
             <ion-icon name="copy"></ion-icon>
-          </button>
+          </span>
         </div>
         <div id="attendees-container">
           <ul id="attendees"></ul>
-          <div class="attendee in-call">A<div></div></div><div class="attendee">B<div></div></div><div class="attendee">C<div></div></div><div class="attendee">D<div></div></div>
+          <div class="attendee icon-button in-call">A<div></div></div><div class="attendee icon-button">B<div></div></div><div class="attendee icon-button">C<div></div></div><div class="attendee icon-button">D<div></div></div>
         </div>
 
       <form id="chat-form">
         <ul id="chat-history"></ul>
-        <input id="chat-message" placeholder="Chat message" />
+        <div class="flex-center">
+          <input id="chat-message" placeholder="Chat message" />
+        </div>
         <button class="icon-button">
           <ion-icon name="send"></ion-icon>
         </button>
@@ -82,12 +85,11 @@ asdfhuasdfjkladfj asdfk as df
         <button id="open-video-button" class="icon-button">
           <ion-icon name="videocam"></ion-icon>
         </button>
-        <button id="hang-up-button" class="icon-button">
-          <ion-icon name="call"></ion-icon>
-        </button>
-
         <div id="received-video-container">
           <video id="received-video" autoplay></video>
+          <button id="hang-up-button" class="icon-button">
+              <ion-icon name="call"></ion-icon>
+          </button>
         </div>
         <div id="local-video-container">
           <video id="local-video" autoplay muted></video>
