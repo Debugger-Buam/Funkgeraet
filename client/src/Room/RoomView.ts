@@ -18,10 +18,8 @@ export class RoomView {
     this.chatForm.addEventListener("submit", (event) => event.preventDefault());
   }
 
-  // TODO: I don't know how this would be implemented with JS setter
   public setCurrentUser(user: User) {
     this.currentUser = user;
-    this.dom.userGreetingName.innerText = user.name;
   }
 
   public setOnAttendeeClick(value: (userName: string) => any) {
@@ -41,7 +39,7 @@ export class RoomView {
   }
 
   set onCopyRoomIconClicked(value: () => void) {
-    this.dom.copyRoomIcon.addEventListener("click", value);
+    this.dom.copyRoomButton.addEventListener("click", value);
   }
 
   set roomName(value: string) {
@@ -102,14 +100,12 @@ export class RoomView {
   public startCall(localStream: MediaStream, receivedStream: MediaStream) {
     this.receivedVideo.srcObject = receivedStream;
     this.localVideo.srcObject = localStream;
-    this.dom.roomRoot.classList.add(ClassName.activeCall);
-    this.dom.roomRoot.classList.remove(ClassName.noCall);
+    this.dom.roomRoot.classList.add(ClassName.callActive);
   }
 
   public endCall() {
     this.receivedVideo.srcObject = null;
     this.localVideo.srcObject = null;
-    this.dom.roomRoot.classList.add(ClassName.noCall);
-    this.dom.roomRoot.classList.remove(ClassName.activeCall);
+    this.dom.roomRoot.classList.remove(ClassName.callActive);
   }
 }

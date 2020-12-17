@@ -1,33 +1,12 @@
-type Id =
-  | "attendees"
-  | "user-greeting-name"
-  | "hang-up-button"
-  | "chat-form"
-  | "chat-history"
-  | "chat-message"
-  | "lobby-form"
-  | "lobby-root"
-  | "local-video"
-  | "received-video"
-  | "room-root"
-  | "roomname"
-  | "username"
-  | "logout-button"
-  | "room-name-display"
-  | "copy-room-icon"
-  | "error-span";
-
 export enum ClassName {
   hidden = "hidden",
-  activeCall = "active-call",
-  noCall = "no-call",
+  callActive = "call-active",
 }
 
 export class Dom {
   readonly attendeesList = this.getElementById("attendees");
   readonly hangupButton = this.getElementById("hang-up-button");
   readonly logoutButton = this.getElementById("logout-button");
-  readonly userGreetingName = this.getElementById("user-greeting-name");
   readonly chatForm = this.getElementById("chat-form", "form");
   readonly chatHistoryList = this.getElementById("chat-history");
   readonly chatMessageInput = this.getElementById("chat-message", "input");
@@ -39,18 +18,18 @@ export class Dom {
   readonly roomNameInput = this.getElementById("roomname", "input");
   readonly usernameInput = this.getElementById("username", "input");
   readonly roomNameDisplay = this.getElementById("room-name-display");
-  readonly copyRoomIcon = this.getElementById("copy-room-icon");
+  readonly copyRoomButton = this.getElementById("copy-room-button");
   readonly errorSpan = this.getElementById("error-span");
 
   constructor(private readonly root: Document) {}
 
-  private getElementById(id: Id): HTMLElement;
+  private getElementById(id: string): HTMLElement;
   private getElementById<K extends keyof HTMLElementTagNameMap>(
-    id: Id,
+    id: string,
     tagName: K
   ): HTMLElementTagNameMap[K];
   private getElementById(
-    id: Id,
+    id: string,
     tagName?: keyof HTMLElementTagNameMap
   ): HTMLElement {
     const element = this.root.getElementById(id);

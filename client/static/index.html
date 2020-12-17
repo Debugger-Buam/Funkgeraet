@@ -13,7 +13,7 @@
   </head>
   <body>
     <div id="root">
-      <div id="lobby-root" class="hidden">
+      <div id="lobby-root" style="display: none" class="hidden">
         <form id="lobby-form">
           <div id="logo">
             <ion-icon name="videocam-outline"></ion-icon>
@@ -40,44 +40,57 @@
           <strong><span id="error-span"></span></strong>
         </form>
       </div>
-      <div id="room-root" class="hidden no-call">
-        <div class="received-video-container">
+      <div id="room-root" class="call-active call-fullscreen">
+        <div id="header">
+          <span id="logout-button">
+            <ion-icon name="log-out"></ion-icon>
+          </span>
+
+          <div id="room-name-display">Room Name</div>
+
+          <span id="share-room-button">
+            <ion-icon name="share-social-outline"></ion-icon>
+          </span>
+
+          <button id="copy-room-button" class="icon-button" style="display: none">
+            <ion-icon name="copy"></ion-icon>
+          </button>
+        </div>
+        <div id="attendees-container">
+          <ul id="attendees"></ul>
+          <div class="attendee in-call">A<div></div></div><div class="attendee">B<div></div></div><div class="attendee">C<div></div></div><div class="attendee">D<div></div></div>
+        </div>
+
+      <form id="chat-form">
+        <ul id="chat-history"></ul>
+        <input id="chat-message" placeholder="Chat message" />
+        <button class="icon-button">
+          <ion-icon name="send"></ion-icon>
+        </button>
+      </form>
+
+        <div id="whiteboard-container">
+asdfhuasdfjkladfj asdfk as df
+        </div>
+
+        <button id="open-chat-button" class="icon-button">
+          <ion-icon name="chatbubbles"></ion-icon>
+        </button>
+        <button id="open-whiteboard-button" class="icon-button">
+          <ion-icon name="brush"></ion-icon>
+        </button>
+        <button id="open-video-button" class="icon-button">
+          <ion-icon name="videocam"></ion-icon>
+        </button>
+        <button id="hang-up-button" class="icon-button">
+          <ion-icon name="call"></ion-icon>
+        </button>
+
+        <div id="received-video-container">
           <video id="received-video" autoplay></video>
         </div>
-        <div class="local-video-container">
+        <div id="local-video-container">
           <video id="local-video" autoplay muted></video>
-        </div>
-        <div class="nav-bar-container">
-          <div class="user-greeting">
-            <ion-icon name="videocam-outline"></ion-icon>
-            Welcome,&nbsp;
-            <strong><span id="user-greeting-name"></span></strong>!
-            <button id="logout-button" class="logout red">Logout</button>
-          </div>
-        </div>
-        <div class="chat-history-container">
-          Chat
-          <ul id="chat-history"></ul>
-        </div>
-        <div class="room-control">
-          Welcome to room <strong><span id="room-name-display"></span></strong>
-          <ion-icon id="copy-room-icon" class="pointer" name="copy"></ion-icon>
-        </div>
-        <div class="attendees-container">
-          Attendees
-          <ul id="attendees"></ul>
-        </div>
-        <div class="chat-message-container">
-          <form id="chat-form">
-            <input id="chat-message" placeholder="Chat message" />
-            <button>Send</button>
-          </form>
-        </div>
-        <div class="video-controls-container">
-          Video control
-          <div id="video-controls">
-            <div id="hang-up-button" class="video-control">Hang Up</div>
-          </div>
         </div>
       </div>
     </div>
