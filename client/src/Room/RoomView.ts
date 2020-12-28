@@ -23,12 +23,6 @@ export class RoomView {
     }
     this.setupToggleButtons();
   }
-  /*
-  TODO:
-   - colors (verify mobile that it looks good, also randomize attendee circle color)
-   - master branch merge and add call feature
-   - beautiful chat history with bubbles
-   */
 
   private setupToggleButtons() {
     /*

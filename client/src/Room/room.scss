@@ -88,6 +88,7 @@ $videoContainerBackgroundColor: black;
       display: flex;
       flex-flow: column;
       justify-content: flex-end;
+      overflow: auto;
     }
   }
 
@@ -139,20 +140,21 @@ $videoContainerBackgroundColor: black;
    links: .call-active.call-fullscreen
    rechts: NO_CLASS OR .call-active
  */
+  #header {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+  #attendees-container {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+  #chat-form {
+    grid-column: 1 / 2;
+    grid-row: 3 / span 4;
+  }
+
   @media screen and (min-width: 47rem) {
     grid-template-columns: $desktopChatWidth 1fr;
-    #header {
-      grid-column: 1 / 2;
-      grid-row: 1 / 2;
-    }
-    #attendees-container {
-      grid-column: 1 / 2;
-      grid-row: 2 / 3;
-    }
-    #chat-form {
-      grid-column: 1 / 2;
-      grid-row: 3 / 4;
-    }
     #whiteboard-container {
       grid-column: 2 / 3;
       grid-row: 1 / 4;
