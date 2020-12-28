@@ -1,10 +1,12 @@
 export enum ClassName {
   hidden = "hidden",
   callActive = "call-active",
+  whiteBoardActive = "whiteboard-active",
+  callFullscreen = "call-fullscreen",
 }
 
 export class Dom {
-  readonly attendeesList = this.getElementById("attendees");
+  readonly attendeesContainer = this.getElementById("attendees-container");
   readonly hangupButton = this.getElementById("hang-up-button");
   readonly logoutButton = this.getElementById("logout-button");
   readonly chatForm = this.getElementById("chat-form", "form");
@@ -21,6 +23,10 @@ export class Dom {
   readonly copyRoomButton = this.getElementById("copy-room-button");
   readonly shareRoomButton = this.getElementById("share-room-button");
   readonly errorSpan = this.getElementById("error-span");
+  readonly openWhiteBoardButton = this.getElementById("open-whiteboard-button");
+  readonly openChatButton = this.getElementById("open-chat-button");
+  readonly receivedVideoContainer = this.getElementById("received-video-container");
+  readonly openVideoButton = this.getElementById("open-video-button");
 
   constructor(private readonly root: Document) {}
 

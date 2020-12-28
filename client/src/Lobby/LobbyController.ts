@@ -41,7 +41,9 @@ export class LobbyController implements Routable<string> {
     return "Funkgerät - Lobby";
   }
   onRouteVisited(matchResult: RegExpMatchArray, error?: string): void {
-    this.view.error = error ?? "";
+    if(error) {
+      this.view.error = error;
+    }
     this.view.show();
   }
   onRouteLeft(): void {

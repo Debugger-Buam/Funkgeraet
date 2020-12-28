@@ -6,7 +6,6 @@ import { Injectable } from "../injection";
 @Injectable()
 export class RoomView {
   private readonly chatHistoryList = this.dom.chatHistoryList;
-  private readonly attendeesList = this.dom.attendeesList;
   private readonly receivedVideo = this.dom.receivedVideo;
   private readonly localVideo = this.dom.localVideo;
   private readonly chatMessageInput = this.dom.chatMessageInput;
@@ -21,6 +20,37 @@ export class RoomView {
     } else {
       this.dom.copyRoomButton.classList.add(ClassName.hidden);
     }
+    this.setupToggleButtons();
+  }
+
+  private setupToggleButtons() {
+    /*
+   Mobil
+     links: .call-active.call-fullscreen
+     mitte: NO_CLASS OR .call-active
+     rechts: .whiteboard-active OR .whiteboard-active.call-active
+   Desktop
+     links: .call-active.call-fullscreen
+     rechts: NO_CLASS OR .call-active
+   */
+
+    this.dom.openWhiteBoardButton.addEventListener("click", () => {
+      // whiteBoardButton only clickable when whiteBoardActive class is not set (it's hidden by room.scss otherwise)
+      this.dom.roomRoot.classList.add(ClassName.whiteBoardActive);
+      this.dom.roomRoot.classList.remove(ClassName.callFullscreen); // only for desktop relevant
+    });
+    this.dom.openChatButton.addEventListener("click", () => { // only exists for mobile
+      this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
+      this.dom.roomRoot.classList.remove(ClassName.callFullscreen);
+    })
+    this.dom.receivedVideoContainer.addEventListener("click", () => {
+      this.dom.roomRoot.classList.add(ClassName.callFullscreen);
+      this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
+    });
+    this.dom.openVideoButton.addEventListener("click", () => {
+      this.dom.roomRoot.classList.add(ClassName.callFullscreen);
+      this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
+    });
   }
 
   public setCurrentUser(user: User) {
@@ -64,33 +94,28 @@ export class RoomView {
   }
 
   appendChatMessage(message: string): void {
-    const el = document.createElement("li");
+    const el = document.createElement("div");
     el.innerText = message;
     this.chatHistoryList.appendChild(el);
   }
 
   updateUserList(users: User[]): void {
-    this.attendeesList.innerHTML = "";
-    users.forEach((user) => {
-      const el = document.createElement("li");
-      el.innerText = user.name;
-      let isCallable = true;
-      if (user.isInCall) {
-        el.innerText += " is in Call";
-        isCallable = false;
-      }
-      if (this.currentUser?.name === user.name) {
-        el.innerText += " (You)";
-        isCallable = false;
+    this.dom.attendeesContainer.innerHTML = "";
+    users.filter((user) => this.currentUser?.name !== user.name).forEach((user) => {
+      const userName = user.name.length < 1 ? "? Unknown" : user.name;
+      const element = document.createElement("div");
+      element.className = "attendee icon-button";
+      user.isInCall && element.classList.add("in-call");
+      element.title = userName;
+      element.innerHTML = `${userName[0]}<div></div>`;
+
+      if(!user.isInCall) {
+        element.addEventListener("click", () => {
+          this.onAttendeeClick?.(user.name);
+        });
       }
 
-      if (isCallable) {
-        el.className = "callable";
-        el.onclick = () => {
-          this.onAttendeeClick?.(user.name);
-        };
-      }
-      this.attendeesList.appendChild(el);
+      this.dom.attendeesContainer.appendChild(element);
     });
   }
 

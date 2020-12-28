@@ -14,7 +14,7 @@
   </head>
   <body>
     <div id="root">
-      <div id="lobby-root" style="display: none" class="hidden">
+      <div id="lobby-root" class="hidden">
         <form id="lobby-form">
           <div id="logo">
             <ion-icon name="videocam-outline"></ion-icon>
@@ -41,7 +41,7 @@
           <strong><span id="error-span"></span></strong>
         </form>
       </div>
-      <div id="room-root" class="call-active">
+      <div id="room-root" class="hidden">
         <div id="header">
           <span id="logout-button">
             <ion-icon name="log-out"></ion-icon>
@@ -58,12 +58,10 @@
           </span>
         </div>
         <div id="attendees-container">
-          <ul id="attendees"></ul>
-          <div class="attendee icon-button in-call">A<div></div></div><div class="attendee icon-button">B<div></div></div><div class="attendee icon-button">C<div></div></div><div class="attendee icon-button">D<div></div></div>
         </div>
 
       <form id="chat-form">
-        <ul id="chat-history"></ul>
+        <div id="chat-history"></div>
         <div class="flex-center">
           <input id="chat-message" placeholder="Chat message" />
         </div>
@@ -73,7 +71,7 @@
       </form>
 
         <div id="whiteboard-container">
-asdfhuasdfjkladfj asdfk as df
+
         </div>
 
         <button id="open-chat-button" class="icon-button">
