@@ -2,7 +2,7 @@ import "./room.scss";
 import { ClassName, Dom } from "../View/Dom";
 import { User } from "../../../shared/User";
 import { Injectable } from "../injection";
-import {addClickStopPropagation} from "../View/ViewUtil";
+import { addClickStopPropagation } from "../View/ViewUtil";
 
 @Injectable()
 export class RoomView {
@@ -40,10 +40,11 @@ export class RoomView {
       this.dom.roomRoot.classList.add(ClassName.whiteBoardActive);
       this.dom.roomRoot.classList.remove(ClassName.callFullscreen); // only for desktop relevant
     });
-    addClickStopPropagation(this.dom.openChatButton, () => { // only exists for mobile
+    addClickStopPropagation(this.dom.openChatButton, () => {
+      // only exists for mobile
       this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
       this.dom.roomRoot.classList.remove(ClassName.callFullscreen);
-    })
+    });
     addClickStopPropagation(this.dom.receivedVideoContainer, () => {
       this.dom.roomRoot.classList.add(ClassName.callFullscreen);
       this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
@@ -117,18 +118,24 @@ export class RoomView {
 
   updateUserList(users: User[]): void {
     this.dom.attendeesContainer.innerHTML = "";
-    const currentUserElement = this.createAndAppendAttendeeElement(this.currentUser!);
+    const currentUserElement = this.createAndAppendAttendeeElement(
+      this.currentUser!
+    );
     currentUserElement.classList.add("attendee-self");
-    currentUserElement.title += " (you)"
-    users.filter((user) => this.currentUser?.name !== user.name).forEach((user) => {
-      const element = this.createAndAppendAttendeeElement(user);
-      element.classList.add("attendee-other");
-      if(user.inCallWith === undefined) {
-        addClickStopPropagation(element, () => this.onAttendeeClick?.(user.name));
-      }
+    currentUserElement.title += " (you)";
+    users
+      .filter((user) => this.currentUser?.name !== user.name)
+      .forEach((user) => {
+        const element = this.createAndAppendAttendeeElement(user);
+        element.classList.add("attendee-other");
+        if (user.inCallWith === undefined) {
+          addClickStopPropagation(element, () =>
+            this.onAttendeeClick?.(user.name)
+          );
+        }
 
-      this.dom.attendeesContainer.appendChild(element);
-    });
+        this.dom.attendeesContainer.appendChild(element);
+      });
   }
 
   public show() {

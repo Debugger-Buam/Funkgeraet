@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Funkgerät</title>
     <script src="bundle.js" defer></script>
     <script
@@ -57,22 +57,24 @@
             <ion-icon name="copy"></ion-icon>
           </span>
         </div>
-        <div id="attendees-container">
-        </div>
+        <div id="attendees-container"></div>
 
-      <form id="chat-form">
-        <div id="chat-history"></div>
-        <div class="flex-center">
-          <input id="chat-message" placeholder="Chat message" />
-        </div>
-        <button class="icon-button">
-          <ion-icon name="send"></ion-icon>
-        </button>
-      </form>
+        <form id="chat-form">
+          <div id="chat-history"></div>
+          <div class="flex-center">
+            <input
+              id="chat-message"
+              placeholder="Chat message"
+              type="text"
+              autocomplete="off"
+            />
+          </div>
+          <button class="icon-button">
+            <ion-icon name="send"></ion-icon>
+          </button>
+        </form>
 
-        <div id="whiteboard-container">
-
-        </div>
+        <div id="whiteboard-container"></div>
 
         <button id="open-chat-button" class="icon-button">
           <ion-icon name="chatbubbles"></ion-icon>
@@ -86,7 +88,7 @@
         <div id="received-video-container">
           <video id="received-video" autoplay></video>
           <button id="hang-up-button" class="icon-button">
-              <ion-icon name="call"></ion-icon>
+            <ion-icon name="call"></ion-icon>
           </button>
         </div>
         <div id="local-video-container">

@@ -8,7 +8,6 @@ import {
   UserListChangedMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
-import { User } from "../../shared/User";
 import { Log } from "../../shared/Util/Log";
 import { Configuration } from "./Configuration";
 import { Connection } from "./Connection";

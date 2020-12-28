@@ -13,7 +13,7 @@ $headerColor: #202225;
 $attendeesColor: #2f3136;
 $chatColor: #36393f;
 $chatBoxColor: #585c63;
-$fontColor: #A3A5A7;
+$fontColor: #a3a5a7;
 $videoContainerBackgroundColor: black;
 
 #room-root {
@@ -77,24 +77,24 @@ $videoContainerBackgroundColor: black;
         margin-right: $spacing;
       }
       &.color-0 {
-        background-color: #FE8B5E;
-        color: #7D452E;
+        background-color: #fe8b5e;
+        color: #7d452e;
       }
       &.color-1 {
-        background-color: #C455E6;
+        background-color: #c455e6;
         color: #572666;
       }
       &.color-2 {
-        background-color: #6AB6FC;
-        color: #375E82;
+        background-color: #6ab6fc;
+        color: #375e82;
       }
       &.color-3 {
-        background-color: #55E66D;
-        color: #296E34;
+        background-color: #55e66d;
+        color: #296e34;
       }
       &.color-4 {
-        background-color: #FFEC70;
-        color: #7D7437;
+        background-color: #ffec70;
+        color: #7d7437;
       }
     }
   }
@@ -126,7 +126,8 @@ $videoContainerBackgroundColor: black;
     }
   }
 
-  #local-video-container, #received-video-container {
+  #local-video-container,
+  #received-video-container {
     background-color: $videoContainerBackgroundColor;
     overflow: hidden;
     video {
@@ -145,17 +146,21 @@ $videoContainerBackgroundColor: black;
   }
 
   &:not(.call-active) {
-    #received-video-container, #local-video-container, #open-video-button {
+    #received-video-container,
+    #local-video-container,
+    #open-video-button {
       display: none;
     }
   }
 
-  #open-chat-button, #open-whiteboard-button, #open-video-button {
+  #open-chat-button,
+  #open-whiteboard-button,
+  #open-video-button {
     position: absolute;
     z-index: $foregroundZIndex;
   }
 
-    /*
+  /*
  Mobil
    links: .call-active.call-fullscreen
    mitte: NO_CLASS OR .call-active
@@ -183,7 +188,8 @@ $videoContainerBackgroundColor: black;
       grid-column: 2 / 3;
       grid-row: 1 / 4;
     }
-    #open-video-button, #open-whiteboard-button {
+    #open-video-button,
+    #open-whiteboard-button {
       top: $spacing;
       left: $desktopChatWidth + $spacing;
     }
@@ -193,7 +199,10 @@ $videoContainerBackgroundColor: black;
       #open-chat-button, #whiteboard-container, #local-video-container, #hang-up-button,
       #open-video-button,  #open-whiteboard-button, #chat-form, #received-video-container
        */
-      #open-chat-button, #local-video-container, #hang-up-button, #open-whiteboard-button {
+      #open-chat-button,
+      #local-video-container,
+      #hang-up-button,
+      #open-whiteboard-button {
         display: none;
       }
 
@@ -207,7 +216,9 @@ $videoContainerBackgroundColor: black;
     }
 
     &.call-fullscreen {
-      #open-chat-button, #whiteboard-container, #open-video-button {
+      #open-chat-button,
+      #whiteboard-container,
+      #open-video-button {
         display: none;
       }
       #received-video-container {
@@ -224,29 +235,40 @@ $videoContainerBackgroundColor: black;
     }
   }
   @media not screen and (min-width: 47rem) {
-    #open-chat-button, #open-whiteboard-button {
+    #open-chat-button,
+    #open-whiteboard-button {
       top: $headerHeight + $attendeesHeight + $spacing;
       left: $spacing;
     }
 
     &:not(.call-fullscreen):not(.whiteboard-active) {
-      #open-chat-button, #whiteboard-container, #local-video-container, #hang-up-button,
+      #open-chat-button,
+      #whiteboard-container,
+      #local-video-container,
+      #hang-up-button,
       #open-video-button {
         display: none;
       }
     }
 
     &.whiteboard-active {
-      #local-video-container, #hang-up-button,
-      #open-video-button, #open-whiteboard-button, #chat-form {
+      #local-video-container,
+      #hang-up-button,
+      #open-video-button,
+      #open-whiteboard-button,
+      #chat-form {
         display: none;
       }
     }
 
-    &.call-fullscreen{
+    &.call-fullscreen {
       display: unset;
 
-      #header, #attendees-container, #open-video-button, #open-whiteboard-button, #chat-form,
+      #header,
+      #attendees-container,
+      #open-video-button,
+      #open-whiteboard-button,
+      #chat-form,
       #whiteboard-container {
         display: none;
       }

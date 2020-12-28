@@ -79,11 +79,11 @@ export class RoomController
         return;
       }
       navigator.share({
-        title: 'Funkgerät',
+        title: "Funkgerät",
         text: `Servus! Join me at Funkgerät in my room ${this.roomName} under`,
-        url: window.location.href
+        url: window.location.href,
       });
-    }
+    };
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -118,7 +118,7 @@ export class RoomController
 
     Log.info(`Joining room ${roomName} with name ${username}`);
 
-    const user = new User(username, Math.floor(Math.random() * 5));
+    const user = new User(username, this.hashUsername(username, 5));
     this.currentUser = user;
     this.view.setCurrentUser(user);
 
@@ -132,6 +132,15 @@ export class RoomController
       this.view.hide();
       this.router.navigateTo("/", e);
     }
+  }
+
+  private hashUsername(username: string, max: number): number {
+    var hash = 0;
+    for (var i = 0; i < username.length; i++) {
+      hash += username.charCodeAt(i);
+      hash = hash % max;
+    }
+    return hash;
   }
 
   public leaveRoom(): Promise<void> {

@@ -6,7 +6,6 @@ import {
   JoinRoomResponseMessage,
   WebSocketMessageType,
 } from "../../shared/Messages";
-import { User } from "../../shared/User";
 import fs from "fs";
 import https from "https";
 import { Log } from "../../shared/Util/Log";
