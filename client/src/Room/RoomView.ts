@@ -25,10 +25,6 @@ export class RoomView {
   }
   /*
   TODO:
-   - mobile
-      - hang up button on mobile missing
-      - can't start call from mobile
-      - chat box bottom of screen (need to scroll down)
    - colors
    - master branch merge and add call feature
    - beautiful chat history with bubbles

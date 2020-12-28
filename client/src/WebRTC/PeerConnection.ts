@@ -145,12 +145,7 @@ export class PeerConnection {
     this.targetUserName = message.sender;
     const remoteDescription = new RTCSessionDescription(message.sdp);
     if (this.rtcPeerConnection.signalingState !== 'stable') {
-      Log.warn('Signaling state is not stable, so triggering rollback');
-      await Promise.all([
-        this.rtcPeerConnection.setLocalDescription({type: 'rollback'}),
-        this.rtcPeerConnection.setRemoteDescription(remoteDescription),
-      ]);
-      return;
+      Log.warn(`Signaling state is not stable, it is ${this.rtcPeerConnection.signalingState}. Probably rollback needed, see https://github.com/Debugger-Buam/Funkgeraet/issues/26`);
     }
     await this.rtcPeerConnection.setRemoteDescription(remoteDescription);
     await this.setStreamOnRtcPeerConnection();
