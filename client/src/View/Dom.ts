@@ -27,6 +27,13 @@ export class Dom {
   readonly openChatButton = this.getElementById("open-chat-button");
   readonly receivedVideoContainer = this.getElementById("received-video-container");
   readonly openVideoButton = this.getElementById("open-video-button");
+  // Modal
+  readonly modal = this.getElementById("modal");
+  readonly modalContent = this.getElementById("modal-content");
+  readonly modalButtonPositive = this.getElementById("modal-button-positive");
+  readonly modalButtonNegative = this.getElementById("modal-button-negative");
+  readonly modalCloseButton = this.getElementById("modal-close");
+  readonly modalTitle = this.getElementById("modal-title");
 
   constructor(private readonly root: Document) {}
 

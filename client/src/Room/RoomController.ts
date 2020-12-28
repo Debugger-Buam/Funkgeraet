@@ -9,8 +9,8 @@ import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import { RoomView } from "./RoomView";
 import {
+  CallRequestMessage,
   ChatMessage,
-  JoinRoomRequestMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
 } from "../../../shared/Messages";
@@ -19,6 +19,7 @@ import { Injectable } from "../injection";
 import { RouterController } from "../Router/RouterController";
 import { UsernameController } from "../Lobby/UsernameController";
 import { Routable } from "../Router/Routable";
+import { ModalController, ModalType } from "../Modal/ModalController";
 
 @Injectable()
 export class RoomController
@@ -36,12 +37,14 @@ export class RoomController
   private peerConnection?: PeerConnection;
   private currentUser?: User;
   private roomName?: string;
+  private hasCallPending = false;
 
   constructor(
     private readonly view: RoomView,
     readonly errorController: ErrorController,
     private router: RouterController,
-    private usernameStorage: UsernameController
+    private usernameStorage: UsernameController,
+    private modalController: ModalController
   ) {
     // TODO: register controller on route?
     router.registerRoute(this);
@@ -53,7 +56,7 @@ export class RoomController
     };
 
     view.setOnAttendeeClick((userName) => {
-      this.call(new User(userName));
+      this.requestCall(new User(userName));
     });
 
     view.onHangupButton = () => {
@@ -135,21 +138,76 @@ export class RoomController
     return Promise.resolve(this.socketServer?.disconnect());
   }
 
+  public async onIncomingCallReceived(message: CallRequestMessage) {
+    let audio: HTMLAudioElement | undefined;
+    try {
+      audio = new Audio("./music/ringtone.mp3");
+      audio.addEventListener("ended", () => {
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play();
+        }
+      });
+      audio.play();
+    } catch (e) {
+      Log.warn("An error occured when playing RingTone.", e);
+    }
+
+    const accepted = await this.modalController.showModal(
+      "Incoming Call",
+      `You are receiving an incoming call from <strong>${message.callerName}</strong>.<br>Do you want to accept?`
+    );
+    audio?.pause();
+
+    this.socketServer?.answerCall(message.callerName, accepted);
+  }
+
   // This is the click on the user name should start the call
-  private async call(clickedUser: User) {
+  private async requestCall(clickedUser: User) {
+    if (this.hasCallPending) {
+      throw new UserError("Cannot call while call is pending");
+    }
     if (!this.currentUser) {
       throw new UserError("You are not logged in!");
     }
     if (this.currentUser.name === clickedUser.name) {
       throw new UserError("Can't call yourself!");
     }
+    if (!this.socketServer) {
+      throw new UserError("Cannot call without having a server connection");
+    }
 
     Log.info("user", this.currentUser.name, "calls", clickedUser.name);
+
+    this.hasCallPending = true;
+    try {
+      this.modalController.showModal(
+        `Calling ${clickedUser.name}`,
+        `Waiting for <strong>${clickedUser.name}</strong> to accept or decline the call.`,
+        { type: ModalType.NoButtons }
+      );
+
+      const accepted = await this.socketServer.requestCall(clickedUser.name);
+
+      this.modalController.close();
+
+      if (accepted) {
+        this.onCallAccepted(clickedUser);
+      }
+    } catch (e) {
+      // Something happend and we treat it as a decline ...
+      console.error(e);
+    } finally {
+      this.hasCallPending = false;
+    }
+  }
+
+  private async onCallAccepted(withUser: User) {
     if (this.peerConnection) {
       await this.hangUp(); // hang up current call to initiate new call
     }
     this.peerConnection = this.createPeerConnection();
-    await this.peerConnection.call(clickedUser);
+    await this.peerConnection.call(withUser);
     Log.info("Call initialized.");
   }
 

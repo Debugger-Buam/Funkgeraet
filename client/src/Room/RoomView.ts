@@ -116,11 +116,11 @@ export class RoomView {
       const userName = user.name.length < 1 ? "? Unknown" : user.name;
       const element = document.createElement("div");
       element.className = "attendee icon-button";
-      user.isInCall && element.classList.add("in-call");
+      user.inCallWith !== undefined && element.classList.add("in-call");
       element.title = userName;
       element.innerHTML = `${userName[0]}<div></div>`;
 
-      if(!user.isInCall) {
+      if(user.inCallWith === undefined) {
         addClickStopPropagation(element, () => this.onAttendeeClick?.(user.name));
       }
 

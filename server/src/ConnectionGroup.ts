@@ -1,4 +1,3 @@
-
 import WebSocket from "ws";
 import { Connection, ConnectionId } from "./Connection";
 import { BaseMessage } from "../../shared/Messages";
@@ -41,10 +40,14 @@ export class ConnectionGroup {
       }
     }
     if (!socket) {
-      throw Error("Hülfe hülfe mir homs as Lenkradl gstuhln");
+      Log.warn(
+        `Trying to send ${user.name} a message - But user does not exists`
+      );
+      return;
     }
     // FIXME: can't use message.pack() because in server.ts the message object was parsed from JSON where it lost its
     // methods!
+
     socket.send(JSON.stringify(message));
   }
 
@@ -56,6 +59,15 @@ export class ConnectionGroup {
       }
     });
     return users;
+  }
+
+  findUser(username: string): User | null {
+    for (const [_, con] of this.connections.entries()) {
+      if (con.user && con.user.name === username) {
+        return con.user;
+      }
+    }
+    return null;
   }
 
   getConnectionCount(): number {

@@ -6,6 +6,75 @@ export abstract class BaseMessage {
   pack(): string {
     return JSON.stringify(this);
   }
+
+  static parse<T extends BaseMessage>(jsonMessage: string | object): T {
+    const obj =
+      typeof jsonMessage === "string" ? JSON.parse(jsonMessage) : jsonMessage;
+
+    switch (obj.type) {
+      case WebSocketMessageType.INIT:
+        return (new InitMessage(obj.clientId) as BaseMessage) as T;
+      case WebSocketMessageType.JOIN_REQUEST:
+        return (new JoinRoomRequestMessage(
+          obj.roomName,
+          obj.userName
+        ) as BaseMessage) as T;
+      case WebSocketMessageType.JOIN_RESPONSE:
+        return (new JoinRoomResponseMessage(
+          obj.roomName,
+          obj.userName,
+          obj.error
+        ) as BaseMessage) as T;
+      case WebSocketMessageType.CHAT:
+        return (new ChatMessage(obj.username, obj.message) as BaseMessage) as T;
+      case WebSocketMessageType.CHAT_LIST:
+        return (new ChatMessageList(obj.messages) as BaseMessage) as T;
+      case WebSocketMessageType.VIDEO_OFFER:
+      case WebSocketMessageType.VIDEO_ANSWER:
+        return (new PeerConnectionSdpMessage(
+          obj.type,
+          obj.sender,
+          obj.receiver,
+          obj.sdp
+        ) as BaseMessage) as T;
+      case WebSocketMessageType.NEW_ICE_CANDIDATE:
+        return (new PeerConnectionNewICECandidateMessage(
+          obj.sender,
+          obj.receiver,
+          obj.candidate
+        ) as BaseMessage) as T;
+      case WebSocketMessageType.HANG_UP:
+        return (new PeerConnectionHangUpMessage(
+          obj.sender,
+          obj.receiver
+        ) as BaseMessage) as T;
+      case WebSocketMessageType.USER_LIST_CHANGED:
+        return (new UserListChangedMessage(obj.users) as BaseMessage) as T;
+      case WebSocketMessageType.USER_CALL_STATE_CHANGED:
+        return (new UserCallStateMessage(obj.user) as BaseMessage) as T;
+      case WebSocketMessageType.REDIRECT_MESSAGE:
+        return (new RedirectMessage(
+          obj.targetUsername,
+          BaseMessage.parse(obj.wrappedMessage)
+        ) as BaseMessage) as T;
+
+      case WebSocketMessageType.CALL_REQUEST:
+        return (new CallRequestMessage(
+          obj.callerName,
+          obj.calleeName
+        ) as BaseMessage) as T;
+
+      case WebSocketMessageType.CALL_RESPONSE:
+        return (new CallResponseMessage(
+          obj.callerName,
+          obj.calleeName,
+          obj.accepted,
+          obj.error
+        ) as BaseMessage) as T;
+      default:
+        throw new Error("Unknown message type: " + obj.type);
+    }
+  }
 }
 
 export abstract class BaseResponseMessage extends BaseMessage {
@@ -22,7 +91,7 @@ export class JoinRoomRequestMessage extends BaseMessage {
     public readonly roomName: string,
     public readonly userName: string
   ) {
-    super(WebSocketMessageType.JOIN);
+    super(WebSocketMessageType.JOIN_REQUEST);
   }
 }
 
@@ -32,7 +101,27 @@ export class JoinRoomResponseMessage extends BaseResponseMessage {
     public readonly userName: string,
     public readonly error?: string
   ) {
-    super(WebSocketMessageType.JOIN);
+    super(WebSocketMessageType.JOIN_RESPONSE);
+  }
+}
+
+export class CallRequestMessage extends BaseMessage {
+  constructor(
+    public readonly callerName: string,
+    public readonly calleeName: string
+  ) {
+    super(WebSocketMessageType.CALL_REQUEST);
+  }
+}
+
+export class CallResponseMessage extends BaseResponseMessage {
+  constructor(
+    public readonly callerName: string,
+    public readonly calleeName: string,
+    public readonly accepted: boolean,
+    public readonly error?: string
+  ) {
+    super(WebSocketMessageType.CALL_RESPONSE);
   }
 }
 
@@ -66,6 +155,15 @@ export class ChatMessage extends BaseMessage {
 export class ChatMessageList extends BaseMessage {
   constructor(public readonly messages: ChatMessage[]) {
     super(WebSocketMessageType.CHAT_LIST);
+  }
+}
+
+export class RedirectMessage extends BaseMessage {
+  constructor(
+    public readonly targetUsername: string,
+    public readonly wrappedMessage: BaseMessage
+  ) {
+    super(WebSocketMessageType.REDIRECT_MESSAGE);
   }
 }
 
@@ -112,18 +210,14 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
   }
 }
 
-export interface RequestTypeMap {
-  JOIN_ROOM: JoinRoomRequestMessage;
-}
-
-export interface ResponseTypeMap {
-  JOIN_ROOM: JoinRoomResponseMessage;
-}
-
 export enum WebSocketMessageType {
   INIT = "INIT",
-  JOIN = "JOIN_ROOM",
+  JOIN_REQUEST = "JOIN_ROOM_REQUEST",
+  JOIN_RESPONSE = "JOIN_ROOM_RESPONSE",
+  CALL_REQUEST = "CALL_REQUEST",
+  CALL_RESPONSE = "CALL_RESPONSE",
   CHAT = "CHAT",
+  REDIRECT_MESSAGE = "REDIRECT_MESSAGE",
   CHAT_LIST = "CHAT_LIST",
   VIDEO_OFFER = "VIDEO_OFFER",
   VIDEO_ANSWER = "VIDEO_ANSWER",
