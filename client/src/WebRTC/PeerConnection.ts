@@ -48,9 +48,9 @@ export class PeerConnection {
     this.rtcPeerConnection.onicegatheringstatechange = () => Log.info('gathering state changed to ', this.rtcPeerConnection.iceGatheringState);
     this.rtcPeerConnection.ontrack = async (event) => {
       this.peerConnectionListener.onVideoCallStarted(await this.localWebcamStreamPromise, event.streams[0]);
-      this.sourceUser.isInCall = true;
+      this.sourceUser.inCallWith = this.targetUserName;
       this.socketServer.send(new UserCallStateMessage(this.sourceUser))
-      Log.info("User", sourceUser.name, "is in call =", this.sourceUser.isInCall)
+      Log.info("User", sourceUser.name, "is in call with", this.sourceUser.inCallWith)
     };
   }
 
@@ -203,10 +203,10 @@ export class PeerConnection {
 
     this.peerConnectionListener.onVideoCallEnded(e);
 
-    this.sourceUser.isInCall = false;
+    this.sourceUser.inCallWith = undefined;
+    Log.info("User", this.sourceUser.name, "is not in a call anymore")
     this.socketServer.send(new UserCallStateMessage(this.sourceUser));
     this.localWebcamStreamPromise.then((stream) => stream.getTracks().forEach((track) => track.stop()));
-    Log.info("User", this.sourceUser.name, "is not in a call anymore =", this.sourceUser.isInCall)
   }
 
   private async handleNegotiationNeededEvent() {

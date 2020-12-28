@@ -72,7 +72,7 @@ export class RoomView {
       const el = document.createElement("li");
       el.innerText = user.name;
       let isCallable = true;
-      if (user.isInCall) {
+      if (user.inCallWith !== undefined) {
         el.innerText += " is in Call";
         isCallable = false;
       }

@@ -94,7 +94,7 @@ export class Room extends ConnectionGroup {
   private handleUserCallStateMessage(request: UserCallStateMessage) {
     const user = this.findUser(request.user.name);
     if (user) {
-      user.isInCall = request.user.isInCall;
+      user.inCallWith = request.user.inCallWith;
     }
 
     this.broadcast(new UserListChangedMessage(this.getUsers()));
