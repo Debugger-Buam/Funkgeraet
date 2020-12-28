@@ -9,15 +9,28 @@ $popoutVideoMaxHeight: 7rem;
 $popoutVideoMaxWidth: 7rem;
 $desktopChatWidth: 30rem;
 
-$videoContainerBackgroundColor: #3c3f41;
+$headerColor: #202225;
+$attendeesColor: #2f3136;
+$chatColor: #36393f;
+$chatBoxColor: #585c63;
+$fontColor: #A3A5A7;
+$videoContainerBackgroundColor: black;
 
 #room-root {
   display: grid;
   height: 100%;
   width: 100%;
   grid-template-rows: $headerHeight $attendeesHeight 1fr;
+  color: $fontColor;
+
+  input {
+    background-color: $chatBoxColor;
+    border-color: $chatBoxColor;
+    color: $fontColor;
+  }
 
   #header {
+    background: $headerColor;
     display: grid;
     grid-template-columns: max-content 1fr max-content;
     padding: $spacing;
@@ -35,7 +48,7 @@ $videoContainerBackgroundColor: #3c3f41;
 
   #attendees-container {
     overflow: auto;
-    background: #9400d3aa;
+    background: $attendeesColor;
     white-space: nowrap;
     user-select: none;
 
@@ -63,6 +76,7 @@ $videoContainerBackgroundColor: #3c3f41;
   }
 
   #chat-form {
+    background: $chatColor;
     display: grid;
     grid-template-columns: 1fr max-content;
     grid-template-rows: 1fr max-content;
@@ -78,7 +92,7 @@ $videoContainerBackgroundColor: #3c3f41;
   }
 
   #whiteboard-container {
-    background-color: yellow;
+    background-color: white;
   }
 
   &.call-fullscreen {

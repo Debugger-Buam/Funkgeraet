@@ -25,7 +25,7 @@ export class RoomView {
   }
   /*
   TODO:
-   - colors
+   - colors (verify mobile that it looks good, also randomize attendee circle color)
    - master branch merge and add call feature
    - beautiful chat history with bubbles
    */
