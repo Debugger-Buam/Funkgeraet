@@ -2,6 +2,7 @@ import "./room.scss";
 import { ClassName, Dom } from "../View/Dom";
 import { User } from "../../../shared/User";
 import { Injectable } from "../injection";
+import {addClickStopPropagation} from "../View/ViewUtil";
 
 @Injectable()
 export class RoomView {
@@ -22,6 +23,16 @@ export class RoomView {
     }
     this.setupToggleButtons();
   }
+  /*
+  TODO:
+   - mobile
+      - hang up button on mobile missing
+      - can't start call from mobile
+      - chat box bottom of screen (need to scroll down)
+   - colors
+   - master branch merge and add call feature
+   - beautiful chat history with bubbles
+   */
 
   private setupToggleButtons() {
     /*
@@ -34,20 +45,20 @@ export class RoomView {
      rechts: NO_CLASS OR .call-active
    */
 
-    this.dom.openWhiteBoardButton.addEventListener("click", () => {
+    addClickStopPropagation(this.dom.openWhiteBoardButton, () => {
       // whiteBoardButton only clickable when whiteBoardActive class is not set (it's hidden by room.scss otherwise)
       this.dom.roomRoot.classList.add(ClassName.whiteBoardActive);
       this.dom.roomRoot.classList.remove(ClassName.callFullscreen); // only for desktop relevant
     });
-    this.dom.openChatButton.addEventListener("click", () => { // only exists for mobile
+    addClickStopPropagation(this.dom.openChatButton, () => { // only exists for mobile
       this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
       this.dom.roomRoot.classList.remove(ClassName.callFullscreen);
     })
-    this.dom.receivedVideoContainer.addEventListener("click", () => {
+    addClickStopPropagation(this.dom.receivedVideoContainer, () => {
       this.dom.roomRoot.classList.add(ClassName.callFullscreen);
       this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
     });
-    this.dom.openVideoButton.addEventListener("click", () => {
+    addClickStopPropagation(this.dom.openVideoButton, () => {
       this.dom.roomRoot.classList.add(ClassName.callFullscreen);
       this.dom.roomRoot.classList.remove(ClassName.whiteBoardActive);
     });
@@ -66,15 +77,19 @@ export class RoomView {
   }
 
   set onHangupButton(value: () => void) {
-    this.dom.hangupButton.addEventListener("click", value);
+    addClickStopPropagation(this.dom.hangupButton, value);
   }
 
   set onLogoutButton(value: () => void) {
-    this.dom.logoutButton.addEventListener("click", value);
+    addClickStopPropagation(this.dom.logoutButton, value);
   }
 
   set onCopyRoomIconClicked(value: () => void) {
-    this.dom.copyRoomButton.addEventListener("click", value);
+    addClickStopPropagation(this.dom.copyRoomButton, value);
+  }
+
+  set onShareRoomIconClicked(value: () => void) {
+    addClickStopPropagation(this.dom.shareRoomButton, value);
   }
 
   set roomName(value: string) {
@@ -110,9 +125,7 @@ export class RoomView {
       element.innerHTML = `${userName[0]}<div></div>`;
 
       if(!user.isInCall) {
-        element.addEventListener("click", () => {
-          this.onAttendeeClick?.(user.name);
-        });
+        addClickStopPropagation(element, () => this.onAttendeeClick?.(user.name));
       }
 
       this.dom.attendeesContainer.appendChild(element);
@@ -131,11 +144,13 @@ export class RoomView {
     this.receivedVideo.srcObject = receivedStream;
     this.localVideo.srcObject = localStream;
     this.dom.roomRoot.classList.add(ClassName.callActive);
+    this.dom.roomRoot.classList.add(ClassName.callFullscreen);
   }
 
   public endCall() {
     this.receivedVideo.srcObject = null;
     this.localVideo.srcObject = null;
     this.dom.roomRoot.classList.remove(ClassName.callActive);
+    this.dom.roomRoot.classList.remove(ClassName.callFullscreen);
   }
 }

@@ -35,6 +35,7 @@ export class RoomController
   private socketServer?: WebSocketServer;
   private peerConnection?: PeerConnection;
   private currentUser?: User;
+  private roomName?: string;
 
   constructor(
     private readonly view: RoomView,
@@ -64,11 +65,22 @@ export class RoomController
     };
 
     view.onCopyRoomIconClicked = () => {
-      if (navigator.clipboard) {
-        const url = window.location.host + window.location.pathname;
-        navigator.clipboard.writeText(url);
+      if (!navigator.clipboard) {
+        return;
       }
+      navigator.clipboard.writeText(window.location.href);
     };
+
+    view.onShareRoomIconClicked = () => {
+      if (!navigator.share) {
+        return;
+      }
+      navigator.share({
+        title: 'Funkgerät',
+        text: `Servus! Join me at Funkgerät in my room ${this.roomName} under`,
+        url: window.location.href
+      });
+    }
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -110,6 +122,7 @@ export class RoomController
     try {
       this.socketServer = new WebSocketServer(this);
       await this.socketServer.connect(user, roomName);
+      this.roomName = roomName;
       this.view.roomName = roomName;
       this.view.show();
     } catch (e) {
