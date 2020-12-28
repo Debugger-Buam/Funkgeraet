@@ -104,16 +104,25 @@ export class RoomView {
     this.chatHistoryList.appendChild(el);
   }
 
+  private createAndAppendAttendeeElement(user: User): HTMLDivElement {
+    const userName = user.name.length < 1 ? "? Unknown" : user.name;
+    const element = document.createElement("div");
+    element.className = `attendee icon-button color-${user.color}`;
+    user.inCallWith !== undefined && element.classList.add("in-call");
+    element.title = userName;
+    element.innerHTML = `${userName[0]}<div></div>`;
+    this.dom.attendeesContainer.appendChild(element);
+    return element;
+  }
+
   updateUserList(users: User[]): void {
     this.dom.attendeesContainer.innerHTML = "";
+    const currentUserElement = this.createAndAppendAttendeeElement(this.currentUser!);
+    currentUserElement.classList.add("attendee-self");
+    currentUserElement.title += " (you)"
     users.filter((user) => this.currentUser?.name !== user.name).forEach((user) => {
-      const userName = user.name.length < 1 ? "? Unknown" : user.name;
-      const element = document.createElement("div");
-      element.className = `attendee icon-button color-${user.color}`;
-      user.inCallWith !== undefined && element.classList.add("in-call");
-      element.title = userName;
-      element.innerHTML = `${userName[0]}<div></div>`;
-
+      const element = this.createAndAppendAttendeeElement(user);
+      element.classList.add("attendee-other");
       if(user.inCallWith === undefined) {
         addClickStopPropagation(element, () => this.onAttendeeClick?.(user.name));
       }

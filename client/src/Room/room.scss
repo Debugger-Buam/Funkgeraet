@@ -55,7 +55,12 @@ $videoContainerBackgroundColor: black;
     .attendee {
       margin: $spacing 0 $spacing $spacing;
       position: relative;
-      cursor: pointer;
+      &.attendee-self {
+        cursor: not-allowed;
+      }
+      &.attendee-other {
+        cursor: pointer;
+      }
       > div {
         position: absolute;
         background-color: green;
