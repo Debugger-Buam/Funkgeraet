@@ -17,7 +17,11 @@ export abstract class BaseMessage {
       case WebSocketMessageType.JOIN_REQUEST:
         return (new JoinRoomRequestMessage(
           obj.roomName,
-          obj.userName
+          new User(
+            obj.user.name,
+            obj.user.color,
+            obj.user.inCallWith,
+          ),
         ) as BaseMessage) as T;
       case WebSocketMessageType.JOIN_RESPONSE:
         return (new JoinRoomResponseMessage(
@@ -89,7 +93,7 @@ export abstract class BaseResponseMessage extends BaseMessage {
 export class JoinRoomRequestMessage extends BaseMessage {
   constructor(
     public readonly roomName: string,
-    public readonly userName: string
+    public readonly user: User
   ) {
     super(WebSocketMessageType.JOIN_REQUEST);
   }

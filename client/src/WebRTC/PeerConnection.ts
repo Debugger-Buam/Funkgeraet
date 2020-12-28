@@ -54,8 +54,8 @@ export class PeerConnection {
     };
   }
 
-  async call(targetUser: User) {
-    this.targetUserName = targetUser.name;
+  async call(targetUserName: string) {
+    this.targetUserName = targetUserName;
     await this.setStreamOnRtcPeerConnection();
   }
 

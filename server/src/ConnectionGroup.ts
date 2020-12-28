@@ -30,18 +30,18 @@ export class ConnectionGroup {
     }
   }
 
-  send(message: BaseMessage, user: User) {
-    Log.debug("sending... ", message, user);
+  send(message: BaseMessage, userName: string) {
+    Log.debug("sending... ", message, userName);
     let socket: WebSocket | undefined;
     for (const [_, con] of this.connections) {
-      if (con.user && con.user.name === user.name) {
+      if (con.user && con.user.name === userName) {
         socket = con.socket;
         break;
       }
     }
     if (!socket) {
       Log.warn(
-        `Trying to send ${user.name} a message - But user does not exists`
+        `Trying to send ${userName} a message - But user does not exists`
       );
       return;
     }

@@ -56,7 +56,7 @@ export class RoomController
     };
 
     view.setOnAttendeeClick((userName) => {
-      this.requestCall(new User(userName));
+      this.requestCall(userName);
     });
 
     view.onHangupButton = () => {
@@ -118,7 +118,7 @@ export class RoomController
 
     Log.info(`Joining room ${roomName} with name ${username}`);
 
-    const user = new User(username);
+    const user = new User(username, Math.floor(Math.random() * 5));
     this.currentUser = user;
     this.view.setCurrentUser(user);
 
@@ -163,36 +163,36 @@ export class RoomController
   }
 
   // This is the click on the user name should start the call
-  private async requestCall(clickedUser: User) {
+  private async requestCall(clickedUserName: string) {
     if (this.hasCallPending) {
       throw new UserError("Cannot call while call is pending");
     }
     if (!this.currentUser) {
       throw new UserError("You are not logged in!");
     }
-    if (this.currentUser.name === clickedUser.name) {
+    if (this.currentUser.name === clickedUserName) {
       throw new UserError("Can't call yourself!");
     }
     if (!this.socketServer) {
       throw new UserError("Cannot call without having a server connection");
     }
 
-    Log.info("user", this.currentUser.name, "calls", clickedUser.name);
+    Log.info("user", this.currentUser.name, "calls", clickedUserName);
 
     this.hasCallPending = true;
     try {
       this.modalController.showModal(
-        `Calling ${clickedUser.name}`,
-        `Waiting for <strong>${clickedUser.name}</strong> to accept or decline the call.`,
+        `Calling ${clickedUserName}`,
+        `Waiting for <strong>${clickedUserName}</strong> to accept or decline the call.`,
         { type: ModalType.NoButtons }
       );
 
-      const accepted = await this.socketServer.requestCall(clickedUser.name);
+      const accepted = await this.socketServer.requestCall(clickedUserName);
 
       this.modalController.close();
 
       if (accepted) {
-        this.onCallAccepted(clickedUser);
+        this.onCallAccepted(clickedUserName);
       }
     } catch (e) {
       // Something happend and we treat it as a decline ...
@@ -202,12 +202,12 @@ export class RoomController
     }
   }
 
-  private async onCallAccepted(withUser: User) {
+  private async onCallAccepted(withUserName: string) {
     if (this.peerConnection) {
       await this.hangUp(); // hang up current call to initiate new call
     }
     this.peerConnection = this.createPeerConnection();
-    await this.peerConnection.call(withUser);
+    await this.peerConnection.call(withUserName);
     Log.info("Call initialized.");
   }
 

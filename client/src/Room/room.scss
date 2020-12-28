@@ -54,7 +54,6 @@ $videoContainerBackgroundColor: black;
 
     .attendee {
       margin: $spacing 0 $spacing $spacing;
-      background-color: blue;
       position: relative;
       cursor: pointer;
       > div {
@@ -71,6 +70,26 @@ $videoContainerBackgroundColor: black;
       }
       &:last-child {
         margin-right: $spacing;
+      }
+      &.color-0 {
+        background-color: #FE8B5E;
+        color: #7D452E;
+      }
+      &.color-1 {
+        background-color: #C455E6;
+        color: #572666;
+      }
+      &.color-2 {
+        background-color: #6AB6FC;
+        color: #375E82;
+      }
+      &.color-3 {
+        background-color: #55E66D;
+        color: #296E34;
+      }
+      &.color-4 {
+        background-color: #FFEC70;
+        color: #7D7437;
       }
     }
   }

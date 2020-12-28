@@ -67,7 +67,7 @@ export class Room extends ConnectionGroup {
     });
 
     if (connection.user != null) {
-      this.send(new ChatMessageList(this.chatMessages), connection.user);
+      this.send(new ChatMessageList(this.chatMessages), connection.user.name);
     }
   }
 
@@ -87,8 +87,7 @@ export class Room extends ConnectionGroup {
   }
 
   private handlePeerConnectionMessage(request: PeerConnectionMessage) {
-    const target = new User(request.receiver);
-    this.send(request, target);
+    this.send(request, request.receiver);
   }
 
   private handleUserCallStateMessage(request: UserCallStateMessage) {
@@ -131,7 +130,7 @@ export class Room extends ConnectionGroup {
       return;
     }
 
-    this.send(message.wrappedMessage, targetUser);
+    this.send(message.wrappedMessage, targetUser.name);
   }
 
   private onStaleTimeoutElapsed() {

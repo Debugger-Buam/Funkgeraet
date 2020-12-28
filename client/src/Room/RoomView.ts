@@ -109,7 +109,7 @@ export class RoomView {
     users.filter((user) => this.currentUser?.name !== user.name).forEach((user) => {
       const userName = user.name.length < 1 ? "? Unknown" : user.name;
       const element = document.createElement("div");
-      element.className = "attendee icon-button";
+      element.className = `attendee icon-button color-${user.color}`;
       user.inCallWith !== undefined && element.classList.add("in-call");
       element.title = userName;
       element.innerHTML = `${userName[0]}<div></div>`;

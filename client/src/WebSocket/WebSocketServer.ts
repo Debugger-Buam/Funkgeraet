@@ -66,7 +66,7 @@ export class WebSocketServer {
                 user: user,
               };
 
-              const msg = new JoinRoomRequestMessage(roomName, user.name);
+              const msg = new JoinRoomRequestMessage(roomName, user);
               try {
                 await socket.request(WebSocketMessageType.JOIN_RESPONSE, msg);
                 resolve();

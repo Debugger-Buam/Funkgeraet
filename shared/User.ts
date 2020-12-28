@@ -1,5 +1,7 @@
 export class User {
-  constructor(public name: string,
-              public inCallWith?: string) {}
-
+  constructor(
+    public name: string,
+    public color: number,
+    public inCallWith?: string
+  ) {}
 }

@@ -55,18 +55,18 @@ wss.on("connection", (ws) => {
       const request = message as JoinRoomRequestMessage;
 
       if (
-        !request.userName ||
-        request.userName.length < 1 ||
+        !request.user.name ||
+        request.user.name.length < 1 ||
         !request.roomName ||
         request.roomName.length < 1
       ) {
         Log.warn(
-          `Client tried to join with invalid Room [${request.roomName}] or Username: "${request.userName}"`
+          `Client tried to join with invalid Room [${request.roomName}] or Username: "${request.user.name}"`
         );
         con.socket.send(
           new JoinRoomResponseMessage(
             request.roomName,
-            request.userName,
+            request.user.name,
             "Invalid arguments - Room or username cannot be empty"
           ).pack()
         );
@@ -78,23 +78,23 @@ wss.on("connection", (ws) => {
 
       // Check if username already exists in room
 
-      const userWithName = room.findUser(request.userName);
+      const userWithName = room.findUser(request.user.name);
 
       if (userWithName != null) {
         // Username already exists
         con.socket.send(
           new JoinRoomResponseMessage(
             request.roomName,
-            request.userName,
+            request.user.name,
             "Username already exists"
           ).pack()
         );
         return;
       }
 
-      con.user = new User(request.userName);
+      con.user = request.user;
       Log.info(
-        `Client joined Room [${request.roomName}] : Username: "${request.userName}"`
+        `Client joined Room [${request.roomName}] : Username: "${request.user.name}"`
       );
       con.room = room;
       room.addConnection(con);
@@ -103,7 +103,7 @@ wss.on("connection", (ws) => {
 
       // Send 'valid-join' response
       con.socket.send(
-        new JoinRoomResponseMessage(request.roomName, request.userName).pack()
+        new JoinRoomResponseMessage(request.roomName, request.user.name).pack()
       );
     }
   });
