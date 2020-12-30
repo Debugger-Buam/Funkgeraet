@@ -6,7 +6,8 @@ export enum ClassName {
 }
 
 export class Dom {
-  readonly attendeesContainer = this.getElementById("attendees-container");
+  readonly attendeesSelfContainer = this.getElementById("attendees-self-container");
+  readonly attendeesOthersContainer = this.getElementById("attendees-others-container");
   readonly hangupButton = this.getElementById("hang-up-button");
   readonly logoutButton = this.getElementById("logout-button");
   readonly chatForm = this.getElementById("chat-form", "form");

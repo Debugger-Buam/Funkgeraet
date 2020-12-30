@@ -120,7 +120,7 @@ export class RoomController
 
     const user = new User(username, this.hashUsername(username, 5));
     this.currentUser = user;
-    this.view.setCurrentUser(user);
+    this.view.updateCurrentUser(user);
 
     try {
       this.socketServer = new WebSocketServer(this);
@@ -135,8 +135,8 @@ export class RoomController
   }
 
   private hashUsername(username: string, max: number): number {
-    var hash = 0;
-    for (var i = 0; i < username.length; i++) {
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
       hash += username.charCodeAt(i);
       hash = hash % max;
     }
