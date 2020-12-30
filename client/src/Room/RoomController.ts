@@ -24,6 +24,7 @@ import { ModalController, ModalType } from "../Modal/ModalController";
 @Injectable()
 export class RoomController
   implements MessageListener, PeerConnectionListener, Routable<void> {
+  private static readonly MAXIMUM_COLOR_HASH_LENGTH = 5;
   private static readonly mediaConstraints = {
     // TODO: this was copy pasted, maybe improve
     audio: true, // We want an audio track
@@ -53,6 +54,7 @@ export class RoomController
     view.onChatFormSubmit = () => {
       this.socketServer!.sendChatMessage(view.chatMessage);
       view.chatMessage = "";
+      view.scrollChatHistoryToBottom();
     };
 
     view.setOnAttendeeClick((userName) => {
@@ -93,7 +95,7 @@ export class RoomController
       this.socketServer!,
       this.currentUser!,
       this,
-      this.getLocalWebcamStreamPromise()
+      RoomController.getLocalWebcamStreamPromise()
     );
   }
 
@@ -105,7 +107,7 @@ export class RoomController
   }
 
   public onChatMessageReceived(message: ChatMessage): void {
-    this.view.appendChatMessage(`${message.username} - ${message.message}`);
+    this.view.appendChatMessage(message.username, message.message, RoomController.hashUsername(message.username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
   }
 
   public onUserListChanged(message: UserListChangedMessage): void {
@@ -118,9 +120,9 @@ export class RoomController
 
     Log.info(`Joining room ${roomName} with name ${username}`);
 
-    const user = new User(username, this.hashUsername(username, 5));
+    const user = new User(username, RoomController.hashUsername(username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
     this.currentUser = user;
-    this.view.updateCurrentUser(user);
+    this.view.setCurrentUser(user);
 
     try {
       this.socketServer = new WebSocketServer(this);
@@ -134,7 +136,7 @@ export class RoomController
     }
   }
 
-  private hashUsername(username: string, max: number): number {
+  private static hashUsername(username: string, max: number): number {
     let hash = 0;
     for (let i = 0; i < username.length; i++) {
       hash += username.charCodeAt(i);
@@ -227,7 +229,7 @@ export class RoomController
     await this.peerConnection.hangUp();
   }
 
-  private getLocalWebcamStreamPromise(): Promise<MediaStream> {
+  private static getLocalWebcamStreamPromise(): Promise<MediaStream> {
     return navigator.mediaDevices.getUserMedia(RoomController.mediaConstraints);
   }
 

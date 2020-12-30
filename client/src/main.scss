@@ -1,7 +1,21 @@
+@import "variables";
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  // Firefox Scrollbar styles https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width
+  scrollbar-color: $lightGray $veryLightGray;
+  scrollbar-width: thin;
+  // Non-Firefox Scrollbar Styles https://developer.mozilla.org/en-US/docs/Web/CSS/::-webkit-scrollbar
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    background-color: $veryLightGray;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $lightGray;
+  }
 }
 
 html, body, #root {
@@ -92,17 +106,17 @@ button {
   padding: 0.75rem .75rem;
   margin: 0.25rem 0;
   cursor: pointer;
-  &.icon-button {
+  &.small-circle {
     padding: 0;
     margin: 0;
   }
 }
-.icon-button {
+.small-circle {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 3rem;
-  height: 3rem;
+  width: $smallCircleSize;
+  height: $smallCircleSize;
   font-size: 1.3rem;
   border-radius: 50%;
 }

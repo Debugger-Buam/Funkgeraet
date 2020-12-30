@@ -1,20 +1,4 @@
-$foregroundZIndex: 10;
-$spacing: 0.5rem;
-$attendeeWidthHeight: 3rem; // TODO import iconbutton width
-$attendeesHeight: $attendeeWidthHeight + 2 * $spacing;
-$headerButtonHeight: 2rem;
-$headerHeight: $headerButtonHeight + 2 * $spacing;
-
-$popoutVideoMaxHeight: 7rem;
-$popoutVideoMaxWidth: 7rem;
-$desktopChatWidth: 30rem;
-
-$veryDarkGray: #202225;
-$darkGray: #2f3136;
-$gray: #36393f;
-$lightGray: #585c63;
-$veryLightGray: #a3a5a7;
-$videoContainerBackgroundColor: black;
+@import "../variables";
 
 #room-root {
   display: grid;
@@ -27,6 +11,29 @@ $videoContainerBackgroundColor: black;
     background-color: $lightGray;
     border-color: $lightGray;
     color: $veryLightGray;
+  }
+
+  .avatar {
+    &.color-0 {
+      background-color: #fe8b5e;
+      color: #7d452e;
+    }
+    &.color-1 {
+      background-color: #c455e6;
+      color: #572666;
+    }
+    &.color-2 {
+      background-color: #6ab6fc;
+      color: #375e82;
+    }
+    &.color-3 {
+      background-color: #55e66d;
+      color: #296e34;
+    }
+    &.color-4 {
+      background-color: #ffec70;
+      color: #7d7437;
+    }
   }
 
   #header {
@@ -75,19 +82,13 @@ $videoContainerBackgroundColor: black;
       overflow-y: hidden;
       text-align: right;
       > .attendee {
-        cursor: pointer;
+        &:not(.in-call) {
+          cursor: pointer;
+        }
+        &.in-call {
+          cursor: not-allowed;
+        }
         margin: $spacing $spacing $spacing 0;
-      }
-      // Firefox Scrollbar styles https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width
-      scrollbar-color: $lightGray $veryLightGray;
-      scrollbar-width: thin;
-      // Non-Firefox Scrollbar Styles https://developer.mozilla.org/en-US/docs/Web/CSS/::-webkit-scrollbar
-      &::-webkit-scrollbar {
-        height: 5px;
-        background-color: $veryLightGray;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: $lightGray;
       }
     }
 
@@ -105,26 +106,6 @@ $videoContainerBackgroundColor: black;
       &.in-call > div {
         background-color: red;
       }
-      &.color-0 {
-        background-color: #fe8b5e;
-        color: #7d452e;
-      }
-      &.color-1 {
-        background-color: #c455e6;
-        color: #572666;
-      }
-      &.color-2 {
-        background-color: #6ab6fc;
-        color: #375e82;
-      }
-      &.color-3 {
-        background-color: #55e66d;
-        color: #296e34;
-      }
-      &.color-4 {
-        background-color: #ffec70;
-        color: #7d7437;
-      }
     }
   }
 
@@ -141,9 +122,27 @@ $videoContainerBackgroundColor: black;
     #chat-history {
       grid-column: 1 / 3;
       display: flex;
-      flex-flow: column;
-      justify-content: flex-end;
+      flex-direction: column-reverse;
       overflow: auto;
+
+      .chat-entry {
+        display: grid;
+        grid-gap: $spacing;
+        grid-template-columns: max-content 1fr;
+        grid-template-rows: max-content max-content;
+        margin-top: $spacing * 2;
+        .avatar {
+          grid-row: 1 / 3;
+        }
+        .name {
+          grid-column: 2 / 3;
+          font-weight: bolder;
+        }
+        .content {
+          grid-column: 2 / 3;
+
+        }
+      }
     }
   }
 

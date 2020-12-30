@@ -55,14 +55,8 @@ export class RoomView {
     });
   }
 
-  public updateCurrentUser(user: User) {
+  public setCurrentUser(user: User) {
     this.currentUser = user;
-    this.dom.attendeesSelfContainer.innerHTML = "";
-    const currentUserElement = this.createAttendeeElement(
-      this.currentUser
-    );
-    currentUserElement.title += " (you)";
-    this.dom.attendeesSelfContainer.appendChild(currentUserElement);
   }
 
   public setOnAttendeeClick(value: (userName: string) => any) {
@@ -101,38 +95,62 @@ export class RoomView {
     this.chatMessageInput.value = value;
   }
 
+  scrollChatHistoryToBottom() {
+    this.chatHistoryList.scrollTop = this.chatHistoryList.scrollHeight;
+  }
+
   clearChatlist() {
     this.chatHistoryList.innerHTML = "";
   }
 
-  appendChatMessage(message: string): void {
-    const el = document.createElement("div");
-    el.innerText = message;
-    this.chatHistoryList.appendChild(el);
+  appendChatMessage(username: string, message: string, colorNumber: number): void {
+    // using flex-flow: column and justify-content: flex-end will not allow vertical scrolling, appears to be a bug
+    // https://stackoverflow.com/a/36776769/2306363, therefore we use flex-direction: column-reverse and insert
+    // the chat messages in reversed order
+
+    const element = document.createElement("div");
+    const coalescedUsername = RoomView.getCoalescedUsername(username);
+    element.className = "chat-entry";
+    element.innerHTML = `<div class="avatar small-circle color-${colorNumber}" title="${coalescedUsername}">${coalescedUsername[0]}</div>
+      <div class="name">${coalescedUsername}</div>
+      <div class="content">${message}</div>`;
+
+    this.chatHistoryList.prepend(element);
   }
 
-  private createAttendeeElement(user: User): HTMLDivElement {
-    const userName = user.name.length < 1 ? "? Unknown" : user.name;
+  private static getCoalescedUsername(username: string) {
+    return username.length < 1 ? "? Unknown" : username;
+  }
+
+  private static createAttendeeElement(user: User): HTMLDivElement {
+    const coalescedUsername = RoomView.getCoalescedUsername(user.name);
     const element = document.createElement("div");
-    element.className = `attendee icon-button color-${user.color}`;
+    element.className = `attendee avatar small-circle color-${user.color}`;
     user.inCallWith !== undefined && element.classList.add("in-call");
-    element.title = userName;
-    element.innerHTML = `${userName[0]}<div></div>`;
+    element.title = coalescedUsername;
+    element.innerHTML = `${coalescedUsername[0]}<div></div>`;
     return element;
   }
 
   updateUserList(users: User[]): void {
+    this.dom.attendeesSelfContainer.innerHTML = "";
     this.dom.attendeesOthersContainer.innerHTML = "";
+
+    const currentUserElement = RoomView.createAttendeeElement(
+      this.currentUser!
+    );
+    currentUserElement.title += " (you)";
+    this.dom.attendeesSelfContainer.appendChild(currentUserElement);
     users
       .filter((user) => this.currentUser?.name !== user.name)
       .forEach((user) => {
-        const element = this.createAttendeeElement(user);
+        const element = RoomView.createAttendeeElement(user);
         if (user.inCallWith === undefined) {
           addClickStopPropagation(element, () =>
             this.onAttendeeClick?.(user.name)
           );
-          this.dom.attendeesOthersContainer.appendChild(element);
         }
+        this.dom.attendeesOthersContainer.appendChild(element);
       });
   }
 
