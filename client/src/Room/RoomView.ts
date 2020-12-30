@@ -1,27 +1,41 @@
 import "./room.scss";
-import { ClassName, Dom } from "../View/Dom";
-import { User } from "../../../shared/User";
-import { Injectable } from "../injection";
-import { addClickStopPropagation } from "../View/ViewUtil";
+import {ClassName, Dom} from "../View/Dom";
+import {User} from "../../../shared/User";
+import {Injectable} from "../injection";
+import {addClickStopPropagation} from "../View/ViewUtil";
 
 @Injectable()
 export class RoomView {
-  private readonly chatHistoryList = this.dom.chatHistoryList;
-  private readonly receivedVideo = this.dom.receivedVideo;
-  private readonly localVideo = this.dom.localVideo;
-  private readonly chatMessageInput = this.dom.chatMessageInput;
-  private readonly chatForm = this.dom.chatForm;
   private currentUser: User | undefined;
   private onAttendeeClick: ((userName: string) => any) | undefined;
 
   constructor(private readonly dom: Dom) {
-    this.chatForm.addEventListener("submit", (event) => event.preventDefault());
+    this.dom.chatForm.addEventListener("submit", (event) => event.preventDefault());
     if (typeof navigator.share === "undefined") {
       this.dom.shareRoomButton.classList.add(ClassName.hidden);
     } else {
       this.dom.copyRoomButton.classList.add(ClassName.hidden);
     }
+    this.setupAttendeeHorizontalScroll();
     this.setupToggleButtons();
+  }
+
+  private setupAttendeeHorizontalScroll() {
+    const container = this.dom.attendeesOthersContainer;
+    container.addEventListener("wheel", (event) => {
+      container.scrollLeft -= event.deltaY * 5;
+    })
+    let initialMousePosition: number | null = null;
+    container.addEventListener("mousedown", (event) => {
+      initialMousePosition = event.pageX + container.scrollLeft;
+    });
+    document.addEventListener("mousemove", (event) => {
+      if (initialMousePosition === null) {
+        return;
+      }
+      container.scrollLeft = initialMousePosition - event.pageX;
+    });
+    document.addEventListener("mouseup", () => initialMousePosition = null);
   }
 
   private setupToggleButtons() {
@@ -64,7 +78,7 @@ export class RoomView {
   }
 
   set onChatFormSubmit(value: () => void) {
-    this.chatForm.addEventListener("submit", value);
+    this.dom.chatForm.addEventListener("submit", value);
   }
 
   set onHangupButton(value: () => void) {
@@ -88,19 +102,19 @@ export class RoomView {
   }
 
   get chatMessage(): string {
-    return this.chatMessageInput.value;
+    return this.dom.chatMessageInput.value;
   }
 
   set chatMessage(value: string) {
-    this.chatMessageInput.value = value;
+    this.dom.chatMessageInput.value = value;
   }
 
   scrollChatHistoryToBottom() {
-    this.chatHistoryList.scrollTop = this.chatHistoryList.scrollHeight;
+    this.dom.chatHistoryList.scrollTop = this.dom.chatHistoryList.scrollHeight;
   }
 
   clearChatlist() {
-    this.chatHistoryList.innerHTML = "";
+    this.dom.chatHistoryList.innerHTML = "";
   }
 
   appendChatMessage(username: string, message: string, colorNumber: number): void {
@@ -115,7 +129,7 @@ export class RoomView {
       <div class="name">${coalescedUsername}</div>
       <div class="content">${message}</div>`;
 
-    this.chatHistoryList.prepend(element);
+    this.dom.chatHistoryList.prepend(element);
   }
 
   private static getCoalescedUsername(username: string) {
@@ -163,15 +177,15 @@ export class RoomView {
   }
 
   public startCall(localStream: MediaStream, receivedStream: MediaStream) {
-    this.receivedVideo.srcObject = receivedStream;
-    this.localVideo.srcObject = localStream;
+    this.dom.receivedVideo.srcObject = receivedStream;
+    this.dom.localVideo.srcObject = localStream;
     this.dom.roomRoot.classList.add(ClassName.callActive);
     this.dom.roomRoot.classList.add(ClassName.callFullscreen);
   }
 
   public endCall() {
-    this.receivedVideo.srcObject = null;
-    this.localVideo.srcObject = null;
+    this.dom.receivedVideo.srcObject = null;
+    this.dom.localVideo.srcObject = null;
     this.dom.roomRoot.classList.remove(ClassName.callActive);
     this.dom.roomRoot.classList.remove(ClassName.callFullscreen);
   }
