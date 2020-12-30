@@ -39,6 +39,7 @@ export class RoomController
   private currentUser?: User;
   private roomName?: string;
   private hasCallPending = false;
+  private readonly audio = new Audio("./music/ringtone.mp3");
 
   constructor(
     private readonly view: RoomView,
@@ -86,6 +87,8 @@ export class RoomController
         url: window.location.href,
       });
     };
+
+    this.audio.loop = true;
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -150,25 +153,14 @@ export class RoomController
   }
 
   public async onIncomingCallReceived(message: CallRequestMessage) {
-    let audio: HTMLAudioElement | undefined;
-    try {
-      audio = new Audio("./music/ringtone.mp3");
-      audio.addEventListener("ended", () => {
-        if (audio) {
-          audio.currentTime = 0;
-          audio.play();
-        }
-      });
-      audio.play();
-    } catch (e) {
-      Log.warn("An error occured when playing RingTone.", e);
-    }
+    this.audio.currentTime = 0;
+    this.audio.play();
 
     const accepted = await this.modalController.showModal(
       "Incoming Call",
       `You are receiving an incoming call from <strong>${message.callerName}</strong>.<br>Do you want to accept?`
     );
-    audio?.pause();
+    this.audio.pause();
 
     this.socketServer?.answerCall(message.callerName, accepted);
   }

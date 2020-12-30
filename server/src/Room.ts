@@ -94,7 +94,6 @@ export class Room extends ConnectionGroup {
     if (user) {
       user.inCallWith = request.user.inCallWith;
     }
-
     this.broadcast(new UserListChangedMessage(this.getUsers()));
   }
 
