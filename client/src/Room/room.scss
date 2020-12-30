@@ -30,6 +30,8 @@ $videoContainerBackgroundColor: black;
   }
 
   #header {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
     background: $headerColor;
     display: grid;
     grid-template-columns: max-content 1fr max-content;
@@ -47,6 +49,8 @@ $videoContainerBackgroundColor: black;
   }
 
   #attendees-container {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
     overflow: auto;
     background: $attendeesColor;
     white-space: nowrap;
@@ -100,6 +104,8 @@ $videoContainerBackgroundColor: black;
   }
 
   #chat-form {
+    grid-column: 1 / 2;
+    grid-row: 3 / span 4;
     background: $chatColor;
     display: grid;
     grid-template-columns: 1fr max-content;
@@ -169,18 +175,6 @@ $videoContainerBackgroundColor: black;
    links: .call-active.call-fullscreen
    rechts: NO_CLASS OR .call-active
  */
-  #header {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-  }
-  #attendees-container {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
-  }
-  #chat-form {
-    grid-column: 1 / 2;
-    grid-row: 3 / span 4;
-  }
 
   @media screen and (min-width: 47rem) {
     grid-template-columns: $desktopChatWidth 1fr;
