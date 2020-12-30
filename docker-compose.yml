@@ -1,0 +1,12 @@
+version: "3"
+services:
+    server:
+        image: funkgeraet_server
+        build:
+            context: .
+            dockerfile: server/Dockerfile
+    client:
+        image: funkgeraet_client
+        build:
+            context: .
+            dockerfile: client/Dockerfile
