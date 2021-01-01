@@ -1,9 +1,10 @@
-image: docker:latest
 name: Build and Publish Docker Image
+
+on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: docker:latest
     steps:
     - uses: actions/checkout@v1
     - name: Setup Docker compose
