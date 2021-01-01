@@ -33,6 +33,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Setup Docker
       run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
+    - name: Move env file
       run: mv -n client/.env.example client/.env
     - name: Build Image
       run: docker-compose build client
