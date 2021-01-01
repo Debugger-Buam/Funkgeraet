@@ -14,5 +14,5 @@ jobs:
     - name: Tag Image
       run: docker image tag funkgeraet_client ghcr.io/${{ secrets.GHCR_USERNAME }}/$GITHUB_REPOSITORY
     - name: Publish Image
-      run: docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/$GITHUB_REPOSITORY:latest
+      run: docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_client:latest
      
