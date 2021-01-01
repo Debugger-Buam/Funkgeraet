@@ -8,11 +8,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Setup Docker compose
-      run: apk add --update py-pip
-      run: pip install docker-compose
+      run: apk add --update py-pip && pip install docker-compose
+    - name: Login Docker
+      run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
     - name: Build Image
       run: docker-compose build client
+    - name: Tag Image
+      run: docker image tag funkgeraet_client ghcr.io/${{ secrets.GHCR_USERNAME }}/$GITHUB_REPOSITORY
     - name: Publish Image
-      run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
       run: docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/$GITHUB_REPOSITORY:latest
      
