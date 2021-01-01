@@ -12,7 +12,7 @@ jobs:
     - name: Build Image
       run: docker-compose build client
     - name: Tag Image
-      run: docker image tag funkgeraet_client ghcr.io/${{ secrets.GHCR_USERNAME }}/$GITHUB_REPOSITORY
+      run: docker image tag funkgeraet_client ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_client
     - name: Publish Image
       run: docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_client:latest
      
