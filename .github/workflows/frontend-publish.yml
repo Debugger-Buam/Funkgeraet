@@ -4,11 +4,9 @@ on: [push]
 
 jobs:
   build:
-    runs-on: docker:latest
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup Docker compose
-      run: apk add --update py-pip && pip install docker-compose
+    - uses: actions/checkout@v2
     - name: Login Docker
       run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
     - name: Build Image
