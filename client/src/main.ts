@@ -2,6 +2,7 @@ import "./main.scss";
 import { RoomController } from "./Room/RoomController";
 import { RouterController } from "./Router/RouterController";
 import { LobbyController } from "./Lobby/LobbyController";
+import { WhiteboardController } from "./Whiteboard/WhiteboardController";
 import { Dom } from "./View/Dom";
 import { Log } from "../../shared/Util/Log";
 import { ErrorController } from "./Error/ErrorController";
@@ -16,6 +17,7 @@ try {
     RouterController,
     RoomController,
     LobbyController,
+    WhiteboardController,
   ];
   container.bootstrap(controllers);
 

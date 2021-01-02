@@ -28,6 +28,8 @@ export class Dom {
   readonly openChatButton = this.getElementById("open-chat-button");
   readonly receivedVideoContainer = this.getElementById("received-video-container");
   readonly openVideoButton = this.getElementById("open-video-button");
+  readonly whiteboardContainer = this.getElementById("whiteboard-container");
+  readonly whiteboardCanvas = this.getElementById("whiteboard-canvas");
   // Modal
   readonly modal = this.getElementById("modal");
   readonly modalContent = this.getElementById("modal-content");
