@@ -138,13 +138,20 @@ export class RoomView {
       <div class="name">${coalescedUsername} <span class="time-stamp">${this.timestampToString(
       timestamp
     )}</span></div>
-      <div class="content">${message}</div>`;
+      <div class="content">${this.getProcessedChatMessage(message)}</div>`;
 
     this.dom.chatHistoryList.prepend(element);
   }
 
   private static getCoalescedUsername(username: string) {
     return username.length < 1 ? "? Unknown" : username;
+  }
+
+  private getProcessedChatMessage(message: string) {
+    var linkUrlRegex = /(\b(((https?|ftp|file):\/\/)|(www.))[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    return message.replace(linkUrlRegex, function (url) {
+      return '<a href="' + url + '">' + url + "</a>";
+    });
   }
 
   private timestampToString(timestamp: string): string {
