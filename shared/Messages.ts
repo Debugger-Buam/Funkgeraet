@@ -75,6 +75,9 @@ export abstract class BaseMessage {
           obj.accepted,
           obj.error
         ) as BaseMessage) as T;
+
+      case WebSocketMessageType.CALL_REVOKE:
+        return (new CallRevokedMessage(obj.callerName) as BaseMessage) as T;
       default:
         throw new Error("Unknown message type: " + obj.type);
     }
@@ -123,6 +126,12 @@ export class CallResponseMessage extends BaseResponseMessage {
     public readonly error?: string
   ) {
     super(WebSocketMessageType.CALL_RESPONSE);
+  }
+}
+
+export class CallRevokedMessage extends BaseResponseMessage {
+  constructor(public readonly callerName: string) {
+    super(WebSocketMessageType.CALL_REVOKE);
   }
 }
 
@@ -218,6 +227,8 @@ export enum WebSocketMessageType {
   JOIN_RESPONSE = "JOIN_ROOM_RESPONSE",
   CALL_REQUEST = "CALL_REQUEST",
   CALL_RESPONSE = "CALL_RESPONSE",
+  CALL_REVOKE = "CALL_REVOKE",
+
   CHAT = "CHAT",
   REDIRECT_MESSAGE = "REDIRECT_MESSAGE",
   CHAT_LIST = "CHAT_LIST",

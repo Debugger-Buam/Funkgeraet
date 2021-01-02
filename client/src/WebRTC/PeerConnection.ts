@@ -174,7 +174,6 @@ export class PeerConnection {
         });
         break;
     }
-
   }
 
   private handleSignalingStateChangeEvent() {

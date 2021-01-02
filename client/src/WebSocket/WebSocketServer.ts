@@ -4,6 +4,7 @@ import {
   BaseMessage,
   CallRequestMessage,
   CallResponseMessage,
+  CallRevokedMessage,
   ChatMessage,
   ChatMessageList,
   InitMessage,
@@ -26,6 +27,8 @@ export interface MessageListener {
   onPeerConnectionMsg(message: PeerConnectionMessage): void;
 
   onIncomingCallReceived(message: CallRequestMessage): Promise<void>;
+
+  onIncomingCallRevoked(message: CallRevokedMessage): Promise<void>;
 }
 
 export class WebSocketServer {
@@ -102,6 +105,12 @@ export class WebSocketServer {
               break;
             }
 
+            case WebSocketMessageType.CALL_REVOKE: {
+              const callRevokedMessage = message as CallRevokedMessage;
+              this.listener.onIncomingCallRevoked(callRevokedMessage);
+              break;
+            }
+
             case WebSocketMessageType.VIDEO_OFFER:
             case WebSocketMessageType.VIDEO_ANSWER:
             case WebSocketMessageType.NEW_ICE_CANDIDATE:
@@ -174,6 +183,22 @@ export class WebSocketServer {
     const message = new RedirectMessage(
       callerName,
       new CallResponseMessage(callerName, calleeName, accept)
+    );
+
+    this.socket.send(message.pack());
+  }
+
+  async revokeCall(username: string) {
+    if (!this.connection || !this.socket) {
+      throw Error("Revoking call without a connection");
+    }
+
+    const callerName = this.connection.user.name;
+    const calleeName = username;
+
+    const message = new RedirectMessage(
+      calleeName,
+      new CallRevokedMessage(callerName)
     );
 
     this.socket.send(message.pack());
