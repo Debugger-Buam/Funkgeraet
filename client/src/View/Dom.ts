@@ -13,8 +13,11 @@ export class Dom {
   readonly chatForm = this.getElementById("chat-form", "form");
   readonly chatHistoryList = this.getElementById("chat-history");
   readonly chatMessageInput = this.getElementById("chat-message", "input");
+
   readonly lobbyForm = this.getElementById("lobby-form", "form");
   readonly lobbyRoot = this.getElementById("lobby-root");
+  readonly lobbyJoinButton = this.getElementById("lobby-join-button");
+  
   readonly localVideo = this.getElementById("local-video", "video");
   readonly receivedVideo = this.getElementById("received-video", "video");
   readonly roomRoot = this.getElementById("room-root");

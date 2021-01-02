@@ -49,4 +49,16 @@ export class LobbyView {
   public hide() {
     this.dom.lobbyRoot.classList.add(ClassName.hidden);
   }
+
+  public showPrefilled(roomName: string) {
+    this.roomName = roomName;
+    this.dom.roomNameInput.classList.add(ClassName.hidden);
+    this.dom.lobbyJoinButton.innerText = `Join ${roomName}`;
+  }
+
+  public reset() {
+    this.roomName = "";
+    this.dom.roomNameInput.classList.remove(ClassName.hidden);
+    this.dom.lobbyJoinButton.innerText = "Join";
+  }
 }

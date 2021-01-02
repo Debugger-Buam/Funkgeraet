@@ -20,6 +20,7 @@ import { RouterController } from "../Router/RouterController";
 import { UsernameController } from "../Lobby/UsernameController";
 import { Routable } from "../Router/Routable";
 import { ModalController, ModalType } from "../Modal/ModalController";
+import { LobbyParams } from "../Lobby/LobbyController";
 
 @Injectable()
 export class RoomController
@@ -149,7 +150,15 @@ export class RoomController
       this.view.show();
     } catch (e) {
       this.view.hide();
-      this.router.navigateTo("/", e);
+
+      const errorText = typeof e === "string" ? e : "Unknown error occured";
+
+      const params: LobbyParams = {
+        error: errorText,
+        prefilledRoomName: roomName,
+      };
+
+      this.router.navigateTo("/", params);
     }
   }
 
@@ -279,7 +288,12 @@ export class RoomController
     const username = await this.usernameStorage.loadUsername();
 
     if (!username || !roomName) {
-      this.router.navigateTo("/");
+      const params: LobbyParams = {
+        error: null,
+        prefilledRoomName: roomName,
+      };
+
+      this.router.navigateTo("/", params);
       return;
     }
 
