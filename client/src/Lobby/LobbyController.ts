@@ -37,15 +37,18 @@ export class LobbyController implements Routable<string> {
   getRouteRegex(): RegExp {
     return /(.*?)/g;
   }
+
   getTitle(): string {
     return "Funkgerät - Lobby";
   }
+
   onRouteVisited(matchResult: RegExpMatchArray, error?: string): void {
     if(error) {
       this.view.error = error;
     }
     this.view.show();
   }
+  
   onRouteLeft(): void {
     this.view.hide();
   }

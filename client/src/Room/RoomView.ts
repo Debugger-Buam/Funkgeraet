@@ -1,8 +1,8 @@
 import "./room.scss";
-import {ClassName, Dom} from "../View/Dom";
-import {User} from "../../../shared/User";
-import {Injectable} from "../injection";
-import {addClickStopPropagation} from "../View/ViewUtil";
+import { ClassName, Dom } from "../View/Dom";
+import { User } from "../../../shared/User";
+import { Injectable } from "../injection";
+import { addClickStopPropagation } from "../View/ViewUtil";
 
 @Injectable()
 export class RoomView {
@@ -10,7 +10,9 @@ export class RoomView {
   private onAttendeeClick: ((userName: string) => any) | undefined;
 
   constructor(private readonly dom: Dom) {
-    this.dom.chatForm.addEventListener("submit", (event) => event.preventDefault());
+    this.dom.chatForm.addEventListener("submit", (event) =>
+      event.preventDefault()
+    );
     if (typeof navigator.share === "undefined") {
       this.dom.shareRoomButton.classList.add(ClassName.hidden);
     } else {
@@ -24,7 +26,7 @@ export class RoomView {
     const container = this.dom.attendeesOthersContainer;
     container.addEventListener("wheel", (event) => {
       container.scrollLeft -= event.deltaY * 5;
-    })
+    });
     let initialMousePosition: number | null = null;
     container.addEventListener("mousedown", (event) => {
       initialMousePosition = event.pageX + container.scrollLeft;
@@ -35,7 +37,7 @@ export class RoomView {
       }
       container.scrollLeft = initialMousePosition - event.pageX;
     });
-    document.addEventListener("mouseup", () => initialMousePosition = null);
+    document.addEventListener("mouseup", () => (initialMousePosition = null));
   }
 
   private setupToggleButtons() {
@@ -117,7 +119,12 @@ export class RoomView {
     this.dom.chatHistoryList.innerHTML = "";
   }
 
-  appendChatMessage(username: string, message: string, colorNumber: number): void {
+  appendChatMessage(
+    username: string,
+    message: string,
+    timestamp: string,
+    colorNumber: number
+  ): void {
     // using flex-flow: column and justify-content: flex-end will not allow vertical scrolling, appears to be a bug
     // https://stackoverflow.com/a/36776769/2306363, therefore we use flex-direction: column-reverse and insert
     // the chat messages in reversed order
@@ -125,8 +132,12 @@ export class RoomView {
     const element = document.createElement("div");
     const coalescedUsername = RoomView.getCoalescedUsername(username);
     element.className = "chat-entry";
-    element.innerHTML = `<div class="avatar small-circle color-${colorNumber}" title="${coalescedUsername}">${coalescedUsername[0]}</div>
-      <div class="name">${coalescedUsername}</div>
+    element.innerHTML = `<div class="avatar small-circle color-${colorNumber}" title="${coalescedUsername}">${
+      coalescedUsername[0]
+    }</div>
+      <div class="name">${coalescedUsername} <span class="time-stamp">${this.timestampToString(
+      timestamp
+    )}</span></div>
       <div class="content">${message}</div>`;
 
     this.dom.chatHistoryList.prepend(element);
@@ -134,6 +145,11 @@ export class RoomView {
 
   private static getCoalescedUsername(username: string) {
     return username.length < 1 ? "? Unknown" : username;
+  }
+
+  private timestampToString(timestamp: string): string {
+    const time = new Date(timestamp);
+    return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
 
   private static createAttendeeElement(user: User): HTMLDivElement {

@@ -128,7 +128,13 @@ export class WebSocketServer {
   sendChatMessage(message: string) {
     message = message.trim();
     if (message.length > 0) {
-      this.send(new ChatMessage(this.connection!.user.name, message));
+      this.send(
+        new ChatMessage(
+          this.connection!.user.name,
+          message,
+          new Date().toISOString()
+        )
+      );
     }
   }
 

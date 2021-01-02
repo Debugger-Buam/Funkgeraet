@@ -110,7 +110,15 @@ export class RoomController
   }
 
   public onChatMessageReceived(message: ChatMessage): void {
-    this.view.appendChatMessage(message.username, message.message, RoomController.hashUsername(message.username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
+    this.view.appendChatMessage(
+      message.username,
+      message.message,
+      message.timestamp,
+      RoomController.hashUsername(
+        message.username,
+        RoomController.MAXIMUM_COLOR_HASH_LENGTH
+      )
+    );
   }
 
   public onUserListChanged(message: UserListChangedMessage): void {
@@ -123,7 +131,13 @@ export class RoomController
 
     Log.info(`Joining room ${roomName} with name ${username}`);
 
-    const user = new User(username, RoomController.hashUsername(username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
+    const user = new User(
+      username,
+      RoomController.hashUsername(
+        username,
+        RoomController.MAXIMUM_COLOR_HASH_LENGTH
+      )
+    );
     this.currentUser = user;
     this.view.setCurrentUser(user);
 

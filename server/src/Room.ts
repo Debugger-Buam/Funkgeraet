@@ -99,11 +99,7 @@ export class Room extends ConnectionGroup {
 
   private handleChatMessage(connection: Connection, message: ChatMessage) {
     if (message.message) {
-      const msg = new ChatMessage(
-        connection.user?.name ?? message.username,
-        message.message.trim()
-      );
-
+      const msg = BaseMessage.parse(message) as ChatMessage;
       if (msg.username.length > 0 || msg.message.length > 0) {
         this.chatMessages.push(msg);
         this.broadcast(msg);

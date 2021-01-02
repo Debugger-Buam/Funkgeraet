@@ -17,11 +17,7 @@ export abstract class BaseMessage {
       case WebSocketMessageType.JOIN_REQUEST:
         return (new JoinRoomRequestMessage(
           obj.roomName,
-          new User(
-            obj.user.name,
-            obj.user.color,
-            obj.user.inCallWith,
-          ),
+          new User(obj.user.name, obj.user.color, obj.user.inCallWith)
         ) as BaseMessage) as T;
       case WebSocketMessageType.JOIN_RESPONSE:
         return (new JoinRoomResponseMessage(
@@ -30,7 +26,11 @@ export abstract class BaseMessage {
           obj.error
         ) as BaseMessage) as T;
       case WebSocketMessageType.CHAT:
-        return (new ChatMessage(obj.username, obj.message) as BaseMessage) as T;
+        return (new ChatMessage(
+          obj.username,
+          obj.message,
+          obj.timestamp
+        ) as BaseMessage) as T;
       case WebSocketMessageType.CHAT_LIST:
         return (new ChatMessageList(obj.messages) as BaseMessage) as T;
       case WebSocketMessageType.VIDEO_OFFER:
@@ -91,10 +91,7 @@ export abstract class BaseResponseMessage extends BaseMessage {
 }
 
 export class JoinRoomRequestMessage extends BaseMessage {
-  constructor(
-    public readonly roomName: string,
-    public readonly user: User
-  ) {
+  constructor(public readonly roomName: string, public readonly user: User) {
     super(WebSocketMessageType.JOIN_REQUEST);
   }
 }
@@ -150,7 +147,8 @@ export class UserCallStateMessage extends BaseMessage {
 export class ChatMessage extends BaseMessage {
   constructor(
     public readonly username: string,
-    public readonly message: string
+    public readonly message: string,
+    public readonly timestamp: string
   ) {
     super(WebSocketMessageType.CHAT);
   }
