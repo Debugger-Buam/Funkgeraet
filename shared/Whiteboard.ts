@@ -7,7 +7,7 @@ export var COLORS = [
   '#0000ff'
 ];
 
-export class WhiteboardStatus {
+export class WhiteboardState {
 
   private pixelMap: Map<number, number> = new Map<number, number>();
 
