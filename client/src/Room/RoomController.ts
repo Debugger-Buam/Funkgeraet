@@ -9,13 +9,11 @@ import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import { RoomView } from "./RoomView";
 import {
-  BaseMessage,
   CallRequestMessage,
   CallRevokedMessage,
   ChatMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
-  WebSocketMessageType,
   WhiteboardUpdateMessage,
 } from "../../../shared/Messages";
 import { ErrorController } from "../Error/ErrorController";
