@@ -33,6 +33,29 @@ export class WhiteboardView {
 
     this.initControls();
 
+    this.canvas.addEventListener("touchstart", (event) => {
+      this.isDrawing = true;
+      this.drawingStartedListener();
+
+      const rect = this.canvas.getBoundingClientRect();
+      this.triggerPixelDrawEvent(event.targetTouches[0].pageX - rect.left, event.targetTouches[0].pageY - rect.top);
+    });
+
+    this.canvas.addEventListener("touchend", (event) => {
+      this.isDrawing = false;
+      this.drawingEndedListener();
+
+      const rect = this.canvas.getBoundingClientRect();
+      this.triggerPixelDrawEvent(event.targetTouches[0].pageX - rect.left, event.targetTouches[0].pageY - rect.top);
+    });
+
+    this.canvas.addEventListener("touchmove", (event) => {
+      if (this.isDrawing) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.triggerPixelDrawEvent(event.targetTouches[0].pageX - rect.left, event.targetTouches[0].pageY - rect.top);
+      }
+    });
+
     this.canvas.addEventListener("mousedown", (event) => {
       this.isDrawing = true;
       this.drawingStartedListener();
