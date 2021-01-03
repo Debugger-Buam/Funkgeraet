@@ -1,0 +1,44 @@
+@import "../variables";
+
+$toastBottom: 3rem;
+
+#toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: $spacing;
+  border-radius: 1000000px; /* Using a very large radius makes the rounded corner calculated automatically because of https://www.w3.org/TR/css-backgrounds-3/#corner-overlap */
+  border: $veryLightGray solid 1px;
+  background-color: $veryDarkGray;
+  color: $veryLightGray;
+  z-index: $foregroundZIndex;
+  &:not(.shown) {
+    animation: toast-fade-out 0.5s;
+  }
+  &.shown {
+    animation: toast-fade-in 0.5s;
+    bottom: $toastBottom;
+  }
+}
+
+@keyframes toast-fade-in {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: $toastBottom;
+    opacity: 1;
+  }
+}
+
+@keyframes toast-fade-out {
+  from {
+    bottom: $toastBottom;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}

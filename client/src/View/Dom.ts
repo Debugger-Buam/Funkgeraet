@@ -1,5 +1,6 @@
 export enum ClassName {
   hidden = "hidden",
+  shown = "shown",
   callActive = "call-active",
   whiteBoardActive = "whiteboard-active",
   callFullscreen = "call-fullscreen",
@@ -31,6 +32,7 @@ export class Dom {
   readonly openChatButton = this.getElementById("open-chat-button");
   readonly receivedVideoContainer = this.getElementById("received-video-container");
   readonly openVideoButton = this.getElementById("open-video-button");
+  readonly toast = this.getElementById("toast");
   readonly whiteboardContainer = this.getElementById("whiteboard-container");
   readonly whiteboardCanvas = this.getElementById("whiteboard-canvas");
   readonly whiteboardControls = this.getElementById("whiteboard-controls");
