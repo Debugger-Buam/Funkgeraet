@@ -1,0 +1,22 @@
+# Source: https://docs.github.com/en/free-pro-team@latest/actions/guides/building-and-testing-nodejs
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Docker
+      run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
+    - name: Build Image
+      run: docker-compose build server
+    - name: Tag Image
+      run: docker image tag funkgeraet_server ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_server
+    - name: Publish Image
+      run: docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_server:latest
+     
