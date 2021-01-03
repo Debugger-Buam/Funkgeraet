@@ -108,6 +108,7 @@ export class RoomController
     };
 
     this.whiteboardController.onWhiteboardClear = () => {
+      toastController.showToast("Whiteboard cleared");
       this.socketServer?.sendClearWhiteBoard();
     };
   }

@@ -44,6 +44,7 @@ export class WhiteboardController {
   }
 
   public clearWhiteBoard() {
+    this.state.clear();
     this.view.clear();
   }
 
