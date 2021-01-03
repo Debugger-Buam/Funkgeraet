@@ -35,6 +35,8 @@ export class WhiteboardView {
     this.initControls();
 
     this.canvas.addEventListener("touchstart", (event) => {
+      event.preventDefault();
+      
       this.isDrawing = true;
       this.drawingStartedListener();
 
@@ -46,6 +48,8 @@ export class WhiteboardView {
     });
 
     this.canvas.addEventListener("touchend", (event) => {
+      event.preventDefault();
+
       this.isDrawing = false;
       this.drawingEndedListener();
 
@@ -57,6 +61,8 @@ export class WhiteboardView {
     });
 
     this.canvas.addEventListener("touchmove", (event) => {
+      event.preventDefault();
+
       if (this.isDrawing) {
         const rect = this.canvas.getBoundingClientRect();
         this.triggerPixelDrawEvent(
