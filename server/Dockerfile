@@ -10,7 +10,7 @@ RUN python3 -m ensurepip
 RUN pip3 install --no-cache --upgrade pip setuptools
 
 RUN apk update
-RUN apk add build-dependencies build-base gcc wget make git
+RUN apk add build-base gcc wget make git
 
 # Dependencies
 COPY server/package.json /build/server/package.json
