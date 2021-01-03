@@ -1,0 +1,16 @@
+version: "3"
+services:
+    server:
+        image: funkgeraet_server
+        build:
+            context: .
+            dockerfile: server/Dockerfile
+        ports:
+            - "6503:6503"
+    client:
+        image: funkgeraet_client
+        build:
+            context: .
+            dockerfile: client/Dockerfile
+        ports:
+            - "80:80"
