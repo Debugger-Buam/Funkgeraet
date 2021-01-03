@@ -74,6 +74,9 @@ export class RoomController
     };
 
     view.onLogoutButton = () => {
+      if (this.peerConnection) {
+        this.hangUp();
+      }
       this.router.navigateTo("/");
     };
 
