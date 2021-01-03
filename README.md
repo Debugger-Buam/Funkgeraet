@@ -6,6 +6,20 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
 [![Duplicated Lines Density](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
 
+## Docker
+As both client and server use code in `shared/`, the docker build context must be in root, otherwise it can't be used. 
+Therefore `docker-compose` needs to be used, that can supply a different build context.
+
+### Build
+- In root, call `docker-compose build server` and `docker-compose build client`
+
+### Start individually
+- Client: `docker run --rm -d -p 8080:80 funkgeraet_client`
+- Server: `docker run --rm -d -p 6503:6503 funkgeraet_server`
+
+### Start directly with docker-compose
+- In root, call `docker-compose up`
+
 ## HTTPS Development
 ### Setup
 #### Network
