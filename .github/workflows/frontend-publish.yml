@@ -9,15 +9,14 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup Docker
-      run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
-    - name: Move env file
-      run: mv -n client/.env.example client/.env
-    - name: Build Image
-      run: docker-compose build client
-    - name: Tag Image
-      run: docker image tag funkgeraet_client ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_client
-    - name: Publish Image
-      run: docker push ghcr.io/${{ secrets.GHCR_USERNAME }}/funkgeraet_client:latest
-     
+      - uses: actions/checkout@v2
+      - name: Setup Docker
+        run: docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} -p ${{ secrets.GHCR_PASSWORD }}
+      - name: Move env file
+        run: mv -n client/.env.example client/.env
+      - name: Build Image
+        run: docker-compose build client
+      - name: Tag Image
+        run: docker image tag funkgeraet_client ghcr.io/Debugger-Buam/funkgeraet_client
+      - name: Publish Image
+        run: docker push ghcr.io/Debugger-Buam/funkgeraet_client:latest
