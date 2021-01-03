@@ -18,11 +18,7 @@ export abstract class BaseMessage {
       case WebSocketMessageType.JOIN_REQUEST:
         return (new JoinRoomRequestMessage(
           obj.roomName,
-          new User(
-            obj.user.name,
-            obj.user.color,
-            obj.user.inCallWith,
-          ),
+          new User(obj.user.name, obj.user.color, obj.user.inCallWith)
         ) as BaseMessage) as T;
       case WebSocketMessageType.JOIN_RESPONSE:
         return (new JoinRoomResponseMessage(
@@ -31,7 +27,11 @@ export abstract class BaseMessage {
           obj.error
         ) as BaseMessage) as T;
       case WebSocketMessageType.CHAT:
-        return (new ChatMessage(obj.username, obj.message) as BaseMessage) as T;
+        return (new ChatMessage(
+          obj.username,
+          obj.message,
+          obj.timestamp
+        ) as BaseMessage) as T;
       case WebSocketMessageType.CHAT_LIST:
         return (new ChatMessageList(obj.messages) as BaseMessage) as T;
       case WebSocketMessageType.VIDEO_OFFER:
@@ -76,8 +76,13 @@ export abstract class BaseMessage {
           obj.accepted,
           obj.error
         ) as BaseMessage) as T;
+
       case WebSocketMessageType.WHITEBOARD_UPDATE:
         return (new WhiteboardUpdateMessage(obj.data) as BaseMessage) as T; 
+
+      case WebSocketMessageType.CALL_REVOKE:
+        return (new CallRevokedMessage(obj.callerName) as BaseMessage) as T;
+
       default:
         throw new Error("Unknown message type: " + obj.type);
     }
@@ -94,10 +99,7 @@ export abstract class BaseResponseMessage extends BaseMessage {
 }
 
 export class JoinRoomRequestMessage extends BaseMessage {
-  constructor(
-    public readonly roomName: string,
-    public readonly user: User
-  ) {
+  constructor(public readonly roomName: string, public readonly user: User) {
     super(WebSocketMessageType.JOIN_REQUEST);
   }
 }
@@ -132,6 +134,12 @@ export class CallResponseMessage extends BaseResponseMessage {
   }
 }
 
+export class CallRevokedMessage extends BaseResponseMessage {
+  constructor(public readonly callerName: string) {
+    super(WebSocketMessageType.CALL_REVOKE);
+  }
+}
+
 export class InitMessage extends BaseMessage {
   constructor(public readonly clientId: number) {
     super(WebSocketMessageType.INIT);
@@ -153,7 +161,8 @@ export class UserCallStateMessage extends BaseMessage {
 export class ChatMessage extends BaseMessage {
   constructor(
     public readonly username: string,
-    public readonly message: string
+    public readonly message: string,
+    public readonly timestamp: string
   ) {
     super(WebSocketMessageType.CHAT);
   }
@@ -231,6 +240,8 @@ export enum WebSocketMessageType {
   JOIN_RESPONSE = "JOIN_ROOM_RESPONSE",
   CALL_REQUEST = "CALL_REQUEST",
   CALL_RESPONSE = "CALL_RESPONSE",
+  CALL_REVOKE = "CALL_REVOKE",
+
   CHAT = "CHAT",
   REDIRECT_MESSAGE = "REDIRECT_MESSAGE",
   CHAT_LIST = "CHAT_LIST",

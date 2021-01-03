@@ -11,6 +11,7 @@ import { RoomView } from "./RoomView";
 import {
   BaseMessage,
   CallRequestMessage,
+  CallRevokedMessage,
   ChatMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
@@ -24,6 +25,7 @@ import { UsernameController } from "../Lobby/UsernameController";
 import { Routable } from "../Router/Routable";
 import { ModalController, ModalType } from "../Modal/ModalController";
 import { WhiteboardController } from "../Whiteboard/WhiteboardController";
+import { LobbyParams } from "../Lobby/LobbyController";
 
 @Injectable()
 export class RoomController
@@ -44,6 +46,8 @@ export class RoomController
   private roomName?: string;
   private hasCallPending = false;
   private readonly audio = new Audio("./music/ringtone.mp3");
+
+  private currentCallRequest?: CallRequestMessage = undefined;
 
   constructor(
     private readonly view: RoomView,
@@ -119,7 +123,15 @@ export class RoomController
   }
 
   public onChatMessageReceived(message: ChatMessage): void {
-    this.view.appendChatMessage(message.username, message.message, RoomController.hashUsername(message.username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
+    this.view.appendChatMessage(
+      message.username,
+      message.message,
+      message.timestamp,
+      RoomController.hashUsername(
+        message.username,
+        RoomController.MAXIMUM_COLOR_HASH_LENGTH
+      )
+    );
   }
 
   public onWhiteboardMessageReceived(message: WhiteboardUpdateMessage): void {
@@ -136,7 +148,13 @@ export class RoomController
 
     Log.info(`Joining room ${roomName} with name ${username}`);
 
-    const user = new User(username, RoomController.hashUsername(username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
+    const user = new User(
+      username,
+      RoomController.hashUsername(
+        username,
+        RoomController.MAXIMUM_COLOR_HASH_LENGTH
+      )
+    );
     this.currentUser = user;
     this.view.setCurrentUser(user);
 
@@ -148,7 +166,15 @@ export class RoomController
       this.view.show();
     } catch (e) {
       this.view.hide();
-      this.router.navigateTo("/", e);
+
+      const errorText = typeof e === "string" ? e : "Unknown error occured";
+
+      const params: LobbyParams = {
+        error: errorText,
+        prefilledRoomName: roomName,
+      };
+
+      this.router.navigateTo("/", params);
     }
   }
 
@@ -169,6 +195,8 @@ export class RoomController
     this.audio.currentTime = 0;
     this.audio.play();
 
+    this.currentCallRequest = message;
+
     const accepted = await this.modalController.showModal(
       "Incoming Call",
       `You are receiving an incoming call from <strong>${message.callerName}</strong>.<br>Do you want to accept?`
@@ -176,6 +204,15 @@ export class RoomController
     this.audio.pause();
 
     this.socketServer?.answerCall(message.callerName, accepted);
+    this.currentCallRequest = undefined;
+  }
+
+  public onIncomingCallRevoked(message: CallRevokedMessage): Promise<void> {
+    if (this.currentCallRequest?.callerName == message.callerName) {
+      this.modalController.close(false);
+    }
+
+    return Promise.resolve();
   }
 
   // This is the click on the user name should start the call
@@ -197,11 +234,17 @@ export class RoomController
 
     this.hasCallPending = true;
     try {
-      this.modalController.showModal(
-        `Calling ${clickedUserName}`,
-        `Waiting for <strong>${clickedUserName}</strong> to accept or decline the call.`,
-        { type: ModalType.NoButtons }
-      );
+      this.modalController
+        .showModal(
+          `Calling ${clickedUserName}`,
+          `Waiting for <strong>${clickedUserName}</strong> to accept or decline the call.`,
+          { type: ModalType.CancelButtonOnly }
+        )
+        .then((canceled) => {
+          if (!canceled) {
+            this.socketServer?.revokeCall(clickedUserName);
+          }
+        });
 
       const accepted = await this.socketServer.requestCall(clickedUserName);
 
@@ -278,7 +321,12 @@ export class RoomController
     const username = await this.usernameStorage.loadUsername();
 
     if (!username || !roomName) {
-      this.router.navigateTo("/");
+      const params: LobbyParams = {
+        error: null,
+        prefilledRoomName: roomName,
+      };
+
+      this.router.navigateTo("/", params);
       return;
     }
 

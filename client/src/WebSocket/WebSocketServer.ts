@@ -4,6 +4,7 @@ import {
   BaseMessage,
   CallRequestMessage,
   CallResponseMessage,
+  CallRevokedMessage,
   ChatMessage,
   ChatMessageList,
   InitMessage,
@@ -30,6 +31,8 @@ export interface MessageListener {
   onIncomingCallReceived(message: CallRequestMessage): Promise<void>;
 
   onWhiteboardMessageReceived(message: WhiteboardUpdateMessage): void;
+
+  onIncomingCallRevoked(message: CallRevokedMessage): Promise<void>;
 }
 
 export class WebSocketServer {
@@ -106,6 +109,12 @@ export class WebSocketServer {
               break;
             }
 
+            case WebSocketMessageType.CALL_REVOKE: {
+              const callRevokedMessage = message as CallRevokedMessage;
+              this.listener.onIncomingCallRevoked(callRevokedMessage);
+              break;
+            }
+
             case WebSocketMessageType.VIDEO_OFFER:
             case WebSocketMessageType.VIDEO_ANSWER:
             case WebSocketMessageType.NEW_ICE_CANDIDATE:
@@ -138,7 +147,13 @@ export class WebSocketServer {
   sendChatMessage(message: string) {
     message = message.trim();
     if (message.length > 0) {
-      this.send(new ChatMessage(this.connection!.user.name, message));
+      this.send(
+        new ChatMessage(
+          this.connection!.user.name,
+          message,
+          new Date().toISOString()
+        )
+      );
     }
   }
 
@@ -189,6 +204,22 @@ export class WebSocketServer {
     }
 
     const message = new WhiteboardUpdateMessage(data);
+    this.socket.send(message.pack());
+  }
+
+  async revokeCall(username: string) {
+    if (!this.connection || !this.socket) {
+      throw Error("Revoking call without a connection");
+    }
+
+    const callerName = this.connection.user.name;
+    const calleeName = username;
+
+    const message = new RedirectMessage(
+      calleeName,
+      new CallRevokedMessage(callerName)
+    );
+
     this.socket.send(message.pack());
   }
 }

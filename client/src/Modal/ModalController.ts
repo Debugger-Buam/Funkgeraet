@@ -3,6 +3,7 @@ import { ModalView } from "./ModalView";
 
 export enum ModalType {
   PositiveAndNegativeButtons,
+  CancelButtonOnly,
   NoButtons,
 }
 
@@ -63,6 +64,10 @@ export class ModalController {
       this.view.hideNegativeButton();
       this.view.hidePositiveButton();
       this.view.hideCloseButton();
+    } else if (options.type === ModalType.CancelButtonOnly) {
+      this.view.hidePositiveButton();
+      this.view.hideNegativeButton();
+      this.view.showCloseButton();
     } else if (options.type === ModalType.PositiveAndNegativeButtons) {
       this.view.showPositiveButton();
       this.view.showNegativeButton();
