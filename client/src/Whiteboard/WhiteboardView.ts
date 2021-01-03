@@ -8,8 +8,7 @@ import { addClickStopPropagation } from "../View/ViewUtil";
 @Injectable()
 export class WhiteboardView {
   private readonly container = this.dom.whiteboardContainer;
-  private readonly canvas: HTMLCanvasElement = this.dom
-    .whiteboardCanvas as HTMLCanvasElement;
+  private readonly canvas = this.dom.whiteboardCanvas;
   private readonly controlsContainer = this.dom.whiteboardControls;
   private context: CanvasRenderingContext2D;
   private isDrawing: boolean = false;

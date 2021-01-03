@@ -42,7 +42,7 @@ export class Dom {
 
   // Whiteboard
   readonly whiteboardContainer = this.getElementById("whiteboard-container");
-  readonly whiteboardCanvas = this.getElementById("whiteboard-canvas");
+  readonly whiteboardCanvas = this.getElementById("whiteboard-canvas", "canvas");
   readonly whiteboardControls = this.getElementById("whiteboard-controls");
   readonly whiteboardClear = this.getElementById("whiteboard-clear");
 

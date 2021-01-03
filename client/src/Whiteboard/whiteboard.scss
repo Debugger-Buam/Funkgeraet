@@ -1,3 +1,5 @@
+@import "../variables";
+
 #whiteboard-container {
   position: relative;
 }
@@ -12,8 +14,9 @@
 #whiteboard-controls {
   position: absolute;
   left: 0;
-  z-index: 10;
-  padding: 10px;
+  z-index: $foregroundZIndex;
+  padding: $spacing;
+  font-size: 0; /* Avoids unintended gaps because of whitespaces between the controls */
   @media screen and (min-width: 47rem) {
     top: 0;
   }
@@ -24,9 +27,9 @@
 
 .whiteboard-control {
   display: inline-block;
-  margin-right: 15px;
-  height: 25px;
-  width: 25px;
+  margin-right: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
   border-radius: 50%;
 }
 
