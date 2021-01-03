@@ -9,30 +9,42 @@ export class WhiteboardController {
   private selectedRadius: number = 1;
   private drawBuffer: any[] = [];
   private lastPixel: any = { x: 0, y: 0, time: 0 };
-  private updateListener: (data: any[]) => void = _ => {};
+  private updateListener: (data: any[]) => void = (_) => {};
+  private clearListener?: () => void;
 
-  constructor(
-    private view: WhiteboardView
-  ) {
+  constructor(private view: WhiteboardView) {
     this.view.onPixelDraw = (x, y) => {
       this.interpolatePixelUpdate(x, y);
-    }
+    };
 
     this.view.onDrawingStarted = () => {
       this.lastPixel.time = 0;
-    }
+    };
 
     this.view.onDrawingEnded = () => {
       this.lastPixel.time = 0;
-    }
+    };
 
     this.view.onRedrawRequired = () => {
       this.redrawWhiteboard();
-    }
+    };
 
     this.view.onColorChanged = (color: string) => {
       this.selectedColor = COLORS.indexOf(color);
+    };
+
+    this.view.onClearButtonClicked = () => this.onClearWhiteboard();
+  }
+
+  private onClearWhiteboard() {
+    if (this.clearListener) {
+      this.clearListener();
     }
+    this.clearWhiteBoard();
+  }
+
+  public clearWhiteBoard() {
+    this.view.clear();
   }
 
   private redrawWhiteboard() {
@@ -48,6 +60,10 @@ export class WhiteboardController {
       this.view.drawPixel(point.x, point.y, COLORS[point.c]);
       this.state.setPixel(point.x, point.y, point.c);
     }
+  }
+
+  public set onWhiteboardClear(listener: () => void) {
+    this.clearListener = listener;
   }
 
   public set onWhiteboardUpdate(listener: (data: any[]) => void) {
@@ -68,14 +84,13 @@ export class WhiteboardController {
         const nextX = Math.round(this.lastPixel.x + xDist * p);
         const nextY = Math.round(this.lastPixel.y + yDist * p);
 
-        if ((prevX !== nextX || prevY !== nextY)) {
+        if (prevX !== nextX || prevY !== nextY) {
           this.setPixel(nextX, nextY);
           prevX = nextX;
           prevY = nextY;
         }
       }
-    }
-    else {
+    } else {
       this.setPixel(x, y);
     }
 
@@ -88,7 +103,11 @@ export class WhiteboardController {
 
   private setPixel(cx: number, cy: number) {
     for (let extX = -this.selectedRadius; extX < this.selectedRadius; extX++) {
-      for (let extY = -this.selectedRadius; extY < this.selectedRadius; extY++) {
+      for (
+        let extY = -this.selectedRadius;
+        extY < this.selectedRadius;
+        extY++
+      ) {
         const x = cx + extX;
         const y = cy + extY;
 

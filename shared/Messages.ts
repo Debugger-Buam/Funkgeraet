@@ -78,7 +78,10 @@ export abstract class BaseMessage {
         ) as BaseMessage) as T;
 
       case WebSocketMessageType.WHITEBOARD_UPDATE:
-        return (new WhiteboardUpdateMessage(obj.data) as BaseMessage) as T; 
+        return (new WhiteboardUpdateMessage(
+          obj.data,
+          obj.clearAll
+        ) as BaseMessage) as T;
 
       case WebSocketMessageType.CALL_REVOKE:
         return (new CallRevokedMessage(obj.callerName) as BaseMessage) as T;
@@ -228,7 +231,8 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
 
 export class WhiteboardUpdateMessage extends BaseMessage {
   constructor(
-    public readonly data: PixelData[]
+    public readonly data: PixelData[],
+    public readonly clearAll: boolean = false
   ) {
     super(WebSocketMessageType.WHITEBOARD_UPDATE);
   }
@@ -251,5 +255,5 @@ export enum WebSocketMessageType {
   HANG_UP = "HANG_UP",
   USER_LIST_CHANGED = "USER_LIST_CHANGED",
   USER_CALL_STATE_CHANGED = "USER_CALL_STATE_CHANGED",
-  WHITEBOARD_UPDATE = "WHITEBOARD_UPDATE"
+  WHITEBOARD_UPDATE = "WHITEBOARD_UPDATE",
 }

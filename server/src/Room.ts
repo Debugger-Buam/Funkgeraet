@@ -64,14 +64,17 @@ export class Room extends ConnectionGroup {
           this.handleUserCallStateMessage(message as UserCallStateMessage);
           break;
         case WebSocketMessageType.WHITEBOARD_UPDATE:
-          this.handleWhiteboardUpdateMessage(connection, message as WhiteboardUpdateMessage);
+          this.handleWhiteboardUpdateMessage(
+            connection,
+            message as WhiteboardUpdateMessage
+          );
           break;
       }
     });
 
     if (connection.user != null) {
       this.send(new ChatMessageList(this.chatMessages), connection.user.name);
-      
+
       const data: PixelData[] = [];
       this.whiteboardState.forEachPixel((x, y, c) => {
         data.push({ x, y, c });
@@ -100,11 +103,18 @@ export class Room extends ConnectionGroup {
     this.send(request, request.receiver);
   }
 
-  private handleWhiteboardUpdateMessage(connection: Connection, update: WhiteboardUpdateMessage) {
+  private handleWhiteboardUpdateMessage(
+    connection: Connection,
+    update: WhiteboardUpdateMessage
+  ) {
+    if (update.clearAll) {
+      this.whiteboardState.clear();
+    }
+
     for (const point of update.data) {
       this.whiteboardState.setPixel(point.x, point.y, point.c);
     }
-    
+
     this.broadcast(update, connection.id);
   }
 

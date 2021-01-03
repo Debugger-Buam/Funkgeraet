@@ -198,6 +198,15 @@ export class WebSocketServer {
     this.socket.send(message.pack());
   }
 
+  sendClearWhiteBoard() {
+    if (!this.socket) {
+      throw Error("Sending whiteboard update without a connection");
+    }
+
+    const message = new WhiteboardUpdateMessage([], true);
+    this.socket.send(message.pack());
+  }
+
   sendWhiteboardUpdate(data: PixelData[]) {
     if (!this.socket) {
       throw Error("Sending whiteboard update without a connection");

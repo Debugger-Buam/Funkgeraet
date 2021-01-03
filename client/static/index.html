@@ -40,7 +40,9 @@
             autocomplete="off"
             required
           />
-          <button id="lobby-join-button" class="btn blue bold w-100 space-top">Join</button>
+          <button id="lobby-join-button" class="btn blue bold w-100 space-top">
+            Join
+          </button>
           <strong><span id="error-span"></span></strong>
         </form>
       </div>
@@ -67,8 +69,7 @@
         </div>
 
         <form id="chat-form">
-          <div id="chat-history">
-          </div>
+          <div id="chat-history"></div>
           <div class="flex-center">
             <!--suppress HtmlFormInputWithoutLabel -->
             <input
@@ -85,7 +86,9 @@
 
         <div id="whiteboard-container">
           <div id="whiteboard-controls">
+            <ion-icon id="whiteboard-clear" class="whiteboard-control" name="trash-outline"></ion-icon>
           </div>
+
           <canvas id="whiteboard-canvas"></canvas>
         </div>
 

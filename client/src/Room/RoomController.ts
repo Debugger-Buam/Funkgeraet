@@ -99,7 +99,11 @@ export class RoomController
 
     this.whiteboardController.onWhiteboardUpdate = (data) => {
       this.socketServer?.sendWhiteboardUpdate(data);
-    }
+    };
+
+    this.whiteboardController.onWhiteboardClear = () => {
+      this.socketServer?.sendClearWhiteBoard();
+    };
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -133,6 +137,9 @@ export class RoomController
   }
 
   public onWhiteboardMessageReceived(message: WhiteboardUpdateMessage): void {
+    if (message.clearAll) {
+      this.whiteboardController.clearWhiteBoard();
+    }
     this.whiteboardController.addWhiteboardUpdate(message.data);
   }
 

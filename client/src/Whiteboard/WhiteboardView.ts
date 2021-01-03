@@ -3,12 +3,13 @@ import { Dom } from "../View/Dom";
 import { Injectable } from "../injection";
 import { Log } from "../../../shared/Util/Log";
 import { COLORS } from "../../../shared/Whiteboard";
-
+import { addClickStopPropagation } from "../View/ViewUtil";
 
 @Injectable()
 export class WhiteboardView {
   private readonly container = this.dom.whiteboardContainer;
-  private readonly canvas: HTMLCanvasElement = this.dom.whiteboardCanvas as HTMLCanvasElement;
+  private readonly canvas: HTMLCanvasElement = this.dom
+    .whiteboardCanvas as HTMLCanvasElement;
   private readonly controlsContainer = this.dom.whiteboardControls;
   private context: CanvasRenderingContext2D;
   private isDrawing: boolean = false;
@@ -18,7 +19,7 @@ export class WhiteboardView {
   private redrawRequiredListener: () => void = () => {};
   private drawingStartedListener: () => void = () => {};
   private drawingEndedListener: () => void = () => {};
-  private colorChangedListener: (color: string) => void = _ => {};
+  private colorChangedListener: (color: string) => void = (_) => {};
 
   constructor(private readonly dom: Dom) {
     this.context = this.canvas.getContext("2d")!;
@@ -38,7 +39,10 @@ export class WhiteboardView {
       this.drawingStartedListener();
 
       const rect = this.canvas.getBoundingClientRect();
-      this.triggerPixelDrawEvent(event.targetTouches[0].pageX - rect.left, event.targetTouches[0].pageY - rect.top);
+      this.triggerPixelDrawEvent(
+        event.targetTouches[0].pageX - rect.left,
+        event.targetTouches[0].pageY - rect.top
+      );
     });
 
     this.canvas.addEventListener("touchend", (event) => {
@@ -46,13 +50,19 @@ export class WhiteboardView {
       this.drawingEndedListener();
 
       const rect = this.canvas.getBoundingClientRect();
-      this.triggerPixelDrawEvent(event.targetTouches[0].pageX - rect.left, event.targetTouches[0].pageY - rect.top);
+      this.triggerPixelDrawEvent(
+        event.targetTouches[0].pageX - rect.left,
+        event.targetTouches[0].pageY - rect.top
+      );
     });
 
     this.canvas.addEventListener("touchmove", (event) => {
       if (this.isDrawing) {
         const rect = this.canvas.getBoundingClientRect();
-        this.triggerPixelDrawEvent(event.targetTouches[0].pageX - rect.left, event.targetTouches[0].pageY - rect.top);
+        this.triggerPixelDrawEvent(
+          event.targetTouches[0].pageX - rect.left,
+          event.targetTouches[0].pageY - rect.top
+        );
       }
     });
 
@@ -74,28 +84,36 @@ export class WhiteboardView {
       }
     });
 
-    setInterval(() => { this.updateCanvasSize(); }, 500);
+    setInterval(() => {
+      this.updateCanvasSize();
+    }, 500);
   }
 
   private initControls() {
     let firstElement = true;
     for (const color of COLORS) {
       const element = document.createElement("span");
-      element.className = firstElement ? "whiteboard-color active" : "whiteboard-color";
+      element.className = firstElement
+        ? "whiteboard-control whiteboard-color active"
+        : "whiteboard-control whiteboard-color";
       element.style.backgroundColor = color;
       element.addEventListener("click", () => {
         this.colorChangedListener(color);
         this.removeActiveClass();
-        element.classList.add('active');
+        element.classList.add("active");
       });
       this.controlsContainer.append(element);
       firstElement = false;
     }
   }
+  
+  set onClearButtonClicked(value: () => void) {
+    addClickStopPropagation(this.dom.whiteboardClear, value);
+  }
 
   private removeActiveClass() {
     for (const child of this.controlsContainer.children) {
-      child.classList.remove('active');
+      child.classList.remove("active");
     }
   }
 
@@ -109,7 +127,12 @@ export class WhiteboardView {
 
   public drawPixel(x: number, y: number, color: string) {
     this.context.fillStyle = color;
-    this.context.fillRect(x + this.canvasCenter.x, y + this.canvasCenter.y, 1, 1);
+    this.context.fillRect(
+      x + this.canvasCenter.x,
+      y + this.canvasCenter.y,
+      1,
+      1
+    );
   }
 
   public set onPixelDraw(listener: (x: number, y: number) => void) {
@@ -137,13 +160,13 @@ export class WhiteboardView {
     const height = this.container.offsetHeight;
 
     if (width !== this.canvas.width || height !== this.canvas.height) {
-      Log.info('Resize canvas...');
+      Log.info("Resize canvas...");
 
       this.canvas.width = width;
       this.canvas.height = height;
       this.canvasCenter.x = Math.round(width / 2);
       this.canvasCenter.y = Math.round(height / 2);
-      
+
       this.redrawRequiredListener();
     }
   }

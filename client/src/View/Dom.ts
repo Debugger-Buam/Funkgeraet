@@ -6,8 +6,12 @@ export enum ClassName {
 }
 
 export class Dom {
-  readonly attendeesSelfContainer = this.getElementById("attendees-self-container");
-  readonly attendeesOthersContainer = this.getElementById("attendees-others-container");
+  readonly attendeesSelfContainer = this.getElementById(
+    "attendees-self-container"
+  );
+  readonly attendeesOthersContainer = this.getElementById(
+    "attendees-others-container"
+  );
   readonly hangupButton = this.getElementById("hang-up-button");
   readonly logoutButton = this.getElementById("logout-button");
   readonly chatForm = this.getElementById("chat-form", "form");
@@ -17,7 +21,7 @@ export class Dom {
   readonly lobbyForm = this.getElementById("lobby-form", "form");
   readonly lobbyRoot = this.getElementById("lobby-root");
   readonly lobbyJoinButton = this.getElementById("lobby-join-button");
-  
+
   readonly localVideo = this.getElementById("local-video", "video");
   readonly receivedVideo = this.getElementById("received-video", "video");
   readonly roomRoot = this.getElementById("room-root");
@@ -29,11 +33,17 @@ export class Dom {
   readonly errorSpan = this.getElementById("error-span");
   readonly openWhiteBoardButton = this.getElementById("open-whiteboard-button");
   readonly openChatButton = this.getElementById("open-chat-button");
-  readonly receivedVideoContainer = this.getElementById("received-video-container");
+  readonly receivedVideoContainer = this.getElementById(
+    "received-video-container"
+  );
   readonly openVideoButton = this.getElementById("open-video-button");
+
+  // Whiteboard
   readonly whiteboardContainer = this.getElementById("whiteboard-container");
   readonly whiteboardCanvas = this.getElementById("whiteboard-canvas");
   readonly whiteboardControls = this.getElementById("whiteboard-controls");
+  readonly whiteboardClear = this.getElementById("whiteboard-clear");
+
   // Modal
   readonly modal = this.getElementById("modal");
   readonly modalContent = this.getElementById("modal-content");
