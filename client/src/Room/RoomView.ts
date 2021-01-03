@@ -150,7 +150,7 @@ export class RoomView {
   private getProcessedChatMessage(message: string) {
     var linkUrlRegex = /(\b(((https?|ftp|file):\/\/)|(www.))[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
     return message.replace(linkUrlRegex, function (url) {
-      return '<a href="' + url + '">' + url + "</a>";
+      return '<a target="_blank" href="' + url + '">' + url + "</a>";
     });
   }
 
