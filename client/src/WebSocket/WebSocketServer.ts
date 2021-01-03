@@ -12,11 +12,13 @@ import {
   RedirectMessage,
   UserListChangedMessage,
   WebSocketMessageType,
+  WhiteboardUpdateMessage,
 } from "../../../shared/Messages";
 
 import { WebSocketConnection } from "./WebSocketConnection";
 import { User } from "../../../shared/User";
 import { Socket } from "./Socket";
+import { PixelData } from "../../../shared/Whiteboard";
 
 export interface MessageListener {
   onChatMessageReceived(message: ChatMessage): void;
@@ -26,6 +28,8 @@ export interface MessageListener {
   onPeerConnectionMsg(message: PeerConnectionMessage): void;
 
   onIncomingCallReceived(message: CallRequestMessage): Promise<void>;
+
+  onWhiteboardMessageReceived(message: WhiteboardUpdateMessage): void;
 }
 
 export class WebSocketServer {
@@ -111,6 +115,12 @@ export class WebSocketServer {
               );
               break;
             }
+
+            case WebSocketMessageType.WHITEBOARD_UPDATE:
+              this.listener.onWhiteboardMessageReceived(
+                message as WhiteboardUpdateMessage
+              );
+              break;
           }
         } catch (e) {
           console.error("Failed to handle Message: ", event.data, e);
@@ -170,6 +180,15 @@ export class WebSocketServer {
       new CallResponseMessage(callerName, calleeName, accept)
     );
 
+    this.socket.send(message.pack());
+  }
+
+  sendWhiteboardUpdate(data: PixelData[]) {
+    if (!this.socket) {
+      throw Error("Sending whiteboard update without a connection");
+    }
+
+    const message = new WhiteboardUpdateMessage(data);
     this.socket.send(message.pack());
   }
 }

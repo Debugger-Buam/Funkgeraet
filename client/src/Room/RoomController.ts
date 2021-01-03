@@ -9,10 +9,13 @@ import { Log } from "../../../shared/Util/Log";
 import { UserError } from "./UserError";
 import { RoomView } from "./RoomView";
 import {
+  BaseMessage,
   CallRequestMessage,
   ChatMessage,
   PeerConnectionMessage,
   UserListChangedMessage,
+  WebSocketMessageType,
+  WhiteboardUpdateMessage,
 } from "../../../shared/Messages";
 import { ErrorController } from "../Error/ErrorController";
 import { Injectable } from "../injection";
@@ -20,6 +23,7 @@ import { RouterController } from "../Router/RouterController";
 import { UsernameController } from "../Lobby/UsernameController";
 import { Routable } from "../Router/Routable";
 import { ModalController, ModalType } from "../Modal/ModalController";
+import { WhiteboardController } from "../Whiteboard/WhiteboardController";
 
 @Injectable()
 export class RoomController
@@ -46,7 +50,8 @@ export class RoomController
     readonly errorController: ErrorController,
     private router: RouterController,
     private usernameStorage: UsernameController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private whiteboardController: WhiteboardController
   ) {
     // TODO: register controller on route?
     router.registerRoute(this);
@@ -89,6 +94,10 @@ export class RoomController
     };
 
     this.audio.loop = true;
+
+    this.whiteboardController.onWhiteboardUpdate = (data) => {
+      this.socketServer?.sendWhiteboardUpdate(data);
+    }
   }
 
   // This must not be async! onPeerConnectionMsg will be called multiple times (e.g. for NEW_ICE_CANDIDATE) and
@@ -111,6 +120,10 @@ export class RoomController
 
   public onChatMessageReceived(message: ChatMessage): void {
     this.view.appendChatMessage(message.username, message.message, RoomController.hashUsername(message.username, RoomController.MAXIMUM_COLOR_HASH_LENGTH));
+  }
+
+  public onWhiteboardMessageReceived(message: WhiteboardUpdateMessage): void {
+    this.whiteboardController.addWhiteboardUpdate(message.data);
   }
 
   public onUserListChanged(message: UserListChangedMessage): void {

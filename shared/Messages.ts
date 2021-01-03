@@ -1,4 +1,5 @@
 import { User } from "./User";
+import { PixelData } from "./Whiteboard";
 
 export abstract class BaseMessage {
   constructor(public readonly type: WebSocketMessageType) {}
@@ -75,6 +76,8 @@ export abstract class BaseMessage {
           obj.accepted,
           obj.error
         ) as BaseMessage) as T;
+      case WebSocketMessageType.WHITEBOARD_UPDATE:
+        return (new WhiteboardUpdateMessage(obj.data) as BaseMessage) as T; 
       default:
         throw new Error("Unknown message type: " + obj.type);
     }
@@ -214,6 +217,14 @@ export class PeerConnectionNewICECandidateMessage extends PeerConnectionMessage 
   }
 }
 
+export class WhiteboardUpdateMessage extends BaseMessage {
+  constructor(
+    public readonly data: PixelData[]
+  ) {
+    super(WebSocketMessageType.WHITEBOARD_UPDATE);
+  }
+}
+
 export enum WebSocketMessageType {
   INIT = "INIT",
   JOIN_REQUEST = "JOIN_ROOM_REQUEST",
@@ -229,4 +240,5 @@ export enum WebSocketMessageType {
   HANG_UP = "HANG_UP",
   USER_LIST_CHANGED = "USER_LIST_CHANGED",
   USER_CALL_STATE_CHANGED = "USER_CALL_STATE_CHANGED",
+  WHITEBOARD_UPDATE = "WHITEBOARD_UPDATE"
 }

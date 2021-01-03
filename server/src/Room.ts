@@ -7,8 +7,10 @@ import {
   UserCallStateMessage,
   UserListChangedMessage,
   WebSocketMessageType,
+  WhiteboardUpdateMessage,
 } from "../../shared/Messages";
 import { Log } from "../../shared/Util/Log";
+import { PixelData, WhiteboardState } from "../../shared/Whiteboard";
 import { Configuration } from "./Configuration";
 import { Connection } from "./Connection";
 import { ConnectionGroup } from "./ConnectionGroup";
@@ -21,6 +23,7 @@ import { RoomManager } from "./RoomManager";
  */
 export class Room extends ConnectionGroup {
   private chatMessages: ChatMessage[] = [];
+  private whiteboardState = new WhiteboardState();
 
   private staleTimeout?: NodeJS.Timeout;
 
@@ -54,19 +57,27 @@ export class Room extends ConnectionGroup {
         case WebSocketMessageType.NEW_ICE_CANDIDATE:
         case WebSocketMessageType.VIDEO_OFFER:
         case WebSocketMessageType.VIDEO_ANSWER:
-        case WebSocketMessageType.HANG_UP: {
+        case WebSocketMessageType.HANG_UP:
           this.handlePeerConnectionMessage(message as PeerConnectionMessage);
           break;
-        }
-        case WebSocketMessageType.USER_CALL_STATE_CHANGED: {
+        case WebSocketMessageType.USER_CALL_STATE_CHANGED:
           this.handleUserCallStateMessage(message as UserCallStateMessage);
           break;
-        }
+        case WebSocketMessageType.WHITEBOARD_UPDATE:
+          this.handleWhiteboardUpdateMessage(connection, message as WhiteboardUpdateMessage);
+          break;
       }
     });
 
     if (connection.user != null) {
       this.send(new ChatMessageList(this.chatMessages), connection.user.name);
+      
+      const data: PixelData[] = [];
+      this.whiteboardState.forEachPixel((x, y, c) => {
+        data.push({ x, y, c });
+      });
+
+      this.send(new WhiteboardUpdateMessage(data), connection.user.name);
     }
   }
 
@@ -87,6 +98,14 @@ export class Room extends ConnectionGroup {
 
   private handlePeerConnectionMessage(request: PeerConnectionMessage) {
     this.send(request, request.receiver);
+  }
+
+  private handleWhiteboardUpdateMessage(connection: Connection, update: WhiteboardUpdateMessage) {
+    for (const point of update.data) {
+      this.whiteboardState.setPixel(point.x, point.y, point.c);
+    }
+    
+    this.broadcast(update, connection.id);
   }
 
   private handleUserCallStateMessage(request: UserCallStateMessage) {

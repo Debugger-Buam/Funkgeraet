@@ -25,13 +25,12 @@ export class ConnectionGroup {
       if (con.id == except && except != null) {
         continue;
       }
-      Log.warn("sending", message);
       con.socket.send(message.pack());
     }
   }
 
   send(message: BaseMessage, userName: string) {
-    Log.debug("sending... ", message, userName);
+    // Log.debug("sending... ", message, userName);
     let socket: WebSocket | undefined;
     for (const [_, con] of this.connections) {
       if (con.user && con.user.name === userName) {

@@ -7,28 +7,28 @@ export var COLORS = [
   '#0000ff'
 ];
 
+export interface PixelData {
+  x: number;
+  y: number;
+  c: number;
+}
+
 export class WhiteboardState {
 
   private pixelMap: Map<number, number> = new Map<number, number>();
 
   public setPixel(x: number, y: number, color: number) {
-    const index = (x << 16) + y;
+    // encode X and Y into one number:  X -> upper 15 bits, Y -> lower 15 bits
+    const index = ((x + (1 << 14)) << 15) + (y + (1 << 14));
     this.pixelMap.set(index, color);
   }
 
   public forEachPixel(callback: (x: number, y: number, color: number) => void) {
     this.pixelMap.forEach((color, index) => {
-      const x = index >> 16;
-      const y = index - (x << 16);
+      // decode X and Y into one number:  X -> upper 15 bits, Y -> lower 15 bits
+      const x = (index >> 15) - (1 << 14);
+      const y = (index - ((index >> 15) << 15)) - (1 << 14);
       callback(x, y, color);
     });
-  }
-
-  toJson(): string {
-    return JSON.stringify([...this.pixelMap]);
-  }
-
-  fromJson(jsonValue: string): void {
-    this.pixelMap = new Map<number, number>(JSON.parse(jsonValue));
   }
 }

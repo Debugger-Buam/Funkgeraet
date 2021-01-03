@@ -1,0 +1,32 @@
+
+#whiteboard-container {
+  position: relative;
+}
+
+#whiteboard-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+#whiteboard-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  padding: 10px;
+}
+
+.whiteboard-color {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  border: 1px solid #bbb;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.whiteboard-color.active {
+  border: 2px solid #333;
+}

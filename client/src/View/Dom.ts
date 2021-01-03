@@ -30,6 +30,7 @@ export class Dom {
   readonly openVideoButton = this.getElementById("open-video-button");
   readonly whiteboardContainer = this.getElementById("whiteboard-container");
   readonly whiteboardCanvas = this.getElementById("whiteboard-canvas");
+  readonly whiteboardControls = this.getElementById("whiteboard-controls");
   // Modal
   readonly modal = this.getElementById("modal");
   readonly modalContent = this.getElementById("modal-content");
