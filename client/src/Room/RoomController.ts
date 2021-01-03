@@ -24,6 +24,7 @@ import { Routable } from "../Router/Routable";
 import { ModalController, ModalType } from "../Modal/ModalController";
 import { WhiteboardController } from "../Whiteboard/WhiteboardController";
 import { LobbyParams } from "../Lobby/LobbyController";
+import {ToastController} from '../Toast/ToastController';
 
 @Injectable()
 export class RoomController
@@ -53,6 +54,7 @@ export class RoomController
     private router: RouterController,
     private usernameStorage: UsernameController,
     private modalController: ModalController,
+    private toastController: ToastController,
     private whiteboardController: WhiteboardController
   ) {
     // TODO: register controller on route?
@@ -74,6 +76,9 @@ export class RoomController
     };
 
     view.onLogoutButton = () => {
+      if (this.peerConnection) {
+        this.hangUp();
+      }
       this.router.navigateTo("/");
     };
 
@@ -81,7 +86,8 @@ export class RoomController
       if (!navigator.clipboard) {
         return;
       }
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => toastController.showToast("Copied room link to clipboard"));
     };
 
     view.onShareRoomIconClicked = () => {
