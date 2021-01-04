@@ -176,6 +176,7 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: $foregroundZIndex;
+    background-color: #a02f2f;
   }
 
   &:not(.call-active) {
