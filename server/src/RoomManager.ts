@@ -13,8 +13,9 @@ export class RoomManager {
    * @param roomName The room name that acts as a key.
    */
   public getRoom(roomName: string): Room | null {
+    const lowerRoomName = roomName.toLowerCase();
     for (let room of this.rooms) {
-      if (room.roomName == roomName) return room;
+      if (room.roomName.toLowerCase() == lowerRoomName) return room;
     }
     return null;
   }
