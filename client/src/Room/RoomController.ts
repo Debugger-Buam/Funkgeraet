@@ -5,7 +5,7 @@ import {
   VideoCallResult,
 } from "../WebRTC/PeerConnection";
 import { User } from "../../../shared/User";
-import { Log } from "../../../shared/Util/Log";
+import { Log } from "../../../shared/Util";
 import { UserError } from "./UserError";
 import { RoomView } from "./RoomView";
 import {

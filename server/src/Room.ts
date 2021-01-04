@@ -9,7 +9,7 @@ import {
   WebSocketMessageType,
   WhiteboardUpdateMessage,
 } from "../../shared/Messages";
-import { Log } from "../../shared/Util/Log";
+import {Log, tryCatch} from '../../shared/Util';
 import { PixelData, WhiteboardState } from "../../shared/Whiteboard";
 import { Configuration } from "./Configuration";
 import { Connection } from "./Connection";
@@ -45,7 +45,7 @@ export class Room extends ConnectionGroup {
     this.broadcast(new UserListChangedMessage(this.getUsers()));
 
     // Listen on room specific messages
-    connection.socket.on("message", (data: any) => {
+    connection.socket.on("message", tryCatch((data: any) => {
       const message: BaseMessage = BaseMessage.parse(data);
       switch (message.type) {
         case WebSocketMessageType.CHAT:
@@ -70,7 +70,7 @@ export class Room extends ConnectionGroup {
           );
           break;
       }
-    });
+    }));
 
     if (connection.user != null) {
       this.send(new ChatMessageList(this.chatMessages), connection.user.name);

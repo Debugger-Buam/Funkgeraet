@@ -2,7 +2,7 @@ import WebSocket from "ws";
 import { Connection, ConnectionId } from "./Connection";
 import { BaseMessage } from "../../shared/Messages";
 import { User } from "../../shared/User";
-import { Log } from "../../shared/Util/Log";
+import { Log } from "../../shared/Util";
 
 /**
  * A Connection Group can be used to group connections and

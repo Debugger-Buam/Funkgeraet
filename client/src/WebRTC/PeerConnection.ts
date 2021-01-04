@@ -7,7 +7,7 @@ import {
   PeerConnectionSdpMessage,
   PeerConnectionSdpMessageType, UserCallStateMessage, WebSocketMessageType,
 } from '../../../shared/Messages';
-import {Log} from '../../../shared/Util/Log';
+import {Log} from '../../../shared/Util';
 
 export interface VideoCallResult {
   isEndedByUser: boolean;

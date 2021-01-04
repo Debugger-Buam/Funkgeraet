@@ -1,4 +1,4 @@
-import { Log } from "../../shared/Util/Log";
+import { Log } from "../../shared/Util";
 import { Room } from "./Room";
 
 /**
@@ -6,7 +6,7 @@ import { Room } from "./Room";
  * Rooms based on its name.
  */
 export class RoomManager {
-  public rooms = new Array<Room>();
+  public rooms: Room[] = [];
 
   /**
    * Tries to find a room by a given room name.
@@ -25,7 +25,7 @@ export class RoomManager {
    * @param roomName The room name that acts as a key.
    */
   public getOrCreateRoom(roomName: string): Room {
-    var existingRoom = this.getRoom(roomName);
+    const existingRoom = this.getRoom(roomName);
     if (existingRoom != null) {
       return existingRoom;
     }

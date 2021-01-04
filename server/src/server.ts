@@ -8,7 +8,7 @@ import {
 } from "../../shared/Messages";
 import fs from "fs";
 import https from "https";
-import { Log } from "../../shared/Util/Log";
+import {Log, tryCatch} from '../../shared/Util';
 import { RoomManager } from "./RoomManager";
 import { ConnectionManager } from "./ConnectionManager";
 import { Configuration } from "./Configuration";
@@ -32,13 +32,13 @@ const wss = new WebSocket.Server(serverOptions);
 const connectionManager = new ConnectionManager();
 const roomManager = new RoomManager();
 
-wss.on("connection", (ws) => {
+wss.on("connection", tryCatch((ws) => {
   // Handler
   const con = connectionManager.newConnection(ws);
   Log.info(`Client connected Id: [${con.id}]`);
   ws.send(new InitMessage(con.id).pack());
 
-  ws.on("close", () => {
+  ws.on("close", tryCatch(() => {
     Log.info(`Client disconnected Id: [${con.id}]`);
 
     con.room?.removeConnection(con);
@@ -46,9 +46,9 @@ wss.on("connection", (ws) => {
 
     connectionManager.removeConnection(con);
     con.socket.removeAllListeners();
-  });
+  }));
 
-  ws.on("message", (data: any) => {
+  ws.on("message", tryCatch((data: any) => {
     const message: BaseMessage = JSON.parse(data);
     if (message.type === WebSocketMessageType.JOIN_REQUEST) {
       const request = message as JoinRoomRequestMessage;
@@ -105,5 +105,5 @@ wss.on("connection", (ws) => {
         new JoinRoomResponseMessage(request.roomName, request.user.name).pack()
       );
     }
-  });
-});
+  }));
+}));

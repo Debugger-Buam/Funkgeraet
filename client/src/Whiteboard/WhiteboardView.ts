@@ -1,7 +1,7 @@
 import "./whiteboard.scss";
 import { Dom } from "../View/Dom";
 import { Injectable } from "../injection";
-import { Log } from "../../../shared/Util/Log";
+import { Log } from "../../../shared/Util";
 import { COLORS } from "../../../shared/Whiteboard";
 import { addClickStopPropagation } from "../View/ViewUtil";
 

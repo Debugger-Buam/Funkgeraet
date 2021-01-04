@@ -1,4 +1,4 @@
-import { Log } from "../../../shared/Util/Log";
+import { Log } from "../../../shared/Util";
 
 import {
   BaseMessage,
