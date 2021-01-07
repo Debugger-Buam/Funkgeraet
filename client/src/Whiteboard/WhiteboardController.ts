@@ -33,6 +33,10 @@ export class WhiteboardController {
       this.selectedColor = COLORS.indexOf(color);
     };
 
+    this.view.onSizeChanged = (size: number) => {
+      this.selectedRadius = size;
+    };
+
     this.view.onClearButtonClicked = () => this.onClearWhiteboard();
   }
 

@@ -12,11 +12,13 @@
 }
 
 #whiteboard-controls {
+  vertical-align: middle;
   position: absolute;
   bottom: 0;
   left: 0;
   z-index: $foregroundZIndex;
   padding: $spacing;
+  color: black;
   font-size: 0; /* Avoids unintended gaps because of whitespaces between the controls */
 }
 
@@ -28,8 +30,19 @@
   border-radius: 50%;
 }
 
+.whiteboard-size {
+  border: 1px solid #bbb;
+  font-size: 1rem;
+  color: black;
+  user-select: none;
+}
+
 .whiteboard-color {
   border: 1px solid #bbb;
+}
+
+.whiteboard-size.active {
+  border: 2px solid #333;
 }
 
 .whiteboard-color.active {

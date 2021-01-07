@@ -19,6 +19,7 @@ export class WhiteboardView {
   private drawingStartedListener: () => void = () => {};
   private drawingEndedListener: () => void = () => {};
   private colorChangedListener: (color: string) => void = (_) => {};
+  private sizeChangedListener: (size: number) => void = (_) => {};
 
   constructor(private readonly dom: Dom) {
     this.context = this.canvas.getContext("2d")!;
@@ -35,7 +36,7 @@ export class WhiteboardView {
 
     this.canvas.addEventListener("touchstart", (event) => {
       event.preventDefault();
-      
+
       this.isDrawing = true;
       this.drawingStartedListener();
 
@@ -104,21 +105,40 @@ export class WhiteboardView {
       element.style.backgroundColor = color;
       element.addEventListener("click", () => {
         this.colorChangedListener(color);
-        this.removeActiveClass();
+        this.removeActiveClass("whiteboard-color");
+        element.classList.add("active");
+      });
+      this.controlsContainer.append(element);
+      firstElement = false;
+    }
+
+    firstElement = true;
+    const SIZES = [1, 2, 3, 5, 10];
+    for (let i = 0; i < SIZES.length; i++) {
+      const size = SIZES[i];
+      const element = document.createElement("span");
+      element.className = firstElement
+        ? "whiteboard-control whiteboard-size active"
+        : "whiteboard-control whiteboard-size";
+
+      element.innerText = `${size}`;
+      element.addEventListener("click", () => {
+        this.sizeChangedListener(size);
+        this.removeActiveClass("whiteboard-size");
         element.classList.add("active");
       });
       this.controlsContainer.append(element);
       firstElement = false;
     }
   }
-  
+
   set onClearButtonClicked(value: () => void) {
     addClickStopPropagation(this.dom.whiteboardClear, value);
   }
 
-  private removeActiveClass() {
+  private removeActiveClass(cls: string) {
     for (const child of this.controlsContainer.children) {
-      child.classList.remove("active");
+      if (child.classList.contains(cls)) child.classList.remove("active");
     }
   }
 
@@ -158,6 +178,10 @@ export class WhiteboardView {
 
   public set onColorChanged(listener: (color: string) => void) {
     this.colorChangedListener = listener;
+  }
+
+  public set onSizeChanged(listener: (size: number) => void) {
+    this.sizeChangedListener = listener;
   }
 
   updateCanvasSize() {
