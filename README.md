@@ -11,14 +11,15 @@ As both client and server use code in `shared/`, the docker build context must b
 Therefore `docker-compose` needs to be used, that can supply a different build context.
 
 ### Build
-- In root, call `docker-compose build server` and `docker-compose build client`
+- In root, call `docker-compose -f docker-compose-build.yml build server` and `docker-compose -f docker-compose-build.yml build client`
 
 ### Start individually
 - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e STUN_SERVER_URL=turn:localhost -d -p 8080:80 funkgeraet_client`
 - Server: `docker run --rm -d -p 6503:6503 funkgeraet_server`
 
-### Start directly with docker-compose
-- In root, call `docker-compose up`
+### Use published images with docker compose
+- Use template `docker-compose.yml` and adapt environment variables
+- In same folder as the compose file, call `docker-compose up`
 
 ## HTTPS Development
 ### Setup

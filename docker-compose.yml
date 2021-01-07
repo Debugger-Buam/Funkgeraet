@@ -1,16 +1,15 @@
 version: "3"
 services:
     server:
-        image: funkgeraet_server
-        build:
-            context: .
-            dockerfile: server/Dockerfile
+        image: ghcr.io/debugger-buam/funkgeraet_server
+        restart: always
         ports:
             - "6503:6503"
     client:
-        image: funkgeraet_client
-        build:
-            context: .
-            dockerfile: client/Dockerfile
+        image: ghcr.io/debugger-buam/funkgeraet_client
+        restart: always
+        environment:
+            - WEB_SOCKET_SERVER_URL=localhost:6503
+            - STUN_SERVER_URL=turn:localhost
         ports:
             - "80:80"
