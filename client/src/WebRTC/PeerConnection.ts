@@ -33,12 +33,8 @@ export class PeerConnection {
     private readonly peerConnectionListener: PeerConnectionListener,
     private readonly localWebcamStreamPromise: Promise<MediaStream>
   ) {
-    if (!process.env.STUN_SERVER_URL) {
-      throw Error('STUN_SERVER_URL not defined in .env!');
-    }
-
     this.rtcPeerConnection = new RTCPeerConnection({
-      iceServers: [{urls: process.env.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}],
+      iceServers: [{urls: window.__env__.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}],
     });
     this.rtcPeerConnection.onicecandidate = (event) => this.handleICECandidateEvent(event);
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();

@@ -43,11 +43,8 @@ export class WebSocketServer {
 
   connect(user: User, roomName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!process.env.WEB_SOCKET_SERVER_URL) {
-        throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
-      }
       const urlPrefix = window.location.protocol === "https:" ? "wss" : "ws";
-      const url = `${urlPrefix}://${process.env.WEB_SOCKET_SERVER_URL}`;
+      const url = `${urlPrefix}://${window.__env__.WEB_SOCKET_SERVER_URL}`;
       const socket = new Socket(url, "json");
       this.socket = socket;
 

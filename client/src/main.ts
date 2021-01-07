@@ -7,8 +7,22 @@ import { Dom } from "./View/Dom";
 import { Log } from "../../shared/Util";
 import { ErrorController } from "./Error/ErrorController";
 import { DependencyContainer } from "./injection";
+declare global {
+  interface Environment {
+    STUN_SERVER_URL: string,
+    WEB_SOCKET_SERVER_URL: string
+  }
+  interface Window { __env__: Environment; }
+}
 
 try {
+  if (!window.__env__.WEB_SOCKET_SERVER_URL) {
+    throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
+  }
+  if (!window.__env__.STUN_SERVER_URL) {
+    throw Error('STUN_SERVER_URL not defined in .env!');
+  }
+
   const container = new DependencyContainer();
   container.install(Dom, new Dom(document));
   
