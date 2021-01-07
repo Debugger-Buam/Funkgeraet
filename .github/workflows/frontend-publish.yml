@@ -23,5 +23,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: ./client/Dockerfile
+          platforms: linux/arm64,linux/amd64
           push: true
           tags: ghcr.io/debugger-buam/funkgeraet_client
