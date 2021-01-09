@@ -10,6 +10,6 @@ services:
         restart: always
         environment:
             - WEB_SOCKET_SERVER_URL=localhost:6503
-            - STUN_SERVER_URL=turn:localhost
+            - ICE_SERVERS=[{\"urls\":\"stun:stunserver.org:3478\"}]
         ports:
             - "80:80"
