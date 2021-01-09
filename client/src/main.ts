@@ -9,6 +9,14 @@ import { ErrorController } from "./Error/ErrorController";
 import { DependencyContainer } from "./injection";
 declare global {
   interface Environment {
+    /**
+     * JSON encoded ICE server configuration.
+     */
+    ICE_SERVERS: string,
+    /**
+     * @deprecated use ICE_SERVERS instead.
+     * Can be removed when everyone adapted their .env to use ICE_SERVERS instead of STUN_SERVER_URL.
+     */
     STUN_SERVER_URL: string,
     WEB_SOCKET_SERVER_URL: string
   }
@@ -19,8 +27,8 @@ try {
   if (!window.__env__.WEB_SOCKET_SERVER_URL) {
     throw Error("WEB_SOCKET_SERVER_URL not defined in .env!");
   }
-  if (!window.__env__.STUN_SERVER_URL) {
-    throw Error('STUN_SERVER_URL not defined in .env!');
+  if (!window.__env__.STUN_SERVER_URL && !window.__env__.ICE_SERVERS) {
+    throw Error('Neither STUN_SERVER_URL nor ICE_SERVERS defined in .env!');
   }
 
   const container = new DependencyContainer();

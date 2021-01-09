@@ -39,6 +39,7 @@ export class RoomController
       },
     },
   };
+  private readonly iceServers: RTCIceServer[];
   private socketServer?: WebSocketServer;
   private peerConnection?: PeerConnection;
   private currentUser?: User;
@@ -57,6 +58,11 @@ export class RoomController
     private toastController: ToastController,
     private whiteboardController: WhiteboardController
   ) {
+    this.iceServers = window.__env__.ICE_SERVERS
+      ? JSON.parse(window.__env__.ICE_SERVERS)
+      : [{urls: window.__env__.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}];
+    Log.info("iceServers:", this.iceServers.map((iceServer) => iceServer.urls));
+
     // TODO: register controller on route?
     router.registerRoute(this);
 
@@ -117,6 +123,7 @@ export class RoomController
   // would therefore instantiate PeerConnection multiple times!
   private createPeerConnection() {
     return new PeerConnection(
+      this.iceServers,
       this.socketServer!,
       this.currentUser!,
       this,

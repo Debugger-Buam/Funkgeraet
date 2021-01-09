@@ -28,13 +28,14 @@ export class PeerConnection {
   private isTransceiverSet: boolean = false;
 
   constructor(
+    iceServers: RTCIceServer[],
     private readonly socketServer: WebSocketServer,
     private readonly sourceUser: User,
     private readonly peerConnectionListener: PeerConnectionListener,
     private readonly localWebcamStreamPromise: Promise<MediaStream>
   ) {
     this.rtcPeerConnection = new RTCPeerConnection({
-      iceServers: [{urls: window.__env__.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}],
+      iceServers,
     });
     this.rtcPeerConnection.onicecandidate = (event) => this.handleICECandidateEvent(event);
     this.rtcPeerConnection.oniceconnectionstatechange = () => this.handleICEConnectionStateChangeEvent();
