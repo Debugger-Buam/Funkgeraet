@@ -24,7 +24,7 @@ import { Routable } from "../Router/Routable";
 import { ModalController, ModalType } from "../Modal/ModalController";
 import { WhiteboardController } from "../Whiteboard/WhiteboardController";
 import { LobbyParams } from "../Lobby/LobbyController";
-import {ToastController} from '../Toast/ToastController';
+import { ToastController } from "../Toast/ToastController";
 
 @Injectable()
 export class RoomController
@@ -47,6 +47,9 @@ export class RoomController
   private hasCallPending = false;
   private readonly audio = new Audio("./music/ringtone.mp3");
 
+  private isWindowFocused = true;
+  private unreadMessages = 0;
+
   private currentCallRequest?: CallRequestMessage = undefined;
 
   constructor(
@@ -60,8 +63,17 @@ export class RoomController
   ) {
     this.iceServers = window.__env__.ICE_SERVERS
       ? JSON.parse(window.__env__.ICE_SERVERS)
-      : [{urls: window.__env__.STUN_SERVER_URL, username: 'webrtc', credential: 'turnserver'}];
-    Log.info("iceServers:", this.iceServers.map((iceServer) => iceServer.urls));
+      : [
+          {
+            urls: window.__env__.STUN_SERVER_URL,
+            username: "webrtc",
+            credential: "turnserver",
+          },
+        ];
+    Log.info(
+      "iceServers:",
+      this.iceServers.map((iceServer) => iceServer.urls)
+    );
 
     // TODO: register controller on route?
     router.registerRoute(this);
@@ -92,7 +104,8 @@ export class RoomController
       if (!navigator.clipboard) {
         return;
       }
-      navigator.clipboard.writeText(window.location.href)
+      navigator.clipboard
+        .writeText(window.location.href)
         .then(() => toastController.showToast("Copied room link to clipboard"));
     };
 
@@ -148,6 +161,10 @@ export class RoomController
         RoomController.MAXIMUM_COLOR_HASH_LENGTH
       )
     );
+
+    if (!this.isWindowFocused) {
+      this.addUnreadMessage();
+    }
   }
 
   public onWhiteboardMessageReceived(message: WhiteboardUpdateMessage): void {
@@ -325,15 +342,46 @@ export class RoomController
     this.leaveRoom();
     this.view.clearChatlist();
     this.view.hide();
+    this.removeFocusListeners();
   }
 
   onRouteVisited(matchResult: RegExpMatchArray): void {
     this.changeToRoom(matchResult[0]);
+    this.addFocusListeners();
     this.view.show();
   }
 
   getTitle(): string {
-    return "Funkgerät - Room";
+    return this.roomName ? `Funkgerät - ${this.roomName}` : "Funkgerät";
+  }
+
+  private addUnreadMessage() {
+    this.unreadMessages++;
+    document.title = `${this.getTitle()} (${this.unreadMessages})`;
+  }
+
+  private clearUnreadMessages() {
+    this.unreadMessages = 0;
+    document.title = this.getTitle();
+  }
+
+  onWindowReceivedFocus = () => {
+    this.isWindowFocused = true;
+    this.clearUnreadMessages();
+  };
+
+  onWindowLostFocus = () => {
+    this.isWindowFocused = false;
+  };
+
+  private addFocusListeners() {
+    window.addEventListener("focus", this.onWindowReceivedFocus);
+    window.addEventListener("blur", this.onWindowLostFocus);
+  }
+
+  private removeFocusListeners() {
+    window.removeEventListener("focus", this.onWindowReceivedFocus);
+    window.removeEventListener("blur", this.onWindowLostFocus);
   }
 
   private async changeToRoom(roomName: string) {
@@ -350,5 +398,6 @@ export class RoomController
     }
 
     this.joinRoom(username, roomName);
+    this.clearUnreadMessages();
   }
 }

@@ -39,6 +39,7 @@ export class RouterController {
     this.currentRoute?.onRouteLeft();
     this.currentRoute = matchedRoute;
     history.replaceState(null, this.currentRoute.getTitle(), path);
+    document.title = this.currentRoute.getTitle();
     this.currentRoute.onRouteVisited(matchResult!, params);
   }
 

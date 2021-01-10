@@ -45,7 +45,7 @@ export class LobbyController implements Routable<LobbyParams> {
   }
 
   getTitle(): string {
-    return "Funkgerät - Lobby";
+    return "Funkgerät";
   }
 
   onRouteVisited(matchResult: RegExpMatchArray, params?: LobbyParams): void {
