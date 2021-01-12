@@ -23,6 +23,10 @@ html, body, #root {
   width: 100%;
 }
 
+.root-container {
+  animation: fadein 2s;
+}
+
 /******************************** Fonts ********************************/
 
 html, body {

@@ -1,19 +1,25 @@
 const path = require("path");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: "./src/main.ts",
+  plugins: [new MiniCssExtractPlugin({
+    filename: '[name].css',
+    chunkFilename: '[id].css',
+  })],
   module: {
     rules: [
       // https://webpack.js.org/loaders/sass-loader/#getting-started
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // Creates `style` nodes from JS strings
-          "style-loader",
+          MiniCssExtractPlugin.loader,
           // Translates CSS into CommonJS
           "css-loader",
           // Compiles Sass to CSS
-          "sass-loader",
+          "sass-loader"
         ],
       },
       {
@@ -31,6 +37,12 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist/js"),
     filename: "bundle.js",
+  },
+  optimization: {
+    minimizer: [
+      new CssMinimizerPlugin(),
+      new TerserPlugin()
+    ]
   },
   devServer: {
     contentBase: [path.resolve(__dirname, "static")],

@@ -131,6 +131,13 @@
         .name {
           grid-column: 2 / 3;
           font-weight: bolder;
+          .time-stamp {
+            font-weight: 400;
+            font-size: 0.8em;
+            float: right;
+            vertical-align: middle;
+            margin-right: 8px;
+          }
         }
         .content {
           grid-column: 2 / 3;
@@ -319,12 +326,4 @@
       }
     }
   }
-}
-
-.time-stamp {
-  font-weight: 400;
-  font-size: 0.8em;
-  float: right;
-  vertical-align: middle;
-  margin-right: 8px;
 }

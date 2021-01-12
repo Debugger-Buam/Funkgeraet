@@ -5,6 +5,8 @@
     <title>Funkgerät</title>
     <link rel="icon" href="./favicon.ico">
     <link rel="manifest" href="./manifest.json" />
+    <!--suppress HtmlUnknownTarget -->
+    <link rel="stylesheet" href="./main.css" />
     <meta name="description" content="Funkgerät - Because any other VoIP application has an english name.">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta property="og:type" content="website" />
@@ -23,7 +25,7 @@
   </head>
   <body>
     <div id="root">
-      <div id="lobby-root" class="hidden">
+      <div id="lobby-root" class="root-container hidden">
         <form id="lobby-form">
           <div id="logo">
             <img src="logo.webp" alt="Logo">
@@ -55,7 +57,7 @@
           <strong><span id="error-span"></span></strong>
         </form>
       </div>
-      <div id="room-root" class="hidden">
+      <div id="room-root" class="root-container hidden">
         <div id="header">
           <span id="logout-button">
             <ion-icon name="log-out"></ion-icon>
