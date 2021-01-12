@@ -36,7 +36,7 @@ STUN_SERVER_URL=\n\
 ICE_SERVERS='>> .env
 
 ## Setup nginx config
-COPY client/nginx.conf /etc/nginx/nginx.conf
+COPY client/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 ## Supply built files
 RUN rm -rf /usr/share/nginx/html
