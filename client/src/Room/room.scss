@@ -118,7 +118,8 @@
       display: flex;
       flex-direction: column-reverse;
       overflow: auto;
-
+      margin-bottom: 0.5em;
+      
       .chat-entry {
         display: grid;
         grid-gap: $spacing;
@@ -141,7 +142,8 @@
         }
         .content {
           grid-column: 2 / 3;
-
+          overflow-wrap: anywhere;
+          padding-right: 1em;
           a {
             color: beige;
           }

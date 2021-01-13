@@ -18,19 +18,22 @@
   }
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   width: 100%;
 }
 
 /******************************** Fonts ********************************/
 
-html, body {
+html,
+body {
   font-size: 1rem;
   font-weight: 400;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
-
 
 /******************************** Utility classes ********************************/
 
@@ -78,8 +81,13 @@ html, body {
 
 /******************************** Headlines ********************************/
 
-h1, h2, h3, h4, h5, h6 {
-  margin-bottom: .5rem;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 0.5rem;
   font-weight: 500;
   line-height: 1.2;
 }
@@ -90,8 +98,8 @@ button {
   color: #fff;
   background-color: #6c757d;
   border: none #6c757d;
-  border-radius: .25rem;
-  padding: 0.75rem .75rem;
+  border-radius: 0.25rem;
+  padding: 0.75rem 0.75rem;
   margin: 0.25rem 0;
   cursor: pointer;
   &.small-circle {
@@ -112,7 +120,7 @@ button {
 button:focus {
   border-color: #80bdff;
   outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 /******************************** Input ********************************/
@@ -121,17 +129,17 @@ input {
   position: relative;
   display: block;
   width: 100%;
-  height: calc(1.5em + .75rem + 2px);
-  padding: 1.25rem .75rem;
+  height: calc(1.5em + 0.75rem + 2px);
+  padding: 1.25rem 0.75rem;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
   background-color: $lightGray;
-  border: 1px solid $lightGray;
+  border: 1px solid #828282;
   color: $veryLightGray;
   background-clip: padding-box;
-  border-radius: .25rem;
-  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 input:focus {
@@ -139,5 +147,9 @@ input:focus {
   border-color: $lightGray;
   color: $veryLightGray;
   outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+  box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.7);
+}
+
+input::placeholder {
+  color: $darkGray;
 }
