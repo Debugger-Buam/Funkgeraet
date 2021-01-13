@@ -1,6 +1,7 @@
 import "./lobby.scss";
 import { ClassName, Dom } from "../View/Dom";
 import { Injectable } from "../injection";
+import { version } from "../../package.json";
 
 @Injectable()
 export class LobbyView {
@@ -10,6 +11,7 @@ export class LobbyView {
   private readonly errorSpan = this.dom.errorSpan;
 
   constructor(private readonly dom: Dom) {
+    dom.versionText.innerText = `Version ${version}`;
     this.lobbyForm.addEventListener("submit", (e) => e.preventDefault());
   }
 

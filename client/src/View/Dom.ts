@@ -23,6 +23,8 @@ export class Dom {
   readonly lobbyRoot = this.getElementById("lobby-root");
   readonly lobbyJoinButton = this.getElementById("lobby-join-button");
 
+  readonly versionText = this.getElementById("version-text");
+
   readonly localVideo = this.getElementById("local-video", "video");
   readonly receivedVideo = this.getElementById("received-video", "video");
   readonly roomRoot = this.getElementById("room-root");
@@ -42,7 +44,10 @@ export class Dom {
 
   // Whiteboard
   readonly whiteboardContainer = this.getElementById("whiteboard-container");
-  readonly whiteboardCanvas = this.getElementById("whiteboard-canvas", "canvas");
+  readonly whiteboardCanvas = this.getElementById(
+    "whiteboard-canvas",
+    "canvas"
+  );
   readonly whiteboardControls = this.getElementById("whiteboard-controls");
   readonly whiteboardClear = this.getElementById("whiteboard-clear");
 
