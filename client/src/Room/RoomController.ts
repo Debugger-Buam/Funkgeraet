@@ -340,6 +340,7 @@ export class RoomController
 
   onRouteLeft(): void {
     this.leaveRoom();
+    this.whiteboardController.clearWhiteBoard();
     this.view.clearChatlist();
     this.view.hide();
     this.removeFocusListeners();

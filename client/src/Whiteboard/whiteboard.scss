@@ -12,25 +12,42 @@
 }
 
 #whiteboard-controls {
+  vertical-align: middle;
   position: absolute;
   bottom: 0;
   left: 0;
   z-index: $foregroundZIndex;
   padding: $spacing;
-  font-size: 0; /* Avoids unintended gaps because of whitespaces between the controls */
+  color: black;
+  font-size: 1rem;
 }
 
 .whiteboard-control {
-  display: inline-block;
+  display: block;
+  float: left;
   margin-right: 1rem;
+  font-size: 1rem;
   height: 1.5rem;
   width: 1.5rem;
   color: black;
   border-radius: 50%;
+  margin-top: 5px;
+}
+
+.whiteboard-size {
+  border: 1px solid #bbb;
+  color: black;
+  user-select: none;
+  text-align: center;
+  line-height: 1.2rem;
 }
 
 .whiteboard-color {
   border: 1px solid #bbb;
+}
+
+.whiteboard-size.active {
+  border: 2px solid #333;
 }
 
 .whiteboard-color.active {
