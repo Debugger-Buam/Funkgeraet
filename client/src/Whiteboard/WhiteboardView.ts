@@ -108,6 +108,7 @@ export class WhiteboardView {
         this.removeActiveClass("whiteboard-color");
         element.classList.add("active");
       });
+      element.innerText = ' ';
       this.controlsContainer.append(element);
       firstElement = false;
     }
