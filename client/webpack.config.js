@@ -5,10 +5,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: "./src/main.ts",
-  plugins: [new MiniCssExtractPlugin({
-    filename: '[name].css',
-    chunkFilename: '[id].css',
-  })],
+  plugins: [new MiniCssExtractPlugin()],
   module: {
     rules: [
       // https://webpack.js.org/loaders/sass-loader/#getting-started
