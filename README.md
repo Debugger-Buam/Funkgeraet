@@ -1,4 +1,7 @@
 # Funkgerät
+
+>  Because any other VoIP application has an english name.
+
 ![Frontend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Frontend%20CI/badge.svg) 
 ![Backend CI](https://github.com/Debugger-Buam/Funkgeraet/workflows/Backend%20CI/badge.svg) 
 ![Publish Frontend Image](https://github.com/Debugger-Buam/Funkgeraet/workflows/Publish%20Frontend%20Image/badge.svg) 
@@ -8,7 +11,14 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
 [![Duplicated Lines Density](https://sonarcloud.io/api/project_badges/measure?project=Debugger-Buam_Funkgeraet&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=Debugger-Buam_Funkgeraet)
 
+## Screenshots
+
+<img src="screenshots/gallery.png" alt="Example images on iOS"/>
+
+<img src="screenshots/call_web.jpeg" alt="Webview" />
+
 ## Docker
+
 As both client and server use code in `shared/`, the docker build context must be in root, otherwise it can't be used. 
 Therefore `docker-compose` needs to be used, that can supply a different build context.
 
