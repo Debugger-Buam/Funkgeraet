@@ -24,7 +24,6 @@ export class LobbyView {
   }
 
   set error(errorText: string) {
-    console.log("Error is: ", errorText);
     this.errorSpan.innerText = errorText;
   }
 
