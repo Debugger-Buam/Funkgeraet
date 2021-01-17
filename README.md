@@ -19,23 +19,23 @@
 
 ## Docker
 
-As both client and server use code in `shared/`, the docker build context must be in root, otherwise it can't be used. 
-Therefore `docker-compose` needs to be used, that can supply a different build context.
-
-### Build
+### Building Images
+- As both client and server use code in `shared/`, the docker build context must be in root, otherwise it can't be used. Therefore `docker-compose` needs to be used, that can supply a different build context.
 - In root, call `docker-compose -f docker-compose-build.yml build`
+- Start individually
+  - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e STUN_SERVER_URL=turn:localhost -d -p 8080:80 funkgeraet_client`
+  - Server: `docker run --rm -d -p 6503:6503 funkgeraet_server`
+- Start with docker-compose
+  - Use template `docker-compose-build.yml`
+  - Call `docker-compose -f docker-compose-build.yml up -d`
 
-### Start individually
-- Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e STUN_SERVER_URL=turn:localhost -d -p 8080:80 funkgeraet_client`
-- Server: `docker run --rm -d -p 6503:6503 funkgeraet_server`
-
-### Start with docker-compose using built images
-- Use template `docker-compose-build.yml` and adapt environment variables
-- Call `docker-compose -f docker-compose-build.yml up`
-
-### Start with docker-compose using published images
-- Use template `docker-compose.yml` and adapt environment variables
-- Call `docker-compose up`
+### Published images
+- Start individually
+  - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e STUN_SERVER_URL=turn:localhost -d -p 8080:80 ghcr.io/debugger-buam/funkgeraet_client`
+  - Server: `docker run --rm -d -p 6503:6503 ghcr.io/debugger-buam/funkgeraet_server`
+- Start with docker-compose
+  - Use template `docker-compose.yml`
+  - Call `docker-compose up -d`
 
 ## HTTPS Development
 ### Setup
