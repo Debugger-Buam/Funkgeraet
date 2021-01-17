@@ -23,7 +23,7 @@
 - As both client and server use code in `shared/`, the docker build context must be in root, otherwise it can't be used. Therefore `docker-compose` needs to be used, that can supply a different build context.
 - In root, call `docker-compose -f docker-compose-build.yml build`
 - Start individually
-  - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e STUN_SERVER_URL=turn:localhost -d -p 8080:80 funkgeraet_client`
+  - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e 'ICE_SERVERS=[{\"urls\":\"stun:stunserver.org:3478\"}]' -d -p 80:80 funkgeraet_client`
   - Server: `docker run --rm -d -p 6503:6503 funkgeraet_server`
 - Start with docker-compose
   - Use template `docker-compose-build.yml`
@@ -31,8 +31,8 @@
 
 ### Published images
 - Start individually
-  - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e STUN_SERVER_URL=turn:localhost -d -p 8080:80 ghcr.io/debugger-buam/funkgeraet_client`
-  - Server: `docker run --rm -d -p 6503:6503 ghcr.io/debugger-buam/funkgeraet_server`
+  - Client: `docker run -e WEB_SOCKET_SERVER_URL=localhost:6503 -e 'ICE_SERVERS=[{\"urls\":\"stun:stunserver.org:3478\"}]' -d -p 80:80 ghcr.io/debugger-buam/funkgeraet_client`
+  - Server: `docker run -d -p 6503:6503 ghcr.io/debugger-buam/funkgeraet_server`
 - Start with docker-compose
   - Use template `docker-compose.yml`
   - Call `docker-compose up -d`

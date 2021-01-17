@@ -32,7 +32,6 @@ RUN apk add bash
 COPY client/scripts/env.sh env.sh
 RUN chmod +x env.sh
 RUN echo $'WEB_SOCKET_SERVER_URL=\n\
-STUN_SERVER_URL=\n\
 ICE_SERVERS='>> .env
 
 ## Setup nginx config

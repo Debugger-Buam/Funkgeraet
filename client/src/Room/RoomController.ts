@@ -61,15 +61,7 @@ export class RoomController
     private toastController: ToastController,
     private whiteboardController: WhiteboardController
   ) {
-    this.iceServers = window.__env__.ICE_SERVERS
-      ? JSON.parse(window.__env__.ICE_SERVERS)
-      : [
-          {
-            urls: window.__env__.STUN_SERVER_URL,
-            username: "webrtc",
-            credential: "turnserver",
-          },
-        ];
+    this.iceServers = JSON.parse(window.__env__.ICE_SERVERS);
     Log.info(
       "iceServers:",
       this.iceServers.map((iceServer) => iceServer.urls)
